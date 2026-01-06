@@ -33,6 +33,7 @@ struct ResultView: View {
     @State private var showTrendSection = true
     @State private var animateGauge = false
     @State private var animatedBPM: Int = 0
+    @State private var showAutoReadToast = false
     
     // 格式化测量时间
     private var formattedMeasurementTime: String {
@@ -79,9 +80,12 @@ struct ResultView: View {
                     weeklyAverage: weeklyAverageBPM,
                     selectedTag: $selectedTag,
                     savedRecord: savedRecord,
+                    historyRecord: historyRecord,
                     isHistoryMode: isHistoryMode,
-                    timeText: isHistoryMode ? formattedMeasurementTime : "Measured just now"
+                    timeText: isHistoryMode ? formattedMeasurementTime : "Measured just now",
+                    showAutoReadToast: $showAutoReadToast
                 )
+                .environmentObject(settingsManager)
                 
                 // 模块 NEW：Session Details（测量详情）
                 SessionDetailsCard(bpm: bpm, hrvMetrics: hrvMetrics)
@@ -176,6 +180,12 @@ struct ResultView: View {
         .onAppear {
             if !isHistoryMode && !hasSaved {
                 autoSaveRecord()
+                // 语音朗读测量结果（根据设置）
+                if settingsManager.voiceAnnouncementEnabled {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        SpeechManager.shared.speakHeartRateResultWithHRV(bpm: bpm, hrvRMSSD: hrvMetrics?.rmssd)
+                    }
+                }
             }
             // 启动汽车仪表盘动画
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -280,8 +290,12 @@ struct ResultOverviewCard: View {
     let weeklyAverage: Int?
     @Binding var selectedTag: MeasurementTag?
     let savedRecord: HeartRateRecord?
+    let historyRecord: HeartRateRecord?
     let isHistoryMode: Bool
     let timeText: String
+    @Binding var showAutoReadToast: Bool
+    
+    @EnvironmentObject var settingsManager: SettingsManager
     
     private let greenColor = Color(red: 0.2, green: 0.75, blue: 0.4)
     
@@ -309,6 +323,39 @@ struct ResultOverviewCard: View {
     
     var body: some View {
         VStack(spacing: 10) {
+            // 右上角喇叭按钮
+            HStack {
+                Spacer()
+                Button(action: {
+                    HapticManager.shared.lightImpact()
+                    SpeechManager.shared.speakHeartRateResultWithHRV(bpm: bpm, hrvRMSSD: hrvMetrics?.rmssd)
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(settingsManager.voiceAnnouncementEnabled ? Color(red: 0.3, green: 0.6, blue: 0.85).opacity(0.15) : AppColors.cardBackground)
+                            .frame(width: 40, height: 40)
+                        
+                        Image(systemName: settingsManager.voiceAnnouncementEnabled ? "speaker.wave.2.fill" : "speaker.wave.2")
+                            .font(.system(size: 18))
+                            .foregroundColor(settingsManager.voiceAnnouncementEnabled ? Color(red: 0.3, green: 0.6, blue: 0.85) : AppColors.textSecondary)
+                    }
+                }
+                .simultaneousGesture(
+                    LongPressGesture(minimumDuration: 0.6).onEnded { _ in
+                        HapticManager.shared.mediumImpact()
+                        settingsManager.voiceAnnouncementEnabled.toggle()
+                        withAnimation(.spring(response: 0.3)) {
+                            showAutoReadToast = true
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            withAnimation { showAutoReadToast = false }
+                        }
+                    }
+                )
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, -8)
+            
             ZStack {
                 HeartRateGaugeView(bpm: animatedBPM, animate: animateGauge)
                 
@@ -408,7 +455,8 @@ struct ResultOverviewCard: View {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                     selectedTag = tag
                                 }
-                                if let record = savedRecord {
+                                // 修复：历史模式使用 historyRecord，新测量模式使用 savedRecord
+                                if let record = savedRecord ?? historyRecord {
                                     record.tag = tag.rawValue
                                 }
                             }

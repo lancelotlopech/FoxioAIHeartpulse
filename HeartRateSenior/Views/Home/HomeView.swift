@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct HomeView: View {
     var autoStart: Bool = false
@@ -17,6 +18,7 @@ struct HomeView: View {
     @State private var finalHRV: HRVMetrics?
     @State private var showCompletionAnimation = false
     @State private var previousState: MeasurementState = .idle
+    @State private var showingCameraPermissionAlert = false
     
     var body: some View {
         NavigationStack {
@@ -62,8 +64,20 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 if autoStart && heartRateManager.measurementState == .idle {
-                    heartRateManager.startMeasurement()
+                    checkCameraPermissionAndStart()
                 }
+            }
+            .alert("Camera Access Required", isPresented: $showingCameraPermissionAlert) {
+                Button("Open Settings") {
+                    if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(settingsURL)
+                    }
+                }
+                Button("Cancel", role: .cancel) {
+                    onDismiss?()
+                }
+            } message: {
+                Text("Please enable camera access in Settings to measure your heart rate.")
             }
             .onChange(of: heartRateManager.measurementState) { oldState, newState in
                 if newState == .idle && (oldState == .measuring || oldState == .preparing) && autoStart {
@@ -85,11 +99,37 @@ struct HomeView: View {
             }
         }
     }
+    
+    // MARK: - Camera Permission Check
+    private func checkCameraPermissionAndStart() {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        
+        switch status {
+        case .notDetermined:
+            // 首次请求权限
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        heartRateManager.startMeasurement()
+                    } else {
+                        showingCameraPermissionAlert = true
+                    }
+                }
+            }
+        case .authorized:
+            heartRateManager.startMeasurement()
+        case .denied, .restricted:
+            showingCameraPermissionAlert = true
+        @unknown default:
+            showingCameraPermissionAlert = true
+        }
+    }
 }
 
 // MARK: - Idle State View
 struct IdleStateView: View {
     @ObservedObject var heartRateManager: HeartRateManager
+    @State private var showingCameraPermissionAlert = false
     
     var body: some View {
         VStack(spacing: AppDimensions.paddingXLarge) {
@@ -103,7 +143,7 @@ struct IdleStateView: View {
             
             MeasureButton {
                 HapticManager.shared.mediumImpact()
-                heartRateManager.startMeasurement()
+                checkCameraPermissionAndStart()
             }
             
             Text("Tap to Measure")
@@ -113,6 +153,39 @@ struct IdleStateView: View {
             Spacer()
         }
         .padding(.horizontal, AppDimensions.paddingMedium)
+        .alert("Camera Access Required", isPresented: $showingCameraPermissionAlert) {
+            Button("Open Settings") {
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settingsURL)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Please enable camera access in Settings to measure your heart rate.")
+        }
+    }
+    
+    private func checkCameraPermissionAndStart() {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        
+        switch status {
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        heartRateManager.startMeasurement()
+                    } else {
+                        showingCameraPermissionAlert = true
+                    }
+                }
+            }
+        case .authorized:
+            heartRateManager.startMeasurement()
+        case .denied, .restricted:
+            showingCameraPermissionAlert = true
+        @unknown default:
+            showingCameraPermissionAlert = true
+        }
     }
 }
 
@@ -154,16 +227,21 @@ struct PreparingStateView: View {
     }
 }
 
-// MARK: - Measurement Phase Indicator (6阶段)
+// MARK: - Measurement Phase Indicator (6阶段 - 简约双色)
 struct MeasurementPhaseIndicator: View {
     let duration: TimeInterval
     let isFingerDetected: Bool
+    
+    // 颜色定义
+    private let activeColor = Color(red: 0.957, green: 0.251, blue: 0.227)  // 正红色 #F4403A
+    private let completedColor = Color(red: 0.06, green: 0.73, blue: 0.51)  // 翠绿 #10B981
+    private let inactiveColor = Color.gray.opacity(0.3)
     
     // 6阶段配置（总50秒）
     private let phases: [(icon: String, text: String, endTime: Double)] = [
         ("camera.fill", "Initializing...", 4),
         ("heart.fill", "Detecting Heart Rate", 14),
-        ("waveform.path.ecg", "Analyzing Heart Rhythm", 26),
+        ("waveform.path.ecg", "Analyzing Rhythm", 26),
         ("chart.bar.fill", "Calculating HRV", 38),
         ("leaf.fill", "Assessing Wellness", 46),
         ("sparkles", "Finalizing Results", 50)
@@ -179,48 +257,56 @@ struct MeasurementPhaseIndicator: View {
     }
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             if isFingerDetected {
                 let phase = phases[currentPhaseIndex]
                 
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     Image(systemName: phase.icon)
-                        .font(.system(size: 20))
-                        .foregroundColor(AppColors.primaryRed)
+                        .font(.system(size: 22))
+                        .foregroundColor(activeColor)
                     
                     Text(phase.text)
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
                         .foregroundColor(AppColors.textPrimary)
                 }
                 .animation(.easeInOut(duration: 0.3), value: currentPhaseIndex)
                 
-                // 6个进度点
-                HStack(spacing: 8) {
+                // 6个进度点 - 双色方案
+                HStack(spacing: 10) {
                     ForEach(0..<6, id: \.self) { index in
                         Circle()
-                            .fill(index <= currentPhaseIndex ? AppColors.primaryRed : AppColors.primaryRed.opacity(0.2))
-                            .frame(width: 8, height: 8)
+                            .fill(dotColor(for: index))
+                            .frame(width: 10, height: 10)
+                            .scaleEffect(index == currentPhaseIndex ? 1.2 : 1.0)
+                            .animation(.easeInOut(duration: 0.2), value: currentPhaseIndex)
                     }
                 }
             } else {
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     Image(systemName: "hand.point.up.fill")
-                        .font(.system(size: 20))
+                        .font(.system(size: 22))
                         .foregroundColor(AppColors.warning)
                     
                     Text("Place finger on camera")
-                        .font(.system(size: 18, weight: .medium, design: .rounded))
+                        .font(.system(size: 20, weight: .semibold, design: .rounded))
                         .foregroundColor(AppColors.warning)
                 }
             }
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-        )
+    }
+    
+    // 根据索引返回点的颜色
+    private func dotColor(for index: Int) -> Color {
+        if index < currentPhaseIndex {
+            return completedColor  // 已完成：翠绿
+        } else if index == currentPhaseIndex {
+            return activeColor     // 进行中：珊瑚红
+        } else {
+            return inactiveColor   // 未完成：灰色
+        }
     }
 }
 
@@ -237,20 +323,34 @@ struct ContinuousMeasuringView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            // 顶部安全间距（减少，文字上移）
             Spacer()
+                .frame(height: 8)
             
-            // 1. Center Display (Camera + Heart + BPM + Progress Ring)
+            // 1. 阶段进度提示（移到顶部，无白色底框）
+            MeasurementPhaseIndicator(
+                duration: heartRateManager.measurementDuration,
+                isFingerDetected: heartRateManager.isFingerDetected
+            )
+            .frame(height: 70)
+            .padding(.horizontal, 20)
+            
+            // 阶段提示 ↔ 圆环间距
+            Spacer()
+                .frame(height: 20)
+            
+            // 2. Center Display (Camera + Heart + BPM + Progress Ring)
             ZStack {
                 // 进度环底色
                 Circle()
                     .stroke(AppColors.primaryRed.opacity(0.15), lineWidth: 10)
-                    .frame(width: 260, height: 260)
+                    .frame(width: 240, height: 240)
                 
                 // 单层柔和涟漪效果
                 if heartRateManager.isFingerDetected {
                     Circle()
                         .stroke(AppColors.primaryRed.opacity(rippleOpacity * 0.3), lineWidth: 2)
-                        .frame(width: 260, height: 260)
+                        .frame(width: 240, height: 240)
                         .scaleEffect(rippleScale)
                 }
                 
@@ -261,14 +361,14 @@ struct ContinuousMeasuringView: View {
                         AppColors.primaryRed,
                         style: StrokeStyle(lineWidth: 10, lineCap: .round)
                     )
-                    .frame(width: 260, height: 260)
+                    .frame(width: 240, height: 240)
                     .rotationEffect(.degrees(-90))
                     .animation(.linear(duration: 0.1), value: heartRateManager.measurementDuration)
                 
                 // Camera Preview Container
                 ZStack {
                     CameraPreviewView(session: heartRateManager.previewSession)
-                        .frame(width: 220, height: 220)
+                        .frame(width: 200, height: 200)
                         .clipShape(Circle())
                     
                     // Finger Detection Warning Overlay
@@ -279,14 +379,14 @@ struct ContinuousMeasuringView: View {
                             
                             VStack(spacing: 12) {
                                 Image(systemName: "hand.point.up.fill")
-                                    .font(.system(size: 44))
+                                    .font(.system(size: 40))
                                     .foregroundColor(.white)
                                 Text("Cover Camera")
-                                    .font(.system(size: 18, weight: .medium, design: .rounded))
+                                    .font(.system(size: 16, weight: .medium, design: .rounded))
                                     .foregroundColor(.white.opacity(0.9))
                             }
                         }
-                        .frame(width: 220, height: 220)
+                        .frame(width: 200, height: 200)
                         .clipShape(Circle())
                     }
                     
@@ -294,20 +394,20 @@ struct ContinuousMeasuringView: View {
                     if heartRateManager.isFingerDetected {
                         VStack(spacing: 4) {
                             Image(systemName: "heart.fill")
-                                .font(.system(size: 32))
+                                .font(.system(size: 28))
                                 .foregroundColor(AppColors.primaryRed)
                                 .scaleEffect(heartScale)
                                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                             
                             Text("\(heartRateManager.currentBPM)")
-                                .font(.system(size: 64, weight: .bold, design: .rounded))
+                                .font(.system(size: 56, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
                                 .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
                                 .contentTransition(.numericText())
                                 .scaleEffect(pulseScale)
                             
                             Text("BPM")
-                                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                                .font(.system(size: 16, weight: .semibold, design: .rounded))
                                 .foregroundColor(.white.opacity(0.85))
                                 .shadow(color: .black.opacity(0.2), radius: 1, x: 0, y: 1)
                         }
@@ -343,21 +443,18 @@ struct ContinuousMeasuringView: View {
                 }
             }
             
+            // 圆环 ↔ 脉冲条形图间距
             Spacer()
+                .frame(height: 32)
             
-            // 2. 脉冲条形图
+            // 3. 脉冲条形图
             PulseBarChartView(heartbeatTick: heartRateManager.heartbeatTick)
                 .frame(height: 60)
-                .padding(.horizontal, 40)
+                .padding(.horizontal, 32)
             
+            // 底部 Tab Bar 间距
             Spacer()
-            
-            // 3. 阶段进度提示
-            MeasurementPhaseIndicator(
-                duration: heartRateManager.measurementDuration,
-                isFingerDetected: heartRateManager.isFingerDetected
-            )
-            .padding(.bottom, 80)
+                .frame(height: 80)
         }
     }
 }

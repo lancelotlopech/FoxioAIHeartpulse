@@ -62,7 +62,7 @@ class HeartRateManager: NSObject, ObservableObject {
     
     // MARK: - Configuration
     private let torchLevel: Float = 0.8
-    private let sampleRate: Double = 30.0
+    private var actualSampleRate: Double = 30.0  // Will be set based on device capability
     private let warmupDuration: TimeInterval = 4.0
     private let measurementTimeLimit: TimeInterval = 50.0
     
@@ -101,6 +101,9 @@ class HeartRateManager: NSObject, ObservableObject {
     
     // Track if finger was previously detected (for reset logic)
     private var wasFingerDetected: Bool = false
+    
+    // Track if torch has been turned on for this session
+    private var isTorchOnForSession: Bool = false
     
     // MARK: - Initialization
     override init() {
@@ -263,10 +266,18 @@ class HeartRateManager: NSObject, ObservableObject {
         do {
             try device.lockForConfiguration()
             
-            // Frame Rate
-            let targetFrameDuration = CMTime(value: 1, timescale: Int32(sampleRate))
+            // Frame Rate - detect device capability
+            let maxSupportedFrameRate = device.activeFormat.videoSupportedFrameRateRanges
+                .map { $0.maxFrameRate }
+                .max() ?? 30.0
+            actualSampleRate = min(60.0, maxSupportedFrameRate)  // Use up to 60fps if supported
+            
+            let targetFrameDuration = CMTime(value: 1, timescale: Int32(actualSampleRate))
             device.activeVideoMinFrameDuration = targetFrameDuration
             device.activeVideoMaxFrameDuration = targetFrameDuration
+            
+            // Update signal processor with actual sample rate
+            signalProcessor.updateSampleRate(actualSampleRate)
             
             // Manual Exposure
             if device.isExposureModeSupported(.custom) {
@@ -291,10 +302,8 @@ class HeartRateManager: NSObject, ObservableObject {
                 }
             }
             
-            // TURN ON TORCH BEFORE starting session to prevent flicker
-            if device.hasTorch && device.isTorchAvailable {
-                try device.setTorchModeOn(level: torchLevel)
-            }
+            // NOTE: Torch will be turned on when finger is detected (not here)
+            // to avoid flash before user places finger
             
             device.unlockForConfiguration()
             
@@ -465,6 +474,7 @@ class HeartRateManager: NSObject, ObservableObject {
         frameCount = 0
         consecutiveGoodFrames = 0
         measurementPhase = .warmup
+        isTorchOnForSession = false
         signalProcessor.reset()
     }
     
@@ -542,8 +552,16 @@ class HeartRateManager: NSObject, ObservableObject {
         
         let isStable = consecutiveGoodFrames > 15
         
+        // Turn on torch when finger is first detected (not before)
+        if isStable && !isTorchOnForSession {
+            isTorchOnForSession = true
+            DispatchQueue.main.async { [weak self] in
+                self?.setTorch(on: true)
+            }
+        }
+        
         // Process signal
-        let timestamp = Double(frameCount) / sampleRate
+        let timestamp = Double(frameCount) / actualSampleRate
         let processedValue = signalProcessor.processSample(avgR, at: timestamp, isValid: isStable)
         
         DispatchQueue.main.async { [weak self] in

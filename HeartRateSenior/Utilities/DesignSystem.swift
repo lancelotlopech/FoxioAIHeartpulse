@@ -10,8 +10,8 @@ import SwiftUI
 // MARK: - Design System Namespace
 enum DesignSystem {
     enum Colors {
-        // 温暖柔和配色方案
-        static let primaryRed = Color(hex: "F67280")      // 珊瑚红（温暖不刺眼）
+        // 心率主题红色
+        static let primaryRed = Color(hex: "F4403A")      // 正红色
         static let background = Color(hex: "FAF8F5")       // 奶白色
         static let cardBackground = Color(hex: "FFFFFF")   // 纯白卡片
         static let textPrimary = Color(hex: "4A4A4A")      // 暖灰文字
@@ -71,8 +71,8 @@ enum DesignSystem {
 
 // MARK: - Legacy Colors (for backward compatibility)
 struct AppColors {
-    // 温暖柔和配色方案
-    static let primaryRed = Color(hex: "F67280")      // 珊瑚红（温暖不刺眼）
+    // 心率主题红色
+    static let primaryRed = Color(hex: "F4403A")      // 正红色
     static let background = Color(hex: "FAF8F5")       // 奶白色
     static let cardBackground = Color(hex: "FFFFFF")   // 纯白卡片
     static let textPrimary = Color(hex: "4A4A4A")      // 暖灰文字

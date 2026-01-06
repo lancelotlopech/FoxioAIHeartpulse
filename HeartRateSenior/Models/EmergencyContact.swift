@@ -12,45 +12,52 @@ import SwiftData
 final class EmergencyContact {
     var id: UUID
     var name: String
+    var countryCode: String
     var phoneNumber: String
     var relationship: String
     var isPrimary: Bool
     var notifyOnAbnormal: Bool
     var createdAt: Date
     
+    /// Full phone number with country code
+    var fullPhoneNumber: String {
+        let digits = phoneNumber.filter { $0.isNumber }
+        return "\(countryCode)\(digits)"
+    }
+    
     /// Formatted phone number for display
     var formattedPhoneNumber: String {
-        // Simple US phone formatting
         let digits = phoneNumber.filter { $0.isNumber }
         if digits.count == 10 {
             let areaCode = digits.prefix(3)
             let middle = digits.dropFirst(3).prefix(3)
             let last = digits.suffix(4)
-            return "(\(areaCode)) \(middle)-\(last)"
-        } else if digits.count == 11 && digits.first == "1" {
-            let withoutCountry = digits.dropFirst()
-            let areaCode = withoutCountry.prefix(3)
-            let middle = withoutCountry.dropFirst(3).prefix(3)
-            let last = withoutCountry.suffix(4)
-            return "+1 (\(areaCode)) \(middle)-\(last)"
+            return "\(countryCode) (\(areaCode)) \(middle)-\(last)"
+        } else if digits.count >= 7 {
+            return "\(countryCode) \(digits)"
         }
-        return phoneNumber
+        return "\(countryCode) \(phoneNumber)"
     }
     
-    /// Phone URL for calling
+    /// Phone URL for calling (uses full number with country code)
     var phoneURL: URL? {
         let digits = phoneNumber.filter { $0.isNumber }
-        return URL(string: "tel://\(digits)")
+        let countryDigits = countryCode.filter { $0.isNumber || $0 == "+" }
+        let fullNumber = countryDigits + digits
+        return URL(string: "tel://\(fullNumber)")
     }
     
     /// SMS URL for messaging
     var smsURL: URL? {
         let digits = phoneNumber.filter { $0.isNumber }
-        return URL(string: "sms://\(digits)")
+        let countryDigits = countryCode.filter { $0.isNumber || $0 == "+" }
+        let fullNumber = countryDigits + digits
+        return URL(string: "sms://\(fullNumber)")
     }
     
     init(
         name: String,
+        countryCode: String = "+1",
         phoneNumber: String,
         relationship: String = "",
         isPrimary: Bool = false,
@@ -58,11 +65,52 @@ final class EmergencyContact {
     ) {
         self.id = UUID()
         self.name = name
+        self.countryCode = countryCode
         self.phoneNumber = phoneNumber
         self.relationship = relationship
         self.isPrimary = isPrimary
         self.notifyOnAbnormal = notifyOnAbnormal
         self.createdAt = Date()
+    }
+}
+
+// MARK: - Country Code Options
+enum CountryCode: String, CaseIterable {
+    case us = "+1"
+    case uk = "+44"
+    case china = "+86"
+    case india = "+91"
+    case germany = "+49"
+    case france = "+33"
+    case japan = "+81"
+    case korea = "+82"
+    case australia = "+61"
+    case canada = "+1 CA"
+    case mexico = "+52"
+    case brazil = "+55"
+    
+    var displayName: String {
+        switch self {
+        case .us: return "🇺🇸 +1"
+        case .uk: return "🇬🇧 +44"
+        case .china: return "🇨🇳 +86"
+        case .india: return "🇮🇳 +91"
+        case .germany: return "🇩🇪 +49"
+        case .france: return "🇫🇷 +33"
+        case .japan: return "🇯🇵 +81"
+        case .korea: return "🇰🇷 +82"
+        case .australia: return "🇦🇺 +61"
+        case .canada: return "🇨🇦 +1"
+        case .mexico: return "🇲🇽 +52"
+        case .brazil: return "🇧🇷 +55"
+        }
+    }
+    
+    var dialCode: String {
+        switch self {
+        case .canada: return "+1"
+        default: return self.rawValue
+        }
     }
 }
 

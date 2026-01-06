@@ -6,6 +6,42 @@
 //
 
 import SwiftUI
+import AVKit
+
+// MARK: - Looping Video Player
+struct LoopingVideoPlayer: UIViewControllerRepresentable {
+    let videoName: String
+    let videoExtension: String
+    
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let controller = AVPlayerViewController()
+        controller.showsPlaybackControls = false
+        controller.videoGravity = .resizeAspectFill
+        
+        if let url = Bundle.main.url(forResource: videoName, withExtension: videoExtension) {
+            let player = AVPlayer(url: url)
+            player.isMuted = true
+            controller.player = player
+            
+            // Loop video
+            NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime,
+                object: player.currentItem,
+                queue: .main
+            ) { _ in
+                player.seek(to: .zero)
+                player.play()
+            }
+            
+            // Start playing
+            player.play()
+        }
+        
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {}
+}
 
 struct TutorialView: View {
     @Binding var hasCompletedOnboarding: Bool
@@ -24,12 +60,10 @@ struct TutorialView: View {
                             .foregroundColor(AppColors.textPrimary)
                             .padding(.bottom, 10)
                         
-                        // Tutorial Image
-                        Image("heart1")
-                            .resizable()
-                            .scaledToFit()
+                        // Tutorial Video - Looping, muted, auto-play
+                        LoopingVideoPlayer(videoName: "pulsemeasure", videoExtension: "mp4")
                             .frame(maxWidth: 300)
-                            .frame(maxHeight: geometry.size.height * 0.5) // Increased size slightly since text is gone
+                            .frame(height: geometry.size.height * 0.5)
                             .cornerRadius(20)
                             .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
                             .padding(.vertical, 20)

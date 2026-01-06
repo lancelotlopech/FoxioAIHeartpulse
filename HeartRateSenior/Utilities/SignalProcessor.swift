@@ -90,34 +90,36 @@ enum StressLevel: String {
 class SignalProcessor {
     
     // MARK: - Configuration
-    private let sampleRate: Double = 30.0
+    private var sampleRate: Double = 30.0  // Dynamic, set by HeartRateManager
     
     // MARK: - Bandpass Filter (Simple IIR - 2nd Order Butterworth approximation)
     // Passband: 0.7Hz - 3.5Hz (42-210 BPM)
-    // These coefficients are pre-calculated for 30Hz sample rate
+    // Coefficients are recalculated based on sample rate
     private var lowPassState: [Double] = [0, 0]
     private var highPassState: [Double] = [0, 0]
     
-    // Low-pass at 3.5Hz (removes high-frequency noise)
-    private let lpA: [Double] = [1.0, -1.5610, 0.6414] // Denominator
-    private let lpB: [Double] = [0.0201, 0.0402, 0.0201] // Numerator
+    // Filter coefficients (default for 30Hz)
+    private var lpA: [Double] = [1.0, -1.5610, 0.6414]
+    private var lpB: [Double] = [0.0201, 0.0402, 0.0201]
+    private var hpA: [Double] = [1.0, -1.9112, 0.9150]
+    private var hpB: [Double] = [0.9565, -1.9131, 0.9565]
     
-    // High-pass at 0.7Hz (removes baseline drift and respiration)
-    private let hpA: [Double] = [1.0, -1.9112, 0.9150] // Denominator
-    private let hpB: [Double] = [0.9565, -1.9131, 0.9565] // Numerator
+    // MARK: - Multi-Frame Averaging (noise reduction)
+    private var frameAverageBuffer: [Double] = []
+    private var frameAverageCount = 2  // Dynamic based on sample rate
     
     // MARK: - Baseline (for detrending)
     private var rawBuffer: [Double] = []
-    private let baselineWindowSize = 45 // 1.5 seconds
+    private var baselineWindowSize = 45 // Dynamic: 1.5 seconds
     
     // MARK: - Adaptive Threshold (INCREASED WINDOW)
     private var filteredBuffer: [Double] = []
-    private let thresholdWindowSize = 90 // 3 seconds (was 60)
-    private let thresholdMultiplier: Double = 0.35 // Reduced sensitivity (was 0.4)
+    private var thresholdWindowSize = 90 // Dynamic: 3 seconds
+    private let thresholdMultiplier: Double = 0.35
     
     // MARK: - Peak Detection State
     private var lastPeakTime: Double = 0
-    private let refractoryPeriod: Double = 0.35 // 350ms
+    private var currentRefractoryPeriod: Double = 0.35 // Adaptive, starts at 350ms
     private var localMax: Double = -Double.infinity
     private var localMaxTime: Double = 0
     private var isRising: Bool = false
@@ -131,15 +133,52 @@ class SignalProcessor {
     public var onHeartbeatDetected: (() -> Void)?
     
     // MARK: - Initialization
-    init() {}
+    init() {
+        updateSampleRate(30.0)  // Default to 30fps
+    }
+    
+    // MARK: - Dynamic Sample Rate Update
+    func updateSampleRate(_ newRate: Double) {
+        sampleRate = newRate
+        
+        // Update window sizes based on sample rate
+        baselineWindowSize = Int(newRate * 1.5)   // 1.5 seconds
+        thresholdWindowSize = Int(newRate * 3.0)  // 3 seconds
+        frameAverageCount = newRate >= 60 ? 3 : 2  // More averaging at higher fps
+        
+        // Update filter coefficients based on sample rate
+        if newRate >= 55 {
+            // 60Hz coefficients
+            lpA = [1.0, -1.7786, 0.8008]
+            lpB = [0.0056, 0.0111, 0.0056]
+            hpA = [1.0, -1.9556, 0.9565]
+            hpB = [0.9780, -1.9560, 0.9780]
+        } else {
+            // 30Hz coefficients
+            lpA = [1.0, -1.5610, 0.6414]
+            lpB = [0.0201, 0.0402, 0.0201]
+            hpA = [1.0, -1.9112, 0.9150]
+            hpB = [0.9565, -1.9131, 0.9565]
+        }
+        
+        // Reset buffers when sample rate changes
+        reset()
+    }
     
     // MARK: - Main Processing Function
     /// Process a raw sample and return the filtered waveform value
     func processSample(_ rawValue: Double, at time: Double, isValid: Bool = true) -> Double {
-        // 1. Invert (blood absorbs light, so more blood = less light)
-        let inverted = -rawValue
+        // 1. Multi-frame averaging for noise reduction
+        frameAverageBuffer.append(rawValue)
+        if frameAverageBuffer.count > frameAverageCount {
+            frameAverageBuffer.removeFirst()
+        }
+        let averagedValue = frameAverageBuffer.reduce(0, +) / Double(frameAverageBuffer.count)
         
-        // 2. Detrend (remove baseline using moving average)
+        // 2. Invert (blood absorbs light, so more blood = less light)
+        let inverted = -averagedValue
+        
+        // 3. Detrend (remove baseline using moving average)
         rawBuffer.append(inverted)
         if rawBuffer.count > baselineWindowSize {
             rawBuffer.removeFirst()
@@ -147,16 +186,16 @@ class SignalProcessor {
         let baseline = rawBuffer.reduce(0, +) / Double(rawBuffer.count)
         let detrended = inverted - baseline
         
-        // 3. Bandpass Filter
+        // 4. Bandpass Filter
         let filtered = applyBandpassFilter(detrended)
         
-        // 4. Store for adaptive threshold calculation
+        // 5. Store for adaptive threshold calculation
         filteredBuffer.append(filtered)
         if filteredBuffer.count > thresholdWindowSize {
             filteredBuffer.removeFirst()
         }
         
-        // 5. Peak Detection (only if valid finger contact)
+        // 6. Peak Detection (only if valid finger contact)
         if isValid && filteredBuffer.count >= thresholdWindowSize / 2 {
             detectPeak(value: filtered, time: time)
         }
@@ -200,9 +239,9 @@ class SignalProcessor {
             // We just passed a peak
             isRising = false
             
-            // Validate peak
+            // Validate peak with adaptive refractory period
             let timeSinceLastPeak = time - lastPeakTime
-            if localMax > threshold && timeSinceLastPeak > refractoryPeriod {
+            if localMax > threshold && timeSinceLastPeak > currentRefractoryPeriod {
                 // Valid peak detected!
                 triggerBeat(at: localMaxTime)
             }
@@ -219,9 +258,17 @@ class SignalProcessor {
         let interval = time - lastPeakTime
         lastPeakTime = time
         
-        // Sanity check: 0.3s (200 BPM) to 1.5s (40 BPM)
-        if interval > 0.3 && interval < 1.5 {
+        // Sanity check: 0.27s (220 BPM) to 1.7s (35 BPM) - extended range for seniors
+        if interval > 0.27 && interval < 1.7 {
             rrIntervals.append(interval)
+            
+            // Update adaptive refractory period based on current heart rate
+            // Refractory = 50% of average R-R interval, clamped to [0.25, 0.5]s
+            if rrIntervals.count >= 3 {
+                let recentRR = rrIntervals.suffix(5)
+                let avgRR = recentRR.reduce(0, +) / Double(recentRR.count)
+                currentRefractoryPeriod = min(0.5, max(0.25, avgRR * 0.5))
+            }
             if rrIntervals.count > maxRRHistory {
                 rrIntervals.removeFirst()
             }
@@ -249,8 +296,8 @@ class SignalProcessor {
         
         let bpm = 60.0 / median
         
-        // Final sanity check
-        if bpm >= 40 && bpm <= 200 {
+        // Final sanity check: 35-220 BPM range for seniors
+        if bpm >= 35 && bpm <= 220 {
             return Int(round(bpm))
         }
         return nil
@@ -380,10 +427,12 @@ class SignalProcessor {
     func reset() {
         rawBuffer.removeAll()
         filteredBuffer.removeAll()
+        frameAverageBuffer.removeAll()
         rrIntervals.removeAll()
         lowPassState = [0, 0]
         highPassState = [0, 0]
         lastPeakTime = 0
+        currentRefractoryPeriod = 0.35
         localMax = -Double.infinity
         isRising = false
         lastValue = 0

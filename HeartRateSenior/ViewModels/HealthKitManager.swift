@@ -26,20 +26,22 @@ class HealthKitManager: ObservableObject {
         return HKHealthStore.isHealthDataAvailable()
     }
     
-    /// Request authorization to read and write heart rate data
+    /// Request authorization to WRITE heart rate data only
+    /// Note: We only save measurements to Apple Health - we do not read from it
     func requestAuthorization() async -> Bool {
         guard isHealthKitAvailable else {
             authorizationError = "HealthKit is not available on this device"
             return false
         }
         
+        // Only request WRITE permission - we don't read from HealthKit
         let typesToShare: Set<HKSampleType> = [heartRateType]
-        let typesToRead: Set<HKObjectType> = [heartRateType]
+        let typesToRead: Set<HKObjectType> = []  // Empty - we don't read
         
         do {
             try await healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead)
             
-            // Check authorization status
+            // Check authorization status for writing
             let status = healthStore.authorizationStatus(for: heartRateType)
             isAuthorized = status == .sharingAuthorized
             
@@ -50,7 +52,7 @@ class HealthKitManager: ObservableObject {
         }
     }
     
-    /// Check current authorization status
+    /// Check current authorization status for writing
     func checkAuthorizationStatus() {
         guard isHealthKitAvailable else {
             isAuthorized = false
@@ -92,125 +94,8 @@ class HealthKitManager: ObservableObject {
         }
     }
     
-    // MARK: - Read Heart Rate History
-    
-    /// Fetch heart rate samples from the past week
-    func fetchWeeklyHeartRates() async -> [HKQuantitySample] {
-        guard isHealthKitAvailable else { return [] }
-        
-        let calendar = Calendar.current
-        let endDate = Date()
-        guard let startDate = calendar.date(byAdding: .day, value: -7, to: endDate) else {
-            return []
-        }
-        
-        let predicate = HKQuery.predicateForSamples(
-            withStart: startDate,
-            end: endDate,
-            options: .strictStartDate
-        )
-        
-        let sortDescriptor = NSSortDescriptor(
-            key: HKSampleSortIdentifierStartDate,
-            ascending: false
-        )
-        
-        return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(
-                sampleType: heartRateType,
-                predicate: predicate,
-                limit: HKObjectQueryNoLimit,
-                sortDescriptors: [sortDescriptor]
-            ) { _, samples, error in
-                if let error = error {
-                    print("Error fetching heart rates: \(error.localizedDescription)")
-                    continuation.resume(returning: [])
-                    return
-                }
-                
-                let heartRateSamples = samples as? [HKQuantitySample] ?? []
-                continuation.resume(returning: heartRateSamples)
-            }
-            
-            healthStore.execute(query)
-        }
-    }
-    
-    /// Get the latest heart rate from HealthKit
-    func fetchLatestHeartRate() async -> Int? {
-        guard isHealthKitAvailable else { return nil }
-        
-        let sortDescriptor = NSSortDescriptor(
-            key: HKSampleSortIdentifierStartDate,
-            ascending: false
-        )
-        
-        return await withCheckedContinuation { continuation in
-            let query = HKSampleQuery(
-                sampleType: heartRateType,
-                predicate: nil,
-                limit: 1,
-                sortDescriptors: [sortDescriptor]
-            ) { _, samples, error in
-                if let error = error {
-                    print("Error fetching latest heart rate: \(error.localizedDescription)")
-                    continuation.resume(returning: nil)
-                    return
-                }
-                
-                guard let sample = samples?.first as? HKQuantitySample else {
-                    continuation.resume(returning: nil)
-                    return
-                }
-                
-                let heartRateUnit = HKUnit.count().unitDivided(by: .minute())
-                let bpm = Int(sample.quantity.doubleValue(for: heartRateUnit))
-                continuation.resume(returning: bpm)
-            }
-            
-            healthStore.execute(query)
-        }
-    }
-    
-    /// Get average heart rate for a specific day
-    func fetchAverageHeartRate(for date: Date) async -> Int? {
-        guard isHealthKitAvailable else { return nil }
-        
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date)
-        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
-            return nil
-        }
-        
-        let predicate = HKQuery.predicateForSamples(
-            withStart: startOfDay,
-            end: endOfDay,
-            options: .strictStartDate
-        )
-        
-        return await withCheckedContinuation { continuation in
-            let query = HKStatisticsQuery(
-                quantityType: heartRateType,
-                quantitySamplePredicate: predicate,
-                options: .discreteAverage
-            ) { _, statistics, error in
-                if let error = error {
-                    print("Error fetching average heart rate: \(error.localizedDescription)")
-                    continuation.resume(returning: nil)
-                    return
-                }
-                
-                guard let avgQuantity = statistics?.averageQuantity() else {
-                    continuation.resume(returning: nil)
-                    return
-                }
-                
-                let heartRateUnit = HKUnit.count().unitDivided(by: .minute())
-                let avgBPM = Int(avgQuantity.doubleValue(for: heartRateUnit))
-                continuation.resume(returning: avgBPM)
-            }
-            
-            healthStore.execute(query)
-        }
-    }
+    // NOTE: We intentionally do NOT implement any read functions.
+    // This app only SAVES heart rate data to Apple Health.
+    // Measurements are taken using the device camera (PPG technology),
+    // not imported from Apple Health or Apple Watch.
 }

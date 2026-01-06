@@ -65,7 +65,7 @@ struct MainTabView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.bottom, 85) // Space for tab bar (standard iOS tab bar height)
+                .padding(.bottom, 13) // Space for tab bar
                 
                 // Custom Tab Bar - Fixed at bottom
                 VStack(spacing: 0) {
@@ -78,11 +78,15 @@ struct MainTabView: View {
                     )
                 }
                 .ignoresSafeArea(.keyboard)
+                .ignoresSafeArea(edges: .bottom) // 让 Tab Bar 延伸到屏幕底部
             }
         }
         .ignoresSafeArea(.keyboard)
         // Listen for navigation requests from Dashboard
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("NavigateToMeasure"))) { _ in
+            startMeasurement()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToMeasureTab"))) { _ in
             startMeasurement()
         }
     }
@@ -126,14 +130,13 @@ struct CustomTabBar: View {
                 }
             )
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 6)
-        .padding(.bottom, 8) // Minimal padding, safe area handles home indicator
+        .padding(.horizontal, 16)
+        .padding(.top, 2)
+        .padding(.bottom, 5) // 距离屏幕底部 5 像素
         .background(
             Rectangle()
                 .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: -5)
-                .ignoresSafeArea(.all, edges: .bottom)
+                .shadow(color: Color.black.opacity(0.08), radius: 16, x: 0, y: -4)
         )
     }
 }
@@ -146,17 +149,17 @@ struct TabBarButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            VStack(spacing: 3) {
                 Image(systemName: tab.icon)
-                    .font(.system(size: 22, weight: isSelected ? .semibold : .regular))
+                    .font(.system(size: 28, weight: isSelected ? .semibold : .regular))
                     .foregroundColor(isSelected ? AppColors.primaryRed : AppColors.textSecondary)
                 
                 Text(tab.title)
-                    .font(.system(size: 11, weight: isSelected ? .semibold : .regular, design: .rounded))
+                    .font(.system(size: 13, weight: isSelected ? .semibold : .medium, design: .rounded))
                     .foregroundColor(isSelected ? AppColors.primaryRed : AppColors.textSecondary)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
+            .frame(height: 42)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
@@ -170,33 +173,33 @@ struct CenterMeasureButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 2) {
+            VStack(spacing: 4) {
                 ZStack {
                     // Background circle
                     Circle()
                         .fill(
                             LinearGradient(
-                                colors: [AppColors.primaryRed, AppColors.primaryRed.opacity(0.8)],
+                                colors: [AppColors.primaryRed, AppColors.primaryRed.opacity(0.85)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 56, height: 56)
-                        .shadow(color: AppColors.primaryRed.opacity(0.3), radius: 8, x: 0, y: 4)
+                        .frame(width: 54, height: 54)
+                        .shadow(color: AppColors.primaryRed.opacity(0.35), radius: 8, x: 0, y: 3)
                         .scaleEffect(scale)
                     
                     // Heart icon
                     Image(systemName: "heart.fill")
-                        .font(.system(size: 24, weight: .semibold))
+                        .font(.system(size: 26, weight: .semibold))
                         .foregroundColor(.white)
                         .scaleEffect(scale)
                 }
-                .offset(y: -12)
+                .offset(y: -7)
                 
                 Text("Measure")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundColor(AppColors.textSecondary)
-                    .offset(y: -8)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(AppColors.primaryRed)
+                    .offset(y: -3)
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
@@ -204,10 +207,10 @@ struct CenterMeasureButton: View {
         .buttonStyle(PlainButtonStyle())
         .onAppear {
             withAnimation(
-                .easeInOut(duration: 1.0)
+                .easeInOut(duration: 1.2)
                 .repeatForever(autoreverses: true)
             ) {
-                scale = 1.1
+                scale = 1.08
             }
         }
     }
