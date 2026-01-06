@@ -88,12 +88,32 @@ struct SubscriptionView: View {
     }
     
     var body: some View {
-        ZStack {
-            // 背景色 #EFF0F3 (与视频背景一致)
-            Color(hex: "EFF0F3")
-                .ignoresSafeArea()
+        GeometryReader { geometry in
+            let screenWidth = geometry.size.width
             
-            VStack(spacing: 0) {
+            ZStack(alignment: .top) {
+                // 背景色 #EFF0F3
+                Color(hex: "EFF0F3")
+                    .ignoresSafeArea()
+                
+                // 视频背景层 - 1:1 正方形，顶到屏幕最上方
+                ZStack(alignment: .bottom) {
+                    SubscriptionVideoPlayer(videoName: "heartbeat", videoExtension: "mp4")
+                        .frame(width: screenWidth, height: screenWidth)
+                    
+                    // 下边缘渐变模糊遮罩 - 平滑过渡到背景色
+                    LinearGradient(
+                        colors: [.clear, Color(hex: "EFF0F3").opacity(0.8), Color(hex: "EFF0F3")],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: 50)
+                }
+                .frame(width: screenWidth, height: screenWidth)
+                .ignoresSafeArea(edges: .top)
+                
+                // 原本内容层 - 完全不变
+                VStack(spacing: 0) {
                 // 1. Header
                 headerView
                     .padding(.horizontal)
@@ -108,8 +128,9 @@ struct SubscriptionView: View {
                     scrollableContentLayout
                 }
                 
-                // 7. Bottom Button (Always Sticky)
-                bottomSection
+                    // 7. Bottom Button (Always Sticky)
+                    bottomSection
+                }
             }
         }
         .onChange(of: isTrialEnabled) { oldValue, newValue in
@@ -137,31 +158,31 @@ struct SubscriptionView: View {
     
     private var fixedContentLayout: some View {
         VStack(spacing: 0) {
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
             heroSection
-            Spacer(minLength: 12)
+            Spacer(minLength: 6)
             trialToggleSection.padding(.horizontal, 20)
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
             pricingSection.padding(.horizontal, 20)
-            Spacer(minLength: 8)
+            Spacer(minLength: 4)
             assuranceSection
-            Spacer(minLength: 12)
+            Spacer(minLength: 6)
         }
     }
     
     private var scrollableContentLayout: some View {
         ScrollView {
-            VStack(spacing: 12) {
+            VStack(spacing: 4) {
                 heroSection
-                    .padding(.top, 10)
+                    .padding(.top, 4)
                 trialToggleSection
                     .padding(.horizontal, 20)
                 pricingSection
                     .padding(.horizontal, 20)
                 assuranceSection
-                Spacer(minLength: 20)
+                Spacer(minLength: 8)
             }
-            .padding(.bottom, 20)
+            .padding(.bottom, 12)
         }
     }
     
@@ -193,31 +214,21 @@ struct SubscriptionView: View {
     }
     
     private var heroSection: some View {
-        VStack(spacing: 12) {
-            // Heartbeat Video - Looping, muted, auto-play
-            SubscriptionVideoPlayer(videoName: "heartbeat", videoExtension: "mp4")
-                .frame(height: 180)
-                .frame(maxWidth: .infinity)
-                .background(Color(hex: "EFF0F3"))
+        VStack(spacing: 4) {
+            // 视频已移到背景层，这里留空间让视频显示
+            Spacer()
+                .frame(height: 230)  // 标题再往下移20px
             
-            // Title
-            VStack(spacing: 4) {
+            // Title + 一句话功能描述（放在视频边缘）
+            VStack(spacing: 6) {
                 Text(PaywallConfiguration.appTitle)
                     .font(.system(size: 26, weight: .heavy, design: .rounded))
                     .foregroundStyle(brandGradient)
                 
-                Text(PaywallConfiguration.subtitle)
-                    .font(.system(size: 16, weight: .medium))
+                Text("Unlimited measurements • HRV insights • PDF reports")
+                    .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(.secondary)
             }
-            
-            // Feature List (Compact)
-            VStack(alignment: .leading, spacing: 6) {
-                FeatureRowCompact(text: "Unlimited Heart Rate Measurements", gradient: brandGradient)
-                FeatureRowCompact(text: "Advanced HRV & Health Insights", gradient: brandGradient)
-                FeatureRowCompact(text: "Export PDF Reports", gradient: brandGradient)
-            }
-            .padding(.top, 8)
         }
     }
     
