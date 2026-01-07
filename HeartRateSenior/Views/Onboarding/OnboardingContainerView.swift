@@ -40,7 +40,7 @@ struct OnboardingContainerView: View {
             }
             .padding(.bottom, AppDimensions.paddingXLarge)
         }
-        .background(AppColors.background)
+        .background(Color.white.ignoresSafeArea())
     }
 }
 

@@ -50,19 +50,18 @@ struct HeartRateSeniorApp: App {
                     } else {
                         OnboardingContainerView(hasCompletedOnboarding: $hasCompletedOnboarding)
                             .environmentObject(settingsManager)
-                            .onChange(of: hasCompletedOnboarding) { _, newValue in
-                                // Onboarding 完成后弹订阅页
-                                if newValue && !subscriptionManager.isPremium {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                        showPaywall = true
-                                    }
-                                }
-                            }
                     }
                 }
                 .opacity(showSplash ? 0 : 1)
-                .fullScreenCover(isPresented: $showPaywall) {
-                    SubscriptionView()
+                
+                // 订阅页叠加显示（瞬间出现，无动画）
+                if showPaywall {
+                    Color(hex: "EFF0F3")
+                        .ignoresSafeArea()
+                        .overlay(
+                            SubscriptionView(isPresented: $showPaywall)
+                        )
+                        .zIndex(100)
                 }
                 
                 // 启动动画（带保底机制）
@@ -71,11 +70,9 @@ struct HeartRateSeniorApp: App {
                         withAnimation(.easeOut(duration: 0.3)) {
                             showSplash = false
                         }
-                        // Splash 结束后：已完成 Onboarding 的非 Premium 用户弹订阅页
+                        // Splash 结束后：已完成 Onboarding 的非 Premium 用户立即弹订阅页
                         if hasCompletedOnboarding && !subscriptionManager.isPremium {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                showPaywall = true
-                            }
+                            showPaywall = true
                         }
                         // 请求 ATT 权限
                         requestATTPermission()
@@ -89,6 +86,13 @@ struct HeartRateSeniorApp: App {
                         // 立即设置 ready，让保底机制生效
                         appIsReady = true
                     }
+                }
+            }
+            // onChange 必须在 ZStack 外部，否则会因为视图切换而失效
+            .onChange(of: hasCompletedOnboarding) { _, newValue in
+                // Onboarding 完成后立即弹订阅页（无动画）
+                if newValue && !subscriptionManager.isPremium {
+                    showPaywall = true
                 }
             }
         }

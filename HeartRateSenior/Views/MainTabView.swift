@@ -35,6 +35,7 @@ enum TabItem: Int, CaseIterable {
 struct MainTabView: View {
     @State private var selectedTab: TabItem = .home
     @State private var shouldAutoStartMeasure = false
+    @State private var showingSubscription = false
     @EnvironmentObject var settingsManager: SettingsManager
     
     var body: some View {
@@ -79,6 +80,16 @@ struct MainTabView: View {
                 }
                 .ignoresSafeArea(.keyboard)
                 .ignoresSafeArea(edges: .bottom) // 让 Tab Bar 延伸到屏幕底部
+                
+                // 订阅页 - 在最顶层，覆盖 Tab 栏
+                // 使用背景色填充安全区域，SubscriptionView 自己处理内部布局
+                if showingSubscription {
+                    Color(hex: "EFF0F3")
+                        .ignoresSafeArea()
+                        .overlay(
+                            SubscriptionView(isPresented: $showingSubscription)
+                        )
+                }
             }
         }
         .ignoresSafeArea(.keyboard)
@@ -88,6 +99,9 @@ struct MainTabView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToMeasureTab"))) { _ in
             startMeasurement()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowSubscription"))) { _ in
+            showingSubscription = true
         }
     }
     

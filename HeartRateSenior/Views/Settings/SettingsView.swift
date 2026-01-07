@@ -72,19 +72,21 @@ struct SettingsView: View {
     @State private var showingProfileSheet = false
     @State private var showingGenerateAlert = false
     @State private var showingDeleteAlert = false
-    @State private var showingSubscription = false
     @State private var generatedCount = 0
     
     private let privacyPolicyURL = "https://termsheartpulse.moonspace.workers.dev/privacy_policy.html"
     private let termsOfUseURL = "https://termsheartpulse.moonspace.workers.dev/terms_of_use.html"
     
     var body: some View {
-        NavigationStack {
-            List {
+        ZStack {
+            NavigationStack {
+                List {
                 // SECTION 1: Premium Banner
                 if !subscriptionManager.isPremium {
                     Section {
-                        Button(action: { showingSubscription = true }) {
+                        Button(action: { 
+                            NotificationCenter.default.post(name: NSNotification.Name("ShowSubscription"), object: nil)
+                        }) {
                             HStack(spacing: 14) {
                                 Image(systemName: "crown.fill")
                                     .font(.system(size: 26, weight: .semibold))
@@ -476,9 +478,6 @@ struct SettingsView: View {
             .contentMargins(.top, 8, for: .scrollContent)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .fullScreenCover(isPresented: $showingSubscription) {
-                SubscriptionView()
-            }
             .onAppear {
                 settingsManager.refreshNotificationStatus()
             }
@@ -500,6 +499,7 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("This will permanently delete all records.")
+            }
             }
         }
     }

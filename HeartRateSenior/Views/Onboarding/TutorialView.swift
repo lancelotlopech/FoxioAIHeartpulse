@@ -2,21 +2,22 @@
 //  TutorialView.swift
 //  HeartRateSenior
 //
-//  Visual tutorial showing finger placement on camera
+//  Visual tutorial showing finger placement
 //
 
 import SwiftUI
 import AVKit
 
-// MARK: - Looping Video Player
-struct LoopingVideoPlayer: UIViewControllerRepresentable {
+// MARK: - Full Video Player - Shows complete video filling width
+struct FullVideoPlayer: UIViewControllerRepresentable {
     let videoName: String
     let videoExtension: String
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
         controller.showsPlaybackControls = false
-        controller.videoGravity = .resizeAspectFill
+        controller.videoGravity = .resizeAspect  // Complete video, no cropping
+        controller.view.backgroundColor = .white
         
         if let url = Bundle.main.url(forResource: videoName, withExtension: videoExtension) {
             let player = AVPlayer(url: url)
@@ -46,58 +47,104 @@ struct LoopingVideoPlayer: UIViewControllerRepresentable {
 struct TutorialView: View {
     @Binding var hasCompletedOnboarding: Bool
     
+    private let accentRed = Color(hex: "F4403A")
+    
     var body: some View {
         GeometryReader { geometry in
+            let size = geometry.size
+            let bottomInset = geometry.safeAreaInsets.bottom
+            
+            // Video fills full width, height calculated to show complete video
+            // Assuming video is roughly 4:3 or 16:9, we give generous height
+            let videoWidth = size.width
+            let videoHeight = size.height * 0.45  // Give generous height for complete video
+            
             VStack(spacing: 0) {
-                // Scrollable Content
-                ScrollView {
-                    VStack(spacing: AppDimensions.paddingLarge) {
-                        Spacer(minLength: 20)
-                        
-                        // Title
-                        Text("How to Measure")
-                            .font(AppTypography.largeTitle)
-                            .foregroundColor(AppColors.textPrimary)
-                            .padding(.bottom, 10)
-                        
-                        // Tutorial Video - Looping, muted, auto-play
-                        LoopingVideoPlayer(videoName: "pulsemeasure", videoExtension: "mp4")
-                            .frame(maxWidth: 300)
-                            .frame(height: geometry.size.height * 0.5)
-                            .cornerRadius(20)
-                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
-                            .padding(.vertical, 20)
-                        
-                        // Simplified Text
-                        Text("Place finger gently over the back camera and flash")
-                            .font(AppTypography.title)
-                            .foregroundColor(AppColors.textSecondary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 30)
-                        
-                        Spacer(minLength: 40)
-                    }
-                    .frame(minHeight: geometry.size.height - 120) // Reserve space for button
+                // Top spacing
+                Spacer()
+                    .frame(height: 20)
+                
+                // Full-width video - complete display
+                FullVideoPlayer(videoName: "pulsemeasure", videoExtension: "mp4")
+                    .frame(width: videoWidth, height: videoHeight)
+                    .background(Color.white)
+                
+                Spacer()
+                    .frame(height: 24)
+                
+                // Title
+                VStack(spacing: 12) {
+                    (Text("How to ")
+                        .font(.system(size: 32, weight: .medium, design: .rounded))
+                        .foregroundColor(.primary)
+                    +
+                    Text("Measure")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .foregroundColor(accentRed))
+                    
+                    Text("Place your finger gently over\nthe back camera and flash")
+                        .font(.system(size: 16, weight: .regular))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                }
+                .padding(.horizontal, 24)
+                
+                Spacer()
+                
+                // Two tips
+                HStack(spacing: 40) {
+                    TutorialTip(icon: "hand.raised.fill", text: "Stay still", accentColor: accentRed)
+                    TutorialTip(icon: "heart.fill", text: "Check pulse", accentColor: accentRed)
                 }
                 
-                // Fixed Bottom Button
-                VStack {
-                    Button(action: {
-                        HapticManager.shared.success()
-                        withAnimation {
-                            hasCompletedOnboarding = true
-                        }
-                    }) {
-                        Text("Start Measuring")
-                            .frame(maxWidth: .infinity)
+                Spacer()
+                
+                // Start button - aligned with page 1
+                Button(action: {
+                    HapticManager.shared.success()
+                    withAnimation {
+                        hasCompletedOnboarding = true
                     }
-                    .buttonStyle(SeniorButtonStyle())
+                }) {
+                    Text("Start Measuring")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(accentRed)
+                        .cornerRadius(27)
                 }
-                .padding(.horizontal, AppDimensions.paddingLarge)
-                .padding(.bottom, AppDimensions.paddingXLarge)
-                .background(AppColors.background)
+                .padding(.horizontal, 24)
+                .padding(.bottom, max(20, bottomInset) + 20)
             }
-            .background(AppColors.background)
+        }
+        .background(Color.white.ignoresSafeArea())
+    }
+}
+
+// MARK: - Tutorial Tip
+struct TutorialTip: View {
+    let icon: String
+    let text: String
+    let accentColor: Color
+    
+    var body: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(accentColor.opacity(0.12))
+                    .frame(width: 56, height: 56)
+                
+                Image(systemName: icon)
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(accentColor)
+            }
+            
+            Text(text)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
         }
     }
 }

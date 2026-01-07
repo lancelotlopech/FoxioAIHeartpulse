@@ -49,9 +49,21 @@ struct SubscriptionView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var subManager = SubscriptionManager.shared
     
+    // 支持从 ZStack 叠加调用时传入 binding
+    var isPresented: Binding<Bool>?
+    
     @State private var selectedProductID: String = PaywallConfiguration.yearlyProductID
     @State private var isTrialEnabled: Bool = false
     @State private var isAnimating = false
+    
+    // 关闭方法：优先使用 binding，否则使用 dismiss（无动画，瞬间关闭）
+    private func closeView() {
+        if let binding = isPresented {
+            binding.wrappedValue = false
+        } else {
+            dismiss()
+        }
+    }
     
     // Theme Gradient - 基于主页测量按钮颜色 F4403A
     private var brandGradient: LinearGradient {
@@ -191,7 +203,7 @@ struct SubscriptionView: View {
     private var headerView: some View {
         HStack {
             Button {
-                dismiss()
+                closeView()
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 28))
@@ -204,7 +216,7 @@ struct SubscriptionView: View {
                 Task {
                     await subManager.restorePurchases()
                     if subManager.isPremium {
-                        dismiss()
+                        closeView()
                     }
                 }
             }
@@ -297,7 +309,7 @@ struct SubscriptionView: View {
                     if let product = subManager.products.first(where: { $0.id == selectedProductID }) {
                         let _ = try? await subManager.purchase(product)
                         if subManager.isPremium {
-                            dismiss()
+                            closeView()
                         }
                     }
                 }
