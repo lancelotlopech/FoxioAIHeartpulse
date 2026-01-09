@@ -248,6 +248,12 @@ struct OxygenInputView: View {
         
         do {
             try modelContext.save()
+            
+            // Track oxygen input event
+            Task { @MainActor in
+                AppsFlyerManager.shared.trackOxygenInput(value: spo2Value)
+            }
+            
             HapticManager.shared.success()
             showingSaveAlert = true
         } catch {

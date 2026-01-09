@@ -54,11 +54,25 @@ struct WelcomeView: View {
                     
                     // Heart with floating labels
                     ZStack {
-                        // Heart image with red glow shadow
-                        Image("heartpic")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: heartSize, height: heartSize)
+                        // [审核版本] 跳动心形动画 - 上架后换回 Image("heartpic")
+                        // Image("heartpic")
+                        //     .resizable()
+                        //     .scaledToFit()
+                        //     .frame(width: heartSize, height: heartSize)
+                        //     .shadow(color: accentRed.opacity(0.5), radius: glowRadius, x: 0, y: 0)
+                        //     .shadow(color: accentRed.opacity(0.3), radius: glowRadius * 1.5, x: 0, y: 0)
+                        //     .scaleEffect(heartScale)
+                        //     .position(x: size.width / 2, y: labelAreaHeight / 2)
+                        
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: heartSize * 0.85))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [accentRed, Color(hex: "F65D58")],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
                             .shadow(color: accentRed.opacity(0.5), radius: glowRadius, x: 0, y: 0)
                             .shadow(color: accentRed.opacity(0.3), radius: glowRadius * 1.5, x: 0, y: 0)
                             .scaleEffect(heartScale)

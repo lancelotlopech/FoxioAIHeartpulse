@@ -108,9 +108,24 @@ struct SubscriptionView: View {
                 Color(hex: "EFF0F3")
                     .ignoresSafeArea()
                 
-                // 视频背景层 - 1:1 正方形，顶到屏幕最上方
+                // [审核版本] 跳动心形背景 - 上架后换回视频
+                // ZStack(alignment: .bottom) {
+                //     SubscriptionVideoPlayer(videoName: "heartbeat", videoExtension: "mp4")
+                //         .frame(width: screenWidth, height: screenWidth)
+                //     
+                //     LinearGradient(
+                //         colors: [.clear, Color(hex: "EFF0F3").opacity(0.8), Color(hex: "EFF0F3")],
+                //         startPoint: .top,
+                //         endPoint: .bottom
+                //     )
+                //     .frame(height: 50)
+                // }
+                // .frame(width: screenWidth, height: screenWidth)
+                // .ignoresSafeArea(edges: .top)
+                
+                // 跳动心形动画替代视频
                 ZStack(alignment: .bottom) {
-                    SubscriptionVideoPlayer(videoName: "heartbeat", videoExtension: "mp4")
+                    SubscriptionAnimatedHeart(brandGradient: brandGradient, brandColor: brandColor)
                         .frame(width: screenWidth, height: screenWidth)
                     
                     // 下边缘渐变模糊遮罩 - 平滑过渡到背景色
@@ -506,6 +521,45 @@ struct AnimatedCTAButton: View {
                 .shadow(color: brandColor.opacity(shadowOpacity), radius: shadowRadius, y: 4)
         }
         .frame(height: 54)
+    }
+}
+
+// MARK: - Subscription Animated Heart (替代视频的跳动心形)
+struct SubscriptionAnimatedHeart: View {
+    let brandGradient: LinearGradient
+    let brandColor: Color
+    
+    @State private var heartScale: CGFloat = 1.0
+    @State private var glowRadius: CGFloat = 20
+    
+    var body: some View {
+        GeometryReader { geometry in
+            let size = min(geometry.size.width, geometry.size.height)
+            
+            ZStack {
+                // 居中的心形
+                Image(systemName: "heart.fill")
+                    .font(.system(size: size * 0.45))
+                    .foregroundStyle(brandGradient)
+                    .shadow(color: brandColor.opacity(0.5), radius: glowRadius, x: 0, y: 0)
+                    .shadow(color: brandColor.opacity(0.3), radius: glowRadius * 1.5, x: 0, y: 0)
+                    .scaleEffect(heartScale)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .onAppear {
+            startHeartbeatAnimation()
+        }
+    }
+    
+    private func startHeartbeatAnimation() {
+        withAnimation(
+            .easeInOut(duration: 0.8)
+            .repeatForever(autoreverses: true)
+        ) {
+            heartScale = 1.1
+            glowRadius = 35
+        }
     }
 }
 

@@ -230,6 +230,12 @@ struct BloodGlucoseInputView: View {
         )
         
         modelContext.insert(record)
+        
+        // Track blood glucose input event
+        Task { @MainActor in
+            AppsFlyerManager.shared.trackBloodGlucoseInput(value: glucoseValue)
+        }
+        
         HapticManager.shared.success()
         showingSaveConfirmation = true
     }

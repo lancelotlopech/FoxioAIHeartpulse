@@ -228,6 +228,12 @@ struct WeightInputView: View {
         
         do {
             try modelContext.save()
+            
+            // Track weight input event
+            Task { @MainActor in
+                AppsFlyerManager.shared.trackWeightInput(weight: weightKg)
+            }
+            
             HapticManager.shared.success()
             showingSaveAlert = true
         } catch {

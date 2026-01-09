@@ -117,6 +117,12 @@ struct HealthReportView: View {
                     bloodGlucoses: filteredBloodGlucoses
                 )
             }
+            .onAppear {
+                // Track first view report event
+                Task { @MainActor in
+                    AppsFlyerManager.shared.trackViewReport()
+                }
+            }
         }
     }
     

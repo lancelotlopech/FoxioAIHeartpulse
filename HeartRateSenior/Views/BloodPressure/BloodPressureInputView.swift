@@ -228,6 +228,12 @@ struct BloodPressureInputView: View {
         )
         
         modelContext.insert(record)
+        
+        // Track blood pressure input event
+        Task { @MainActor in
+            AppsFlyerManager.shared.trackBloodPressureInput(systolic: systolic, diastolic: diastolic)
+        }
+        
         HapticManager.shared.success()
         showingSaveConfirmation = true
     }

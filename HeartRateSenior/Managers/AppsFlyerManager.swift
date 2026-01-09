@@ -19,20 +19,56 @@ class AppsFlyerManager: NSObject, ObservableObject {
     
     // MARK: - Event Names
     struct Events {
+        // Subscription events
         static let startTrial = "start_trial"
         static let subscribe = "subscribe"
         static let purchase = "purchase"
         static let purchaseWeek = "purchase_week"
         static let purchaseYear = "purchase_year"
+        
+        // Heart rate measurement events
+        static let firstStartHeartRate = "first_start_heart_rate"
+        static let firstCompleteHeartRate = "first_complete_heart_rate"
+        static let startHeartRate = "start_heart_rate"
+        static let completeHeartRate = "complete_heart_rate"
+        
+        // Report events
+        static let firstViewReport = "first_view_report"
+        
+        // Blood record events - First time
+        static let firstBloodPressure = "first_blood_pressure"
+        static let firstBloodGlucose = "first_blood_glucose"
+        static let firstWeight = "first_weight"
+        static let firstOxygen = "first_oxygen"
+        
+        // Blood record events - Every time
+        static let bloodPressureInput = "blood_pressure_input"
+        static let bloodGlucoseInput = "blood_glucose_input"
+        static let weightInput = "weight_input"
+        static let oxygenInput = "oxygen_input"
     }
     
     // MARK: - UserDefaults Keys for One-Time Events
     private struct EventKeys {
+        // Subscription
         static let startTrialTriggered = "af_event_triggered_start_trial"
         static let subscribeTriggered = "af_event_triggered_subscribe"
         static let purchaseTriggered = "af_event_triggered_purchase"
         static let purchaseWeekTriggered = "af_event_triggered_purchase_week"
         static let purchaseYearTriggered = "af_event_triggered_purchase_year"
+        
+        // Heart rate
+        static let firstStartHeartRateTriggered = "af_event_triggered_first_start_heart_rate"
+        static let firstCompleteHeartRateTriggered = "af_event_triggered_first_complete_heart_rate"
+        
+        // Report
+        static let firstViewReportTriggered = "af_event_triggered_first_view_report"
+        
+        // Blood record
+        static let firstBloodPressureTriggered = "af_event_triggered_first_blood_pressure"
+        static let firstBloodGlucoseTriggered = "af_event_triggered_first_blood_glucose"
+        static let firstWeightTriggered = "af_event_triggered_first_weight"
+        static let firstOxygenTriggered = "af_event_triggered_first_oxygen"
     }
     
     // MARK: - Initialization
@@ -80,10 +116,9 @@ class AppsFlyerManager: NSObject, ObservableObject {
         start()
     }
     
-    // MARK: - Event Tracking Methods
+    // MARK: - Subscription Event Tracking Methods
     
     /// Track start_trial event (first-time free trial, $0)
-    /// - Parameter productId: The product identifier
     func trackStartTrial(productId: String) {
         guard !hasEventBeenTriggered(EventKeys.startTrialTriggered) else {
             print("📊 AppsFlyer: start_trial already triggered, skipping")
@@ -100,11 +135,7 @@ class AppsFlyerManager: NSObject, ObservableObject {
         print("📊 AppsFlyer: Tracked start_trial - productId: \(productId)")
     }
     
-    /// Track subscribe event (first-time subscription, includes trial + paid)
-    /// - Parameters:
-    ///   - productId: The product identifier
-    ///   - price: The subscription price
-    ///   - currency: The currency code (e.g., "USD")
+    /// Track subscribe event (first-time subscription)
     func trackSubscribe(productId: String, price: Decimal, currency: String) {
         guard !hasEventBeenTriggered(EventKeys.subscribeTriggered) else {
             print("📊 AppsFlyer: subscribe already triggered, skipping")
@@ -124,9 +155,6 @@ class AppsFlyerManager: NSObject, ObservableObject {
     }
     
     /// Track purchase event (actual payment, all types)
-    /// - Parameters:
-    ///   - revenue: The actual revenue amount
-    ///   - currency: The currency code
     func trackPurchase(revenue: Decimal, currency: String) {
         guard !hasEventBeenTriggered(EventKeys.purchaseTriggered) else {
             print("📊 AppsFlyer: purchase already triggered, skipping")
@@ -144,10 +172,7 @@ class AppsFlyerManager: NSObject, ObservableObject {
         print("📊 AppsFlyer: Tracked purchase - revenue: \(revenue) \(currency)")
     }
     
-    /// Track purchase_week event (weekly subscription actual payment)
-    /// - Parameters:
-    ///   - revenue: The actual revenue amount
-    ///   - currency: The currency code
+    /// Track purchase_week event
     func trackPurchaseWeek(revenue: Decimal, currency: String) {
         guard !hasEventBeenTriggered(EventKeys.purchaseWeekTriggered) else {
             print("📊 AppsFlyer: purchase_week already triggered, skipping")
@@ -165,10 +190,7 @@ class AppsFlyerManager: NSObject, ObservableObject {
         print("📊 AppsFlyer: Tracked purchase_week - revenue: \(revenue) \(currency)")
     }
     
-    /// Track purchase_year event (yearly subscription actual payment)
-    /// - Parameters:
-    ///   - revenue: The actual revenue amount
-    ///   - currency: The currency code
+    /// Track purchase_year event
     func trackPurchaseYear(revenue: Decimal, currency: String) {
         guard !hasEventBeenTriggered(EventKeys.purchaseYearTriggered) else {
             print("📊 AppsFlyer: purchase_year already triggered, skipping")
@@ -186,23 +208,13 @@ class AppsFlyerManager: NSObject, ObservableObject {
         print("📊 AppsFlyer: Tracked purchase_year - revenue: \(revenue) \(currency)")
     }
     
-    // MARK: - Subscription Purchase Handler
-    /// Call this method when a subscription purchase is successful
-    /// - Parameters:
-    ///   - productId: The product identifier
-    ///   - price: The subscription price
-    ///   - currency: The currency code
-    ///   - isFreeTrial: Whether this is a free trial
-    ///   - isWeekly: Whether this is a weekly subscription
+    /// Combined subscription purchase handler
     func trackSubscriptionPurchase(productId: String, price: Decimal, currency: String, isFreeTrial: Bool, isWeekly: Bool) {
-        // 1. Track subscribe (first-time, includes trial + paid)
         trackSubscribe(productId: productId, price: price, currency: currency)
         
-        // 2. Track start_trial if it's a free trial ($0)
         if isFreeTrial {
             trackStartTrial(productId: productId)
         } else {
-            // 3. Track actual payment events (only for non-trial)
             trackPurchase(revenue: price, currency: currency)
             
             if isWeekly {
@@ -211,6 +223,115 @@ class AppsFlyerManager: NSObject, ObservableObject {
                 trackPurchaseYear(revenue: price, currency: currency)
             }
         }
+    }
+    
+    // MARK: - Heart Rate Measurement Events
+    
+    /// Track start heart rate measurement (both first-time and every-time)
+    func trackStartHeartRate() {
+        // First time event
+        if !hasEventBeenTriggered(EventKeys.firstStartHeartRateTriggered) {
+            AppsFlyerLib.shared().logEvent(Events.firstStartHeartRate, withValues: nil)
+            markEventTriggered(EventKeys.firstStartHeartRateTriggered)
+            print("📊 AppsFlyer: Tracked first_start_heart_rate")
+        }
+        
+        // Every time event
+        AppsFlyerLib.shared().logEvent(Events.startHeartRate, withValues: nil)
+        print("📊 AppsFlyer: Tracked start_heart_rate")
+    }
+    
+    /// Track complete heart rate measurement (both first-time and every-time)
+    func trackCompleteHeartRate(bpm: Int) {
+        let params: [String: Any] = ["bpm": bpm]
+        
+        // First time event
+        if !hasEventBeenTriggered(EventKeys.firstCompleteHeartRateTriggered) {
+            AppsFlyerLib.shared().logEvent(Events.firstCompleteHeartRate, withValues: params)
+            markEventTriggered(EventKeys.firstCompleteHeartRateTriggered)
+            print("📊 AppsFlyer: Tracked first_complete_heart_rate - bpm: \(bpm)")
+        }
+        
+        // Every time event
+        AppsFlyerLib.shared().logEvent(Events.completeHeartRate, withValues: params)
+        print("📊 AppsFlyer: Tracked complete_heart_rate - bpm: \(bpm)")
+    }
+    
+    // MARK: - Report Events
+    
+    /// Track first view report
+    func trackViewReport() {
+        if !hasEventBeenTriggered(EventKeys.firstViewReportTriggered) {
+            AppsFlyerLib.shared().logEvent(Events.firstViewReport, withValues: nil)
+            markEventTriggered(EventKeys.firstViewReportTriggered)
+            print("📊 AppsFlyer: Tracked first_view_report")
+        }
+    }
+    
+    // MARK: - Blood Record Events
+    
+    /// Track blood pressure input (both first-time and every-time)
+    func trackBloodPressureInput(systolic: Int, diastolic: Int) {
+        let params: [String: Any] = ["systolic": systolic, "diastolic": diastolic]
+        
+        // First time event
+        if !hasEventBeenTriggered(EventKeys.firstBloodPressureTriggered) {
+            AppsFlyerLib.shared().logEvent(Events.firstBloodPressure, withValues: params)
+            markEventTriggered(EventKeys.firstBloodPressureTriggered)
+            print("📊 AppsFlyer: Tracked first_blood_pressure")
+        }
+        
+        // Every time event
+        AppsFlyerLib.shared().logEvent(Events.bloodPressureInput, withValues: params)
+        print("📊 AppsFlyer: Tracked blood_pressure_input - \(systolic)/\(diastolic)")
+    }
+    
+    /// Track blood glucose input (both first-time and every-time)
+    func trackBloodGlucoseInput(value: Double) {
+        let params: [String: Any] = ["value": value]
+        
+        // First time event
+        if !hasEventBeenTriggered(EventKeys.firstBloodGlucoseTriggered) {
+            AppsFlyerLib.shared().logEvent(Events.firstBloodGlucose, withValues: params)
+            markEventTriggered(EventKeys.firstBloodGlucoseTriggered)
+            print("📊 AppsFlyer: Tracked first_blood_glucose")
+        }
+        
+        // Every time event
+        AppsFlyerLib.shared().logEvent(Events.bloodGlucoseInput, withValues: params)
+        print("📊 AppsFlyer: Tracked blood_glucose_input - \(value)")
+    }
+    
+    /// Track weight input (both first-time and every-time)
+    func trackWeightInput(weight: Double) {
+        let params: [String: Any] = ["weight": weight]
+        
+        // First time event
+        if !hasEventBeenTriggered(EventKeys.firstWeightTriggered) {
+            AppsFlyerLib.shared().logEvent(Events.firstWeight, withValues: params)
+            markEventTriggered(EventKeys.firstWeightTriggered)
+            print("📊 AppsFlyer: Tracked first_weight")
+        }
+        
+        // Every time event
+        AppsFlyerLib.shared().logEvent(Events.weightInput, withValues: params)
+        print("📊 AppsFlyer: Tracked weight_input - \(weight)")
+    }
+    
+    /// Track oxygen input (both first-time and every-time)
+    func trackOxygenInput(value: Int) {
+        let params: [String: Any] = ["value": value]
+        
+        // First time event
+        if !hasEventBeenTriggered(EventKeys.firstOxygenTriggered) {
+            AppsFlyerLib.shared().logEvent(Events.firstOxygen, withValues: params)
+            markEventTriggered(EventKeys.firstOxygenTriggered)
+            print("📊 AppsFlyer: Tracked first_oxygen")
+        }
+        
+        // Every time event
+        AppsFlyerLib.shared().logEvent(Events.oxygenInput, withValues: params)
+        print("📊 AppsFlyer: Tracked oxygen_input - \(value)")
     }
     
     // MARK: - Helper Methods
@@ -224,11 +345,24 @@ class AppsFlyerManager: NSObject, ObservableObject {
     
     /// Reset all event triggers (for testing purposes)
     func resetAllEventTriggers() {
-        UserDefaults.standard.removeObject(forKey: EventKeys.startTrialTriggered)
-        UserDefaults.standard.removeObject(forKey: EventKeys.subscribeTriggered)
-        UserDefaults.standard.removeObject(forKey: EventKeys.purchaseTriggered)
-        UserDefaults.standard.removeObject(forKey: EventKeys.purchaseWeekTriggered)
-        UserDefaults.standard.removeObject(forKey: EventKeys.purchaseYearTriggered)
+        let allKeys = [
+            EventKeys.startTrialTriggered,
+            EventKeys.subscribeTriggered,
+            EventKeys.purchaseTriggered,
+            EventKeys.purchaseWeekTriggered,
+            EventKeys.purchaseYearTriggered,
+            EventKeys.firstStartHeartRateTriggered,
+            EventKeys.firstCompleteHeartRateTriggered,
+            EventKeys.firstViewReportTriggered,
+            EventKeys.firstBloodPressureTriggered,
+            EventKeys.firstBloodGlucoseTriggered,
+            EventKeys.firstWeightTriggered,
+            EventKeys.firstOxygenTriggered
+        ]
+        
+        for key in allKeys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
         print("📊 AppsFlyer: All event triggers reset")
     }
 }

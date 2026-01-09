@@ -19,6 +19,9 @@ struct HeartRateSeniorApp: App {
     @State private var appIsReady = false  // 加载完成标志
     @State private var showPaywall = false // 启动后显示订阅页
     @StateObject private var appsFlyerManager = AppsFlyerManager.shared
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var hasRequestedATT = false  // 确保 ATT 只请求一次
+    @State private var shouldRequestATT = false  // 标记是否应该请求 ATT
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -26,12 +29,10 @@ struct HeartRateSeniorApp: App {
             BloodPressureRecord.self,
             BloodGlucoseRecord.self,
             WeightRecord.self,
-            OxygenRecord.self,
-            Reminder.self,
+            OxygenRecord.self,Reminder.self,
             EmergencyContact.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
@@ -46,8 +47,7 @@ struct HeartRateSeniorApp: App {
                 Group {
                     if hasCompletedOnboarding {
                         MainTabView()
-                            .environmentObject(settingsManager)
-                    } else {
+                            .environmentObject(settingsManager)} else {
                         OnboardingContainerView(hasCompletedOnboarding: $hasCompletedOnboarding)
                             .environmentObject(settingsManager)
                     }
@@ -60,7 +60,7 @@ struct HeartRateSeniorApp: App {
                         .ignoresSafeArea()
                         .overlay(
                             SubscriptionView(isPresented: $showPaywall)
-                        )
+                )
                         .zIndex(100)
                 }
                 
@@ -69,23 +69,19 @@ struct HeartRateSeniorApp: App {
                     SplashView(isReady: $appIsReady) {
                         withAnimation(.easeOut(duration: 0.3)) {
                             showSplash = false
-                        }
-                        // Splash 结束后：已完成 Onboarding 的非 Premium 用户立即弹订阅页
+                        }// Splash 结束后：已完成 Onboarding 的非 Premium 用户立即弹订阅页
                         if hasCompletedOnboarding && !subscriptionManager.isPremium {
                             showPaywall = true
-                        }
-                        // 请求 ATT 权限
-                        requestATTPermission()
-                    }
-                    .transition(.opacity)
+                        }// 标记需要请求 ATT（等待 scenePhase 变为 active时请求）
+                        shouldRequestATT = true
+                    }.transition(.opacity)
                     .onAppear {
                         // 配置 AppsFlyer SDK
                         appsFlyerManager.configure()
                         
                         // 模拟加载完成（实际项目可在数据加载完成后设置）
                         // 立即设置 ready，让保底机制生效
-                        appIsReady = true
-                    }
+                        appIsReady = true}
                 }
             }
             // onChange 必须在 ZStack 外部，否则会因为视图切换而失效
@@ -95,14 +91,24 @@ struct HeartRateSeniorApp: App {
                     showPaywall = true
                 }
             }
+            // 监听 scenePhase 变化，确保在 App 完全进入 active 状态后请求 ATT
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active && shouldRequestATT && !hasRequestedATT {
+                    requestATTPermission()
+                }
+            }
         }
         .modelContainer(sharedModelContainer)
     }
     
     // MARK: - ATT Permission Request
     private func requestATTPermission() {
-        // 延迟 1 秒后请求 ATT，避免与其他弹窗冲突
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        // 确保只请求一次
+        guard !hasRequestedATT else { return }
+        hasRequestedATT = true
+        
+        // 延迟 0.5 秒后请求 ATT，确保 UI 完全稳定
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             ATTrackingManager.requestTrackingAuthorization { status in
                 // 记录用户选择（可用于分析或调试）
                 switch status {
@@ -117,7 +123,6 @@ struct HeartRateSeniorApp: App {
                 @unknown default:
                     print("❓ ATT: Unknown status")
                 }
-                
                 // 通知 AppsFlyer ATT 授权结果并启动 SDK
                 Task { @MainActor in
                     AppsFlyerManager.shared.handleATTAuthorization(status: status)

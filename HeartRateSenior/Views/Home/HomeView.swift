@@ -117,6 +117,10 @@ struct HomeView: View {
                 }
             }
         case .authorized:
+            // Track heart rate start event
+            Task { @MainActor in
+                AppsFlyerManager.shared.trackStartHeartRate()
+            }
             heartRateManager.startMeasurement()
         case .denied, .restricted:
             showingCameraPermissionAlert = true
@@ -180,6 +184,10 @@ struct IdleStateView: View {
                 }
             }
         case .authorized:
+            // Track heart rate start event
+            Task { @MainActor in
+                AppsFlyerManager.shared.trackStartHeartRate()
+            }
             heartRateManager.startMeasurement()
         case .denied, .restricted:
             showingCameraPermissionAlert = true
@@ -518,6 +526,11 @@ struct CompletionAnimationView: View {
     private func startCompletionAnimation() {
         HapticManager.shared.success()
         onPrepareResult()
+        
+        // Track heart rate complete event
+        Task { @MainActor in
+            AppsFlyerManager.shared.trackCompleteHeartRate(bpm: 0)  // BPM will be set in onPrepareResult
+        }
         
         withAnimation(.easeOut(duration: 0.4)) {
             ringProgress = 1.0
