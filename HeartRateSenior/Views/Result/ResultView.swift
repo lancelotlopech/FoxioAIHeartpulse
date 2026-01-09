@@ -34,6 +34,7 @@ struct ResultView: View {
     @State private var animateGauge = false
     @State private var animatedBPM: Int = 0
     @State private var showAutoReadToast = false
+    @State private var showingSubscription = false
     
     // 格式化测量时间
     private var formattedMeasurementTime: String {
@@ -87,49 +88,54 @@ struct ResultView: View {
                 )
                 .environmentObject(settingsManager)
                 
-                // 模块 NEW：Session Details（测量详情）
-                SessionDetailsCard(bpm: bpm, hrvMetrics: hrvMetrics)
-                
-                // 模块 2：一句话健康结论
-                HealthConclusionCard(bpm: bpm)
-                
-                // 模块 3：安全区解释（带段位图）
-                SafetyZoneCard(bpm: bpm)
-                
-                // 模块 NEW：Stress & Recovery（压力与恢复）
-                if let hrv = hrvMetrics {
-                    StressRecoveryCard(hrv: hrv)
-                }
-                
-                // 模块 5：身体状态解读（带 HRV 可视化）
-                if let hrv = hrvMetrics {
-                    BodyConditionCard(hrv: hrv)
-                }
-                
-                // 模块 NEW：Poincaré Plot（庞加莱散点图）
-                if let hrv = hrvMetrics {
-                    PoincarePlotCard(hrv: hrv)
-                }
-                
-                // 模块 NEW：HRV 指标详情
-                if let hrv = hrvMetrics {
-                    HRVMetricsDetailCard(hrv: hrv)
-                }
-                
-                // 模块 6：生活建议
-                LifestyleTipsCard(bpm: bpm, hrv: hrvMetrics)
-                
-                // 模块 7：异常提醒（仅在异常时显示）
-                if bpm < 50 || bpm > 120 {
-                    AbnormalAlertCard(bpm: bpm)
-                }
-                
-                // 模块 NEW：Weekly Summary（本周总结）
-                WeeklySummaryCard(records: allRecords, currentBPM: bpm)
-                
-                // 模块 4：近期心率趋势（增强版）
-                if allRecords.count >= 2 {
-                    EnhancedTrendSection(records: allRecords, currentBPM: bpm, isExpanded: $showTrendSection)
+                // ===== Premium Locked Section =====
+                // 非付费用户只能看到心率结果和 Select Your Activity
+                // 以下模块需要模糊处理并显示锁定提示
+                PremiumSectionContainer(showSubscription: $showingSubscription) {
+                    // 模块 NEW：Session Details（测量详情）
+                    SessionDetailsCard(bpm: bpm, hrvMetrics: hrvMetrics)
+                    
+                    // 模块 2：一句话健康结论
+                    HealthConclusionCard(bpm: bpm)
+                    
+                    // 模块 3：安全区解释（带段位图）
+                    SafetyZoneCard(bpm: bpm)
+                    
+                    // 模块 NEW：Stress & Recovery（压力与恢复）
+                    if let hrv = hrvMetrics {
+                        StressRecoveryCard(hrv: hrv)
+                    }
+                    
+                    // 模块 5：身体状态解读（带 HRV 可视化）
+                    if let hrv = hrvMetrics {
+                        BodyConditionCard(hrv: hrv)
+                    }
+                    
+                    // 模块 NEW：Poincaré Plot（庞加莱散点图）
+                    if let hrv = hrvMetrics {
+                        PoincarePlotCard(hrv: hrv)
+                    }
+                    
+                    // 模块 NEW：HRV 指标详情
+                    if let hrv = hrvMetrics {
+                        HRVMetricsDetailCard(hrv: hrv)
+                    }
+                    
+                    // 模块 6：生活建议
+                    LifestyleTipsCard(bpm: bpm, hrv: hrvMetrics)
+                    
+                    // 模块 7：异常提醒（仅在异常时显示）
+                    if bpm < 50 || bpm > 120 {
+                        AbnormalAlertCard(bpm: bpm)
+                    }
+                    
+                    // 模块 NEW：Weekly Summary（本周总结）
+                    WeeklySummaryCard(records: allRecords, currentBPM: bpm)
+                    
+                    // 模块 4：近期心率趋势（增强版）
+                    if allRecords.count >= 2 {
+                        EnhancedTrendSection(records: allRecords, currentBPM: bpm, isExpanded: $showTrendSection)
+                    }
                 }
                 
                 // 操作按钮
@@ -202,6 +208,9 @@ struct ResultView: View {
                     }
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showingSubscription) {
+            SubscriptionView(isPresented: $showingSubscription)
         }
     }
     

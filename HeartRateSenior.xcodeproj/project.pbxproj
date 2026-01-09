@@ -73,6 +73,7 @@
 		A10000010000000000000065 /* OxygenHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000065 /* OxygenHistoryView.swift */; };
 		A10000010000000000000066 /* UIComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000066 /* UIComponents.swift */; };
 		A10000010000000000000067 /* HealthRecordHistoryComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000067 /* HealthRecordHistoryComponents.swift */; };
+		A10000010000000000000068 /* PremiumLockedOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000068 /* PremiumLockedOverlay.swift */; };
 		A10000010000000000000088 /* SpeechManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000088 /* SpeechManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -169,6 +170,7 @@
 		A20000010000000000000065 /* OxygenHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OxygenHistoryView.swift; sourceTree = "<group>"; };
 		A20000010000000000000066 /* UIComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIComponents.swift; sourceTree = "<group>"; };
 		A20000010000000000000067 /* HealthRecordHistoryComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthRecordHistoryComponents.swift; sourceTree = "<group>"; };
+		A20000010000000000000068 /* PremiumLockedOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumLockedOverlay.swift; sourceTree = "<group>"; };
 		A20000010000000000000088 /* SpeechManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechManager.swift; sourceTree = "<group>"; };
 		A30000010000000000000001 /* HeartRateSenior.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeartRateSenior.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -470,6 +472,7 @@
 			children = (
 				A20000010000000000000066 /* UIComponents.swift */,
 				A20000010000000000000067 /* HealthRecordHistoryComponents.swift */,
+				A20000010000000000000068 /* PremiumLockedOverlay.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -669,6 +672,7 @@
 				A10000010000000000000065 /* OxygenHistoryView.swift in Sources */,
 				A10000010000000000000066 /* UIComponents.swift in Sources */,
 				A10000010000000000000067 /* HealthRecordHistoryComponents.swift in Sources */,
+				A10000010000000000000068 /* PremiumLockedOverlay.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
