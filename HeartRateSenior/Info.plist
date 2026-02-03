@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>HeartRate Senior</string>
+	<string>Foxio Heart</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,21 +17,21 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>HeartRate Senior uses the camera to detect blood flow changes in your fingertip to measure your heart rate. Your privacy is our priority - all data is processed locally on your device.</string>
+	<string>Foxio Heart uses the camera to detect pulse patterns. Your privacy is our priority - all data is processed locally on your device.</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>HeartRate Senior may access your heart rate history from Apple Health to provide comprehensive health insights.</string>
+	<string>Used for personal wellness tracking only.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>HeartRate Senior would like to save your heart rate measurements to Apple Health so you can track your health data in one place.</string>
+	<string>Used for personal wellness tracking only.</string>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>We use this information to provide personalized health insights and improve your experience. Your privacy is always protected.</string>
+	<string>Foxio Heart does not track or save any of your activity records. We request permission to provide customized personalized ads.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

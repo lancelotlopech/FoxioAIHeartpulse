@@ -174,6 +174,11 @@ struct DashboardView: View {
                             .padding(.horizontal, 20)
                         }
                         
+                        // Footer: Disclaimer & References
+                        DisclaimerFooterView()
+                            .padding(.horizontal, 20)
+                            .padding(.top, 20)
+                        
                         Spacer(minLength: 100)
                     }
                 }
@@ -1040,7 +1045,7 @@ struct HealthScoreRingView: View {
                 if let record = lastRecord {
                     LastMeasurementCapsule(bpm: record.bpm, timestamp: record.timestamp)
                 } else {
-                    Text("No measurements yet")
+                    Text("No readings yet")
                         .font(.system(size: 14, weight: .medium, design: .rounded))
                         .foregroundColor(AppColors.textSecondary.opacity(0.7))
                 }
@@ -1138,7 +1143,7 @@ struct HealthScoreRingView: View {
                             .foregroundColor(AppColors.primaryRed)
                     }
                     
-                    Text("Last measured")
+                    Text("Last checked")
                         .font(.system(size: 11, weight: .medium, design: .rounded))
                         .foregroundColor(AppColors.textSecondary)
                 }
@@ -1367,7 +1372,7 @@ struct HealthScoreRingView: View {
                                     .foregroundColor(AppColors.textSecondary)
                             }
                         } else {
-                            Text("No measurements yet")
+                            Text("No readings yet")
                                 .font(.system(size: 16, weight: .regular, design: .rounded))
                                 .foregroundColor(AppColors.textSecondary)
                         }

@@ -252,7 +252,7 @@ struct SubscriptionView: View {
                     .font(.system(size: 26, weight: .heavy, design: .rounded))
                     .foregroundStyle(brandGradient)
                 
-                Text("Unlimited measurements • HRV insights • PDF reports")
+                Text("Unlimited checks • HRV insights • PDF reports")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(.secondary)
             }
@@ -307,13 +307,22 @@ struct SubscriptionView: View {
     }
     
     private var assuranceSection: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "checkmark.shield.fill")
-                .foregroundStyle(.green)
-                .font(.caption)
-            Text("You can cancel anytime.")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+        VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.shield.fill")
+                    .foregroundStyle(.green)
+                    .font(.caption)
+                Text("You can cancel anytime.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            
+            // 自动续订条款说明
+            Text("Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Payment will be charged to your Apple ID account.")
+                .font(.system(size: 9))
+                .foregroundStyle(.secondary.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 20)
         }
     }
     

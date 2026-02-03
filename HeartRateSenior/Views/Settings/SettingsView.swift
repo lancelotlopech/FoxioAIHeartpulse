@@ -306,6 +306,18 @@ struct SettingsView: View {
                 
                 // SECTION 5: About (合并 Support + About)
                 Section {
+                    // Scientific References & Disclaimer
+                    NavigationLink {
+                        DisclaimerView()
+                    } label: {
+                        SettingsRow(
+                            icon: "doc.text.magnifyingglass",
+                            title: "About & Disclaimer",
+                            subtitle: "PPG technology & medical disclaimer",
+                            color: .orange
+                        )
+                    }
+                    
                     Button(action: { settingsManager.openAppStoreForRating() }) {
                         HStack {
                             SettingsRow(

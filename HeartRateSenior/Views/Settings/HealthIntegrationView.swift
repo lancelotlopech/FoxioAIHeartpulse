@@ -23,9 +23,9 @@ struct HealthIntegrationView: View {
                             .frame(width: 40)
                         
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Camera-Based Measurement")
+                            Text("Camera-Based Estimation")
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
-                            Text("Heart rate is measured using your iPhone's camera and flashlight by detecting subtle color changes in your fingertip (PPG technology).")
+                            Text("Heart rate is estimated using your iPhone's camera and flashlight by detecting subtle color changes in your fingertip (PPG technology).")
                                 .font(.system(size: 14, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
@@ -42,7 +42,7 @@ struct HealthIntegrationView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Storage Only")
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
-                            Text("Apple Health is used only to store your measurements — we do not read or import data from Apple Health.")
+                            Text("Apple Health is used only to store your estimated readings — we do not read or import data from Apple Health.")
                                 .font(.system(size: 14, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
@@ -73,7 +73,7 @@ struct HealthIntegrationView: View {
                                 .font(.system(size: 17, design: .rounded))
                                 .foregroundColor(.primary)
                             
-                            Text("Save measurements after each reading")
+                            Text("Save estimated readings to Apple Health")
                                 .font(.system(size: 14, design: .rounded))
                                 .foregroundColor(.secondary)
                         }
@@ -196,9 +196,9 @@ struct HealthIntegrationView: View {
     
     private var permissionStatusText: String {
         if healthKitManager.isAuthorized {
-            return "Authorized to save heart rate data"
+            return "Authorized to save estimated heart rate data"
         } else {
-            return "Permission required to save data"
+            return "Permission needed to save estimated data"
         }
     }
     

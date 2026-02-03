@@ -1,41 +1,29 @@
-# HeartRate Senior - iOS App
+# Foxio Heart - iOS App
 
-A comprehensive health monitoring app designed specifically for seniors in the US market, featuring high readability, medical-grade minimalism, and ease of use.
+A wellness tracking app designed for easy heart rate monitoring, featuring high readability and ease of use.
 
 ## Features
 
-### Core Health Monitoring
-- **Heart Rate Measurement**: PPG-based heart rate detection using the device camera
-- **Blood Pressure Tracking**: Manual input with automatic classification (Normal, Elevated, Hypertension stages)
-- **Blood Glucose Monitoring**: Track fasting, pre-meal, post-meal, and bedtime readings
+### Core Tracking
+- **Heart Rate Check**: Camera-based heart rate estimation using PPG technology
+- **Activity Tracking**: Tag measurements with activities (Resting, Walking, Exercise, etc.)
+- **Habit Score**: Track your measurement consistency
 
 ### Dashboard
-- Unified health overview with all vital signs
-- Quick access to all measurement types
-- Recent readings at a glance
+- Unified overview with recent readings
+- Quick access to measurement
+- Habit score at a glance
 
-### Health History
-- Weekly trend charts for all metrics
+### History
+- Weekly trend charts
+- Calendar heatmap view
 - Detailed record lists with filtering
-- Export to PDF for doctor visits
+- Export to PDF for sharing
 
 ### Reminders System
 - Customizable measurement reminders
-- Medication reminders with dosage tracking
 - Flexible repeat options (daily, weekly, custom days)
 - Local notifications
-
-### Emergency Contacts
-- Quick-call primary contact feature
-- Multiple emergency contacts support
-- Abnormal reading alert thresholds
-- SMS notification capability
-
-### Health Reports
-- Weekly, monthly, and quarterly reports
-- Statistical summaries (average, min, max)
-- Blood pressure classification breakdown
-- Export to PDF
 
 ### Data Management
 - **Backup & Restore**: Export all data to JSON file
@@ -58,14 +46,14 @@ A comprehensive health monitoring app designed specifically for seniors in the U
 
 ## Design System
 
-### Senior-Friendly UI
+### User-Friendly UI
 - **Large Text**: 34pt+ titles, 80pt BPM display
-- **High Contrast**: Pure black text on white background
+- **High Contrast**: Clear text on clean background
 - **Large Touch Targets**: Minimum 60pt button height
 - **Haptic Feedback**: Tactile confirmation on interactions
 
 ### Color Palette
-- Primary Red: #FF3B30 (System Red)
+- Primary Red: #F4403A
 - Background: #FFFFFF (Pure White)
 - Card Background: #F2F2F7 (System Gray 6)
 - Text Primary: #000000 (Pure Black)
@@ -82,10 +70,7 @@ HeartRateSenior/
 ├── HeartRateSeniorApp.swift          # App entry point
 ├── Models/
 │   ├── HeartRateRecord.swift         # Heart rate data model
-│   ├── BloodPressureRecord.swift     # Blood pressure data model
-│   ├── BloodGlucoseRecord.swift      # Blood glucose data model
 │   ├── Reminder.swift                # Reminder data model
-│   ├── EmergencyContact.swift        # Emergency contact model
 │   └── MeasurementTag.swift          # Measurement context tags
 ├── ViewModels/
 │   ├── HeartRateManager.swift        # PPG measurement logic
@@ -96,38 +81,22 @@ HeartRateSenior/
 ├── Views/
 │   ├── MainTabView.swift             # Tab navigation
 │   ├── Dashboard/
-│   │   └── DashboardView.swift       # Health overview
+│   │   └── DashboardView.swift       # Overview
 │   ├── Home/
 │   │   ├── HomeView.swift            # Heart rate measurement
 │   │   ├── MeasureButton.swift       # Animated measure button
-│   │   ├── PPGWaveformView.swift     # Real-time waveform
 │   │   └── CameraPreviewView.swift   # Camera feed
-│   ├── BloodPressure/
-│   │   ├── BloodPressureInputView.swift
-│   │   └── BloodPressureHistoryView.swift
-│   ├── BloodGlucose/
-│   │   ├── BloodGlucoseInputView.swift
-│   │   └── BloodGlucoseHistoryView.swift
 │   ├── History/
 │   │   ├── HistoryView.swift         # Heart rate history
 │   │   └── WeeklyChartView.swift     # Trend chart
-│   ├── Charts/
-│   │   ├── BloodPressureChartView.swift
-│   │   └── BloodGlucoseChartView.swift
 │   ├── Result/
 │   │   └── ResultView.swift          # Measurement result
 │   ├── Reminders/
 │   │   ├── RemindersView.swift       # Reminder list
 │   │   └── AddReminderView.swift     # Add/edit reminder
-│   ├── Emergency/
-│   │   └── EmergencyContactsView.swift
-│   ├── Reports/
-│   │   └── HealthReportView.swift    # Health summaries
 │   ├── Settings/
 │   │   ├── SettingsView.swift        # App settings
 │   │   └── BackupRestoreView.swift   # Data management
-│   ├── Profile/
-│   │   └── ProfileView.swift         # User profile
 │   └── Onboarding/
 │       ├── OnboardingContainerView.swift
 │       ├── WelcomeView.swift
@@ -149,17 +118,17 @@ HeartRateSenior/
 
 ## Permissions Required
 
-- **Camera**: For PPG heart rate measurement
+- **Camera**: For heart rate estimation
 - **HealthKit**: For Apple Health sync (optional)
 - **Notifications**: For reminders (optional)
 
-## Medical Disclaimer
+## Disclaimer
 
-This app is for informational purposes only and is not intended to be a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+This app is for general wellness and reference purposes only. It is not a medical device and should not be used for diagnosis or treatment. The heart rate readings are estimates based on camera analysis and may vary from actual values.
 
 ## Privacy
 
-- All health data is stored locally on device
+- All data is stored locally on device
 - Camera data is processed in real-time and not stored
 - Optional iCloud backup is user-controlled
 - No data is shared with third parties
@@ -168,12 +137,9 @@ This app is for informational purposes only and is not intended to be a substitu
 
 ### v1.0.0
 - Initial release
-- Heart rate measurement via PPG
-- Blood pressure tracking
-- Blood glucose monitoring
-- Health dashboard
+- Heart rate estimation via PPG
+- Activity tagging
+- Habit tracking
 - Reminders system
-- Emergency contacts
-- Health reports
 - Data backup/restore
 - Apple Health integration

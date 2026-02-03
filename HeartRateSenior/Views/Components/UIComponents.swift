@@ -403,6 +403,99 @@ struct ECGWavePath: Shape {
     }
 }
 
+// MARK: - Disclaimer Footer View (Dashboard底部免责声明)
+struct DisclaimerFooterView: View {
+    // Reference URLs
+    private let pubMedURL = "https://pubmed.ncbi.nlm.nih.gov/17322588/"
+    private let wikipediaURL = "https://en.wikipedia.org/wiki/Heart_rate"
+    private let privacyPolicyURL = "https://termsheartpulse.moonspace.workers.dev/privacy_policy.html"
+    private let termsOfUseURL = "https://termsheartpulse.moonspace.workers.dev/terms_of_use.html"
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Divider
+            Rectangle()
+                .fill(Color.gray.opacity(0.2))
+                .frame(height: 1)
+                .padding(.horizontal, 20)
+            
+            // Scientific References Section
+            VStack(spacing: 10) {
+                HStack(spacing: 6) {
+                    Image(systemName: "book.closed.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.blue)
+                    
+                    Text("Scientific References")
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                
+                HStack(spacing: 20) {
+                    Link(destination: URL(string: pubMedURL)!) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "doc.text.fill")
+                                .font(.system(size: 11))
+                            Text("PubMed")
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.green)
+                    }
+                    
+                    Link(destination: URL(string: wikipediaURL)!) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "book.fill")
+                                .font(.system(size: 11))
+                            Text("Wikipedia")
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.blue)
+                    }
+                }
+            }
+            
+            // Medical Disclaimer
+            VStack(spacing: 8) {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.orange)
+                    
+                    Text("Medical Disclaimer")
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                
+                Text("This app provides estimates for wellness purposes only. It is not a medical device and should not be used for diagnosis or treatment. Consult a healthcare professional for medical advice.")
+                    .font(.system(size: 11, design: .rounded))
+                    .foregroundColor(AppColors.textSecondary.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
+            }
+            
+            // Legal Links
+            HStack(spacing: 16) {
+                Link(destination: URL(string: privacyPolicyURL)!) {
+                    Text("Privacy Policy")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                
+                Text("•")
+                    .font(.system(size: 11))
+                    .foregroundColor(AppColors.textSecondary.opacity(0.5))
+                
+                Link(destination: URL(string: termsOfUseURL)!) {
+                    Text("Terms of Use")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(AppColors.textSecondary)
+                }
+            }
+        }
+        .padding(.vertical, 16)
+    }
+}
+
 #Preview {
     VStack(spacing: 20) {
         CustomNavigationBar(title: "My Health", rightButtonIcon: "gearshape.fill")

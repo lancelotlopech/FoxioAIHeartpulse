@@ -22,15 +22,18 @@ struct OnboardingContainerView: View {
                 PrivacyPermissionView(currentPage: $currentPage)
                     .tag(1)
                 
-                TutorialView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                DisclaimerOnboardingView(currentPage: $currentPage)
                     .tag(2)
+                
+                TutorialView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                    .tag(3)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut, value: currentPage)
             
             // Page indicator
             HStack(spacing: 12) {
-                ForEach(0..<3, id: \.self) { index in
+                ForEach(0..<4, id: \.self) { index in
                     Circle()
                         .fill(index == currentPage ? AppColors.primaryRed : Color.gray.opacity(0.3))
                         .frame(width: 12, height: 12)

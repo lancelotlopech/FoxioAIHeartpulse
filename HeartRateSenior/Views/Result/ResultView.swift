@@ -170,7 +170,10 @@ struct ResultView: View {
                 .padding(.top, 10)
                 
                 // 免责声明
-                Text("This app is not a medical device. For reference only.")
+                VStack(spacing: 4) {
+                Text("This app is for general wellness and reference only.")
+                Text("It is not a medical device and should not be used for diagnosis or treatment.")
+                }
                     .font(.system(size: 12, weight: .regular, design: .rounded))
                     .foregroundColor(AppColors.textSecondary.opacity(0.6))
                     .multilineTextAlignment(.center)
@@ -180,7 +183,7 @@ struct ResultView: View {
             }
         }
         .background(AppColors.background)
-        .navigationTitle(isHistoryMode ? "Record Details" : "Result")
+        .navigationTitle(isHistoryMode ? "Record Details" : "Estimated Result")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(!isHistoryMode)
         .onAppear {

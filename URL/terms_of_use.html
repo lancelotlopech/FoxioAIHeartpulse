@@ -5,65 +5,219 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Use - HeartRate Senior</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-        h1 { color: #FF3B30; }
-        h2 { color: #000; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 30px; }
-        p { margin-bottom: 15px; }
-        .date { color: #666; font-size: 0.9em; }
-        .highlight { background-color: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; }
-        .critical { background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545; font-weight: bold; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f9fafb;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 36px;
+            color: #e53e3e;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .content {
+            background: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        
+        .intro {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h2 {
+            font-size: 20px;
+            color: #333;
+            margin: 30px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e53e3e;
+        }
+        
+        h2:first-of-type {
+            margin-top: 0;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        strong {
+            color: #333;
+        }
+        
+        .important {
+            background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #f59e0b;
+            margin: 20px 0;
+        }
+        
+        .important h3 {
+            color: #92400e;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .important p, .important li {
+            color: #78350f;
+        }
+        
+        .contact {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .contact a {
+            color: #e53e3e;
+            text-decoration: none;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #e53e3e;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <h1>Terms of Use</h1>
-    <p class="date">Last Updated: December 29, 2025</p>
-
-    <h2>1. Introduction</h2>
-    <p>By downloading or using the HeartRate Senior app (the "App"), you agree to these Terms and Conditions. Please read them carefully before using the App.</p>
-
-    <div class="critical">
-        <h3>2. MEDICAL DISCLAIMER (CRITICAL)</h3>
-        <p>THE APP IS NOT A MEDICAL DEVICE AND SHOULD NOT BE USED AS A SUBSTITUTE FOR PROFESSIONAL MEDICAL ADVICE, DIAGNOSIS, OR TREATMENT.</p>
-        <p>
-            - <strong>For Informational Purposes Only:</strong> The heart rate measurements provided are estimates for fitness and wellness tracking only.<br>
-            - <strong>Accuracy Limitations:</strong> The camera-based PPG technology can be affected by external factors such as lighting conditions, skin temperature, movement, and finger placement.<br>
-            - <strong>Consult a Doctor:</strong> If you have any concerns about your health, or if you experience symptoms, consult a qualified healthcare professional immediately. Do not rely on this App for critical health decisions.
-        </p>
+    <div class="container">
+        <header>
+            <h1>Terms of Use</h1>
+            <p>Last Updated: December 29, 2025</p>
+        </header>
+        
+        <div class="content">
+            <p class="intro">
+                By downloading or using the HeartRate Senior app (the "App"), you agree to these Terms of Use. Please read them carefully before using the App.
+            </p>
+            
+            <h2>1. General Information</h2>
+            <p>HeartRate Senior is a wellness and informational app. It is not a medical device and is not intended to provide medical advice, diagnosis, or treatment.</p>
+            <p>The App is designed for general reference and daily wellness tracking only.</p>
+            
+            <h2>2. Medical Disclaimer (Important)</h2>
+            <div class="important">
+                <h3>⚠️ Please Read Carefully</h3>
+                <p>The App is not a medical device and should not be used as a substitute for professional medical advice, diagnosis, or treatment.</p>
+                <ul>
+                    <li><strong>For Informational Purposes Only:</strong> The estimated values provided by the App are for wellness and general reference only.</li>
+                    <li><strong>Accuracy Limitations:</strong> Camera-based estimation can be affected by factors such as lighting, finger placement, movement, and device conditions.</li>
+                    <li><strong>Consult a Professional:</strong> If you have any health concerns, symptoms, or questions, consult a qualified healthcare professional. Do not rely on this App for critical health decisions.</li>
+                </ul>
+            </div>
+            
+            <h2>3. App Usage & Responsibility</h2>
+            <p>The App processes most data locally on your device.</p>
+            <p>You are responsible for:</p>
+            <ul>
+                <li>Maintaining the security of your device</li>
+                <li>Granting necessary permissions (such as camera access) to use certain features</li>
+                <li>Understanding that all results are estimates for reference only</li>
+            </ul>
+            
+            <h2>4. HealthKit Integration</h2>
+            <p>If you choose to enable Apple Health integration, the App may read and write estimated values to your Apple Health database for personal wellness tracking.</p>
+            <p>We do not sell, share, or use this data for advertising purposes.</p>
+            
+            <h2>5. Subscription Terms</h2>
+            <p><strong>Premium Subscription Options:</strong></p>
+            <ul>
+                <li>Weekly Subscription: $9.99 per week (3-day free trial, if available)</li>
+                <li>Yearly Subscription: $39.99 per year</li>
+            </ul>
+            
+            <p><strong>Auto-Renewal</strong></p>
+            <p>Subscriptions automatically renew unless canceled at least 24 hours before the end of the current billing period. Your account will be charged within 24 hours prior to the end of the current period.</p>
+            
+            <p><strong>Managing Subscriptions</strong></p>
+            <p>You can manage or cancel your subscription anytime via:</p>
+            <p><strong>Settings > Apple ID > Subscriptions</strong></p>
+            
+            <p><strong>Free Trial</strong></p>
+            <p>If a free trial is offered, any unused portion of the free trial period will be forfeited once a subscription is purchased.</p>
+            
+            <p><strong>Refunds</strong></p>
+            <p>All refund requests are managed by Apple according to the App Store refund policy. We do not directly process refunds.</p>
+            
+            <h2>6. Intellectual Property</h2>
+            <p>All intellectual property rights related to the App, including but not limited to source code, design, trademarks, and content, belong to the developer.</p>
+            <p>You may not copy, modify, distribute, or reverse-engineer any part of the App without permission.</p>
+            
+            <h2>7. Limitation of Liability</h2>
+            <p>To the fullest extent permitted by law, the developer shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of the App, including but not limited to any inaccuracies in estimated values.</p>
+            
+            <h2>8. Changes to These Terms</h2>
+            <p>We may update these Terms from time to time. Continued use of the App constitutes acceptance of the updated Terms.</p>
+            
+            <div class="contact">
+                <h2>9. Contact</h2>
+                <p>If you have any questions about these Terms, please contact:</p>
+                <p><a href="mailto:developer@moonspace.work">developer@moonspace.work</a></p>
+            </div>
+            
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </div>
     </div>
-
-    <h2>3. App Usage & Responsibility</h2>
-    <p>The App processes data locally on your device. You are responsible for ensuring the security of your device.</p>
-    <ul>
-        <li>You must grant camera permission to use the measurement feature.</li>
-        <li>You are responsible for any data charges incurred if you choose to sync data via iCloud or other services.</li>
-    </ul>
-
-    <h2>4. HealthKit Integration</h2>
-    <p>The App integrates with Apple HealthKit to read and write heart rate data. By enabling this feature, you agree to allow the App to access your Health data for the purpose of displaying history and saving new records. We do not sell or share this data with third parties.</p>
-
-    <h2>5. Subscription Terms</h2>
-    <div class="highlight">
-        <p><strong>Premium Subscription Options:</strong></p>
-        <ul>
-            <li><strong>Weekly Subscription:</strong> $9.99 per week with a 3-day free trial</li>
-            <li><strong>Yearly Subscription:</strong> $39.99 per year (saves 92%)</li>
-        </ul>
-        <p><strong>Auto-Renewal:</strong> Subscriptions automatically renew unless canceled at least 24 hours before the end of the current billing period. Your account will be charged for renewal within 24 hours prior to the end of the current period.</p>
-        <p><strong>Managing Subscriptions:</strong> You can manage or cancel your subscription anytime through your device's Settings > Apple ID > Subscriptions.</p>
-        <p><strong>Free Trial:</strong> If a free trial is offered, any unused portion of the free trial period will be forfeited when you purchase a subscription.</p>
-        <p><strong>Refunds:</strong> All refund requests are managed by Apple according to the App Store refund policy.</p>
-    </div>
-
-    <h2>6. Intellectual Property</h2>
-    <p>All intellectual property rights related to the App, including but not limited to source code, design, and trademarks, belong to the developer. You may not copy, modify, or distribute the App without permission.</p>
-
-    <h2>7. Limitation of Liability</h2>
-    <p>To the fullest extent permitted by law, the developer shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of the App, including but not limited to any errors in heart rate measurements.</p>
-
-    <h2>8. Changes to Terms</h2>
-    <p>We may update these Terms periodically. Continued use of the App constitutes acceptance of the updated Terms.</p>
-
-    <h2>9. Contact</h2>
-    <p>For any questions regarding these Terms, please contact us at: <a href="mailto:developer@moonspace.work">developer@moonspace.work</a></p>
+    
+    <footer>
+        <p>© 2025 HeartRate Senior. All rights reserved.</p>
+    </footer>
 </body>
 </html>

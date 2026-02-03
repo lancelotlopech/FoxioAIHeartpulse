@@ -176,6 +176,17 @@ struct BloodGlucoseInputView: View {
                     .padding(.horizontal, AppDimensions.paddingLarge)
                     .padding(.top, AppDimensions.paddingMedium)
                     
+                    // Manual Record Disclaimer
+                    VStack(spacing: 4) {
+                        Text("This is a manual record for your personal reference.")
+                        Text("Not a medical measurement. Consult a healthcare provider for diagnosis.")
+                    }
+                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, AppDimensions.paddingLarge)
+                    .padding(.top, AppDimensions.paddingSmall)
+                    
                     Spacer()
                         .frame(height: 100)
                 }

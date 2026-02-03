@@ -191,6 +191,17 @@ struct OxygenInputView: View {
                     }
                     .padding(.horizontal, 20)
                     
+                    // Manual Record Disclaimer
+                    VStack(spacing: 4) {
+                        Text("This is a manual record for your personal reference.")
+                        Text("Not a medical measurement. Consult a healthcare provider for diagnosis.")
+                    }
+                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    
                     Spacer(minLength: 100)
                 }
                 .padding(.top, 20)

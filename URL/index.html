@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeartRate Senior - FoxioAI</title>
-    <meta name="description" content="HeartRate Senior - The easiest heart rate monitor designed for seniors. Big buttons, instant pulse check, no account needed.">
+    <title>HeartRate Senior - Simple Heart Rate Estimation</title>
     <style>
         * {
             margin: 0;
@@ -13,109 +12,84 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Rounded', 'Segoe UI', Roboto, sans-serif;
-            background-color: #ffffff;
-            color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffffff 50%, #f0f9ff 100%);
+            min-height: 100vh;
         }
         
-        /* Header */
-        header {
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #f2f2f7;
-        }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #FF3B30;
-        }
-        
-        .logo span {
-            color: #000000;
-        }
-        
-        nav a {
-            margin-left: 30px;
-            text-decoration: none;
-            color: #666666;
-            font-size: 16px;
-            transition: color 0.3s;
-        }
-        
-        nav a:hover {
-            color: #FF3B30;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
         }
         
         /* Hero Section */
         .hero {
             text-align: center;
-            padding: 80px 20px 60px;
-            background: linear-gradient(180deg, #ffffff 0%, #f8f8fa 100%);
+            padding: 60px 20px;
         }
         
         .hero-icon {
-            font-size: 100px;
-            margin-bottom: 30px;
+            font-size: 80px;
+            margin-bottom: 20px;
         }
         
         .hero h1 {
             font-size: 48px;
             font-weight: 700;
-            margin-bottom: 16px;
-            color: #000000;
+            color: #e53e3e;
+            margin-bottom: 20px;
         }
         
-        .hero h1 span {
-            color: #FF3B30;
-        }
-        
-        .hero .tagline {
-            font-size: 22px;
-            color: #666666;
-            margin-bottom: 40px;
+        .hero-description {
+            font-size: 20px;
+            color: #555;
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto 15px;
+        }
+        
+        .hero-tagline {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .hero-disclaimer {
+            font-size: 14px;
+            color: #888;
+            font-style: italic;
+            margin-bottom: 30px;
         }
         
         .app-store-btn {
             display: inline-block;
-            background-color: #000000;
-            color: #ffffff;
-            padding: 16px 40px;
+            background: #000;
+            color: #fff;
+            padding: 14px 32px;
             border-radius: 12px;
             text-decoration: none;
             font-size: 18px;
             font-weight: 600;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
         .app-store-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-        
-        .app-store-btn svg {
-            vertical-align: middle;
-            margin-right: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
         
         /* Features Section */
         .features {
-            padding: 80px 20px;
-            max-width: 1000px;
-            margin: 0 auto;
+            padding: 60px 20px;
         }
         
         .features h2 {
             text-align: center;
-            font-size: 36px;
+            font-size: 32px;
+            color: #333;
             margin-bottom: 50px;
-            color: #000000;
         }
         
         .features-grid {
@@ -125,166 +99,236 @@
         }
         
         .feature-card {
-            background: #f2f2f7;
+            background: #fff;
             padding: 30px;
             border-radius: 16px;
-            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
         }
         
-        .feature-card .icon {
-            font-size: 50px;
-            margin-bottom: 20px;
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
         }
         
         .feature-card h3 {
-            font-size: 22px;
-            margin-bottom: 12px;
-            color: #000000;
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
         }
         
         .feature-card p {
-            font-size: 16px;
-            color: #666666;
+            font-size: 15px;
+            color: #666;
         }
         
-        /* Disclaimer */
-        .disclaimer {
-            background: #fff3cd;
-            padding: 20px;
+        /* How It Works */
+        .how-it-works {
+            background: #fff;
+            padding: 60px 20px;
+            margin: 40px 0;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        
+        .how-it-works h2 {
             text-align: center;
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .how-it-works p {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            max-width: 700px;
+            margin: 0 auto 15px;
+        }
+        
+        .how-it-works .note {
             font-size: 14px;
-            color: #856404;
+            color: #888;
+            font-style: italic;
+        }
+        
+        /* Important Notice */
+        .notice {
+            background: linear-gradient(135deg, #fff7ed 0%, #fffbeb 100%);
+            padding: 40px;
+            margin: 40px 0;
+            border-radius: 16px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .notice h2 {
+            font-size: 22px;
+            color: #92400e;
+            margin-bottom: 15px;
+        }
+        
+        .notice p {
+            font-size: 15px;
+            color: #78350f;
+            margin-bottom: 10px;
+        }
+        
+        /* Privacy Section */
+        .privacy {
+            padding: 50px 20px;
+            text-align: center;
+        }
+        
+        .privacy h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .privacy-list {
+            list-style: none;
+            max-width: 400px;
+            margin: 0 auto 30px;
+        }
+        
+        .privacy-list li {
+            font-size: 16px;
+            color: #555;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .privacy-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .privacy-links {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .privacy-links a {
+            color: #e53e3e;
+            text-decoration: none;
+        }
+        
+        .privacy-links a:hover {
+            text-decoration: underline;
         }
         
         /* Footer */
         footer {
-            background: #1c1c1e;
-            color: #ffffff;
-            padding: 40px 20px;
             text-align: center;
-        }
-        
-        .footer-links {
-            margin-bottom: 20px;
-        }
-        
-        .footer-links a {
-            color: #ffffff;
-            text-decoration: none;
-            margin: 0 20px;
-            font-size: 16px;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-        
-        .footer-links a:hover {
-            opacity: 1;
-            text-decoration: underline;
-        }
-        
-        .copyright {
+            padding: 40px 20px;
+            color: #888;
             font-size: 14px;
-            opacity: 0.6;
         }
         
-        /* Responsive */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            nav a {
-                margin: 0 15px;
-            }
-            
+        footer a {
+            color: #e53e3e;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
             .hero h1 {
                 font-size: 36px;
             }
             
-            .hero .tagline {
+            .hero-description {
                 font-size: 18px;
             }
             
-            .hero-icon {
-                font-size: 80px;
+            .features h2 {
+                font-size: 26px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="logo">Foxio<span>AI</span></div>
-        <nav>
-            <a href="#features">Features</a>
-            <a href="privacy_policy.html">Privacy</a>
-            <a href="terms_of_use.html">Terms</a>
-        </nav>
-    </header>
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-icon">❤️</div>
+            <h1>HeartRate Senior</h1>
+            <p class="hero-description">A simple and easy way to view an estimated heart rate value using your iPhone camera.</p>
+            <p class="hero-tagline">Big buttons. Clear text. No account required.</p>
+            <p class="hero-disclaimer">For wellness and informational purposes only. Not a medical device.</p>
+            <a href="https://apps.apple.com/app/heartrate-senior/id6740092498" class="app-store-btn">Download on the App Store</a>
+        </section>
+        
+        <!-- Features Section -->
+        <section class="features">
+            <h2>Why You'll Love It</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👆</div>
+                    <h3>Big & Clear</h3>
+                    <p>Large buttons and readable text designed especially for seniors.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📷</div>
+                    <h3>Instant Check</h3>
+                    <p>Place your finger on the camera to get an estimated value in seconds.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Your data stays on your phone. No account required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Simple History</h3>
+                    <p>View your past estimated values in clean, easy-to-read charts. Export anytime.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">❤️</div>
+                    <h3>Apple Health Sync</h3>
+                    <p>Optionally save your estimated values to Apple Health for personal wellness tracking.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Smart Reminders</h3>
+                    <p>Set gentle reminders so you don't forget to check.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- How It Works -->
+        <section class="how-it-works">
+            <h2>How It Works</h2>
+            <p>HeartRate Senior uses your phone's camera and flash to detect light changes from your fingertip and generate an estimated heart rate value.</p>
+            <p class="note">This feature is designed for general wellness and informational use only.</p>
+        </section>
+        
+        <!-- Important Notice -->
+        <section class="notice">
+            <h2>Important Notice</h2>
+            <p>HeartRate Senior is not a medical device and does not provide medical advice, diagnosis, or treatment.</p>
+            <p>The values shown in the app are estimates for general reference only. If you have any health concerns, please consult a qualified healthcare professional.</p>
+        </section>
+        
+        <!-- Privacy Section -->
+        <section class="privacy">
+            <h2>Privacy Comes First</h2>
+            <ul class="privacy-list">
+                <li>• No account required</li>
+                <li>• All data stays on your device</li>
+                <li>• No cloud storage by default</li>
+                <li>• No selling of personal data</li>
+            </ul>
+            <p class="privacy-links">
+                Read our full <a href="privacy_policy.html">Privacy Policy</a> and <a href="terms_of_use.html">Terms of Use</a> for more details.
+            </p>
+        </section>
+    </div>
     
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-icon">❤️</div>
-        <h1>HeartRate <span>Senior</span></h1>
-        <p class="tagline">The easiest heart rate monitor designed for seniors. Big buttons, instant pulse check, no account needed.</p>
-        <a href="https://apps.apple.com/app/heartrate-senior" class="app-store-btn">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            Download on App Store
-        </a>
-    </section>
-    
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <h2>Why You'll Love It</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="icon">👆</div>
-                <h3>Big & Clear</h3>
-                <p>Massive buttons and large, readable text designed specifically for seniors.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">📷</div>
-                <h3>Instant Check</h3>
-                <p>Just place your finger on the camera. No extra devices needed.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">🔒</div>
-                <h3>Privacy First</h3>
-                <p>Your health data stays on your phone. No account required.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">📊</div>
-                <h3>Health History</h3>
-                <p>View your trends with simple weekly charts and export PDF reports.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">❤️</div>
-                <h3>Apple Health Sync</h3>
-                <p>Automatically saves your results to the Apple Health app.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">🔔</div>
-                <h3>Smart Reminders</h3>
-                <p>Set simple alerts so you never forget to measure.</p>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Disclaimer -->
-    <section class="disclaimer">
-        ⚠️ <strong>Medical Disclaimer:</strong> This app is for fitness and wellness purposes only, not for medical use. It does not diagnose, treat, or prevent any disease. If you have any health concerns, please consult a qualified healthcare professional.
-    </section>
-    
-    <!-- Footer -->
     <footer>
-        <div class="footer-links">
-            <a href="https://termsheartpulse.moonspace.workers.dev/privacy_policy.html">Privacy Policy</a>
-            <a href="https://termsheartpulse.moonspace.workers.dev/terms_of_use.html">Terms of Use</a>
-        </div>
-        <p class="copyright">© 2025 FoxioAI. All rights reserved.</p>
+        <p>© 2025 HeartRate Senior. All rights reserved.</p>
+        <p>Contact: <a href="mailto:developer@moonspace.work">developer@moonspace.work</a></p>
     </footer>
 </body>
 </html>

@@ -60,7 +60,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .navigationTitle("Heart Rate")
+            .navigationTitle("Check Heart Rate")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 if autoStart && heartRateManager.measurementState == .idle {
@@ -77,7 +77,7 @@ struct HomeView: View {
                     onDismiss?()
                 }
             } message: {
-                Text("Please enable camera access in Settings to measure your heart rate.")
+                Text("Please enable camera access in Settings to estimate your heart rate.")
             }
             .onChange(of: heartRateManager.measurementState) { oldState, newState in
                 if newState == .idle && (oldState == .measuring || oldState == .preparing) && autoStart {
@@ -135,11 +135,15 @@ struct IdleStateView: View {
     @ObservedObject var heartRateManager: HeartRateManager
     @State private var showingCameraPermissionAlert = false
     
+    // Reference URLs
+    private let pubMedURL = "https://pubmed.ncbi.nlm.nih.gov/17322588/"
+    private let wikipediaURL = "https://en.wikipedia.org/wiki/Heart_rate"
+    
     var body: some View {
         VStack(spacing: AppDimensions.paddingXLarge) {
             Spacer()
             
-            Text("Place your finger on the camera\nto measure your heart rate")
+            Text("Place your finger on the camera\nto estimate your heart rate")
                 .font(AppTypography.body)
                 .foregroundColor(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
@@ -150,11 +154,49 @@ struct IdleStateView: View {
                 checkCameraPermissionAndStart()
             }
             
-            Text("Tap to Measure")
+            Text("Tap to Check")
                 .font(AppTypography.title)
                 .foregroundColor(AppColors.textPrimary)
             
             Spacer()
+            
+            // Disclaimer & References Footer
+            VStack(spacing: 10) {
+                // Disclaimer text
+                HStack(spacing: 6) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.orange)
+                    
+                    Text("Estimates only. Not a medical device.")
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundColor(AppColors.textSecondary)
+                }
+                
+                // Reference links
+                HStack(spacing: 16) {
+                    Link(destination: URL(string: pubMedURL)!) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "doc.text.fill")
+                                .font(.system(size: 11))
+                            Text("PubMed")
+                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.green)
+                    }
+                    
+                    Link(destination: URL(string: wikipediaURL)!) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "book.fill")
+                                .font(.system(size: 11))
+                            Text("Wikipedia")
+                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                        }
+                        .foregroundColor(.blue)
+                    }
+                }
+            }
+            .padding(.bottom, 16)
         }
         .padding(.horizontal, AppDimensions.paddingMedium)
         .alert("Camera Access Required", isPresented: $showingCameraPermissionAlert) {
@@ -165,7 +207,7 @@ struct IdleStateView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Please enable camera access in Settings to measure your heart rate.")
+            Text("Please enable camera access in Settings to estimate your heart rate.")
         }
     }
     
@@ -248,7 +290,7 @@ struct MeasurementPhaseIndicator: View {
     // 6阶段配置（总50秒）
     private let phases: [(icon: String, text: String, endTime: Double)] = [
         ("camera.fill", "Initializing...", 4),
-        ("heart.fill", "Detecting Heart Rate", 14),
+        ("heart.fill", "Estimating Heart Rate", 14),
         ("waveform.path.ecg", "Analyzing Rhythm", 26),
         ("chart.bar.fill", "Calculating HRV", 38),
         ("leaf.fill", "Assessing Wellness", 46),
@@ -511,7 +553,7 @@ struct CompletionAnimationView: View {
                 .foregroundColor(successGreen)
                 .opacity(textOpacity)
             
-            Text("Your heart rate has been measured")
+            Text("Your estimated heart rate is ready")
                 .font(.system(size: 16, weight: .medium, design: .rounded))
                 .foregroundColor(AppColors.textSecondary)
                 .opacity(textOpacity)

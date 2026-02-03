@@ -237,7 +237,7 @@ struct PrivacyPermissionView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Please enable camera access in Settings to measure your heart rate.")
+            Text("Please enable camera access in Settings to check your heart rate.")
         }
     }
     

@@ -144,6 +144,17 @@ struct WeightInputView: View {
                     }
                     .padding(.horizontal, 20)
                     
+                    // Manual Record Disclaimer
+                    VStack(spacing: 4) {
+                        Text("This is a manual record for your personal reference.")
+                        Text("BMI is for general guidance only. Consult a healthcare provider for advice.")
+                    }
+                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .foregroundColor(AppColors.textSecondary.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    
                     Spacer(minLength: 100)
                 }
                 .padding(.top, 20)
