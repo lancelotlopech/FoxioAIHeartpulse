@@ -12,18 +12,23 @@ struct HomeView: View {
     var autoStart: Bool = false
     var onDismiss: (() -> Void)? = nil
     
-    @StateObject private var heartRateManager = HeartRateManager()
+    // 使用单例，避免 SwiftUI 重新创建 View 时销毁对象导致闪光灯熄灭
+    @ObservedObject private var heartRateManager = HeartRateManager.shared
     @EnvironmentObject var settingsManager: SettingsManager
     @State private var showingResult = false
     @State private var finalHRV: HRVMetrics?
     @State private var showCompletionAnimation = false
     @State private var previousState: MeasurementState = .idle
     @State private var showingCameraPermissionAlert = false
+    @State private var hasStartedMeasurement = false  // 防止重复启动
+    @State private var measurementStartTime: Date? = nil  // 记录测量开始时间
+    @State private var canCloseButton = false  // 延迟启用关闭按钮
     
     var body: some View {
         NavigationStack {
             ZStack {
-                AppColors.background
+                // 白色背景
+                Color.white
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
@@ -52,18 +57,50 @@ struct HomeView: View {
                     case .error(let message):
                         ErrorStateView(message: message, heartRateManager: heartRateManager)
                     }
-                    
-                    // Bottom spacer
-                    if onDismiss == nil {
+                }
+                
+                // 关闭按钮（沉浸式模式下显示，仅在测量中显示，且需要延迟启用）
+                if autoStart && canCloseButton && (heartRateManager.measurementState == .measuring || heartRateManager.measurementState == .preparing) {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button {
+                                // 双重检查：确保测量已经开始超过 2 秒
+                                if let startTime = measurementStartTime, Date().timeIntervalSince(startTime) > 2.0 {
+                                    print("📱 CLOSE BUTTON: User tapped close button! (elapsed: \(Date().timeIntervalSince(startTime))s)")
+                                    HapticManager.shared.lightImpact()
+                                    heartRateManager.stopMeasurement()
+                                    onDismiss?()
+                                } else {
+                                    print("📱 CLOSE BUTTON: ⚠️ IGNORED - too early to close")
+                                }
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 32))
+                                    .foregroundStyle(.gray.opacity(0.6), .gray.opacity(0.15))
+                            }
+                            .buttonStyle(.plain)  // 防止意外触发
+                            .padding(.trailing, 20)
+                            .padding(.top, 16)
+                        }
                         Spacer()
-                            .frame(height: 80)
                     }
                 }
             }
-            .navigationTitle("Check Heart Rate")
+            .navigationBarHidden(autoStart) // 沉浸式模式隐藏导航栏
+            .navigationTitle(autoStart ? "" : "Check Heart Rate")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
+                print("📱 HomeView onAppear - autoStart: \(autoStart), state: \(heartRateManager.measurementState), hasStarted: \(hasStartedMeasurement)")
+                
+                // 防止重复启动
+                guard !hasStartedMeasurement else {
+                    print("📱 HomeView onAppear - already started, ignoring")
+                    return
+                }
+                
                 if autoStart && heartRateManager.measurementState == .idle {
+                    hasStartedMeasurement = true
                     checkCameraPermissionAndStart()
                 }
             }
@@ -80,9 +117,9 @@ struct HomeView: View {
                 Text("Please enable camera access in Settings to estimate your heart rate.")
             }
             .onChange(of: heartRateManager.measurementState) { oldState, newState in
-                if newState == .idle && (oldState == .measuring || oldState == .preparing) && autoStart {
-                    onDismiss?()
-                }
+                print("📱 VIEW onChange: state changed from \(oldState) to \(newState), autoStart=\(autoStart)")
+                // 只有在用户主动关闭时才触发 onDismiss
+                // 不再自动触发，避免误关闭
                 previousState = newState
             }
             .navigationDestination(isPresented: $showingResult) {
@@ -110,7 +147,7 @@ struct HomeView: View {
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
                     if granted {
-                        heartRateManager.startMeasurement()
+                        startMeasurementWithDelay()
                     } else {
                         showingCameraPermissionAlert = true
                     }
@@ -121,11 +158,24 @@ struct HomeView: View {
             Task { @MainActor in
                 AppsFlyerManager.shared.trackStartHeartRate()
             }
-            heartRateManager.startMeasurement()
+            startMeasurementWithDelay()
         case .denied, .restricted:
             showingCameraPermissionAlert = true
         @unknown default:
             showingCameraPermissionAlert = true
+        }
+    }
+    
+    // 启动测量并延迟启用关闭按钮
+    private func startMeasurementWithDelay() {
+        measurementStartTime = Date()
+        canCloseButton = false  // 初始禁用关闭按钮
+        heartRateManager.startMeasurement()
+        
+        // 2 秒后启用关闭按钮
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            canCloseButton = true
+            print("📱 Close button enabled after 2 seconds")
         }
     }
 }
@@ -134,6 +184,7 @@ struct HomeView: View {
 struct IdleStateView: View {
     @ObservedObject var heartRateManager: HeartRateManager
     @State private var showingCameraPermissionAlert = false
+    @State private var showReferencesDisclaimer = false
     
     // Reference URLs
     private let pubMedURL = "https://pubmed.ncbi.nlm.nih.gov/17322588/"
@@ -160,43 +211,68 @@ struct IdleStateView: View {
             
             Spacer()
             
-            // Disclaimer & References Footer
-            VStack(spacing: 10) {
-                // Disclaimer text
-                HStack(spacing: 6) {
-                    Image(systemName: "info.circle.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(.orange)
-                    
-                    Text("Estimates only. Not a medical device.")
-                        .font(.system(size: 12, design: .rounded))
-                        .foregroundColor(AppColors.textSecondary)
+            // Collapsible Disclaimer & References Footer
+            VStack(spacing: 8) {
+                // Toggle button
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        showReferencesDisclaimer.toggle()
+                    }
+                    HapticManager.shared.lightImpact()
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "info.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.orange)
+                        
+                        Text("References & Disclaimer")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(AppColors.textSecondary)
+                        
+                        Image(systemName: showReferencesDisclaimer ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(AppColors.textSecondary)
+                    }
                 }
                 
-                // Reference links
-                HStack(spacing: 16) {
-                    Link(destination: URL(string: pubMedURL)!) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "doc.text.fill")
-                                .font(.system(size: 11))
-                            Text("PubMed")
-                                .font(.system(size: 11, weight: .medium, design: .rounded))
+                // Expanded content
+                if showReferencesDisclaimer {
+                    VStack(spacing: 10) {
+                        // Disclaimer text
+                        Text("This app provides estimates for wellness purposes only. It is not a medical device and should not be used for diagnosis or treatment. Consult a healthcare professional for medical advice.")
+                            .font(.system(size: 11, design: .rounded))
+                            .foregroundColor(AppColors.textSecondary)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(2)
+                        
+                        // Reference links
+                        HStack(spacing: 16) {
+                            Link(destination: URL(string: pubMedURL)!) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "doc.text.fill")
+                                        .font(.system(size: 11))
+                                    Text("PubMed")
+                                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                                }
+                                .foregroundColor(.green)
+                            }
+                            
+                            Link(destination: URL(string: wikipediaURL)!) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "book.fill")
+                                        .font(.system(size: 11))
+                                    Text("Wikipedia")
+                                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                                }
+                                .foregroundColor(.blue)
+                            }
                         }
-                        .foregroundColor(.green)
                     }
-                    
-                    Link(destination: URL(string: wikipediaURL)!) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "book.fill")
-                                .font(.system(size: 11))
-                            Text("Wikipedia")
-                                .font(.system(size: 11, weight: .medium, design: .rounded))
-                        }
-                        .foregroundColor(.blue)
-                    }
+                    .padding(.top, 4)
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 }
             }
-            .padding(.bottom, 16)
+            .padding(.bottom, 8)
         }
         .padding(.horizontal, AppDimensions.paddingMedium)
         .alert("Camera Access Required", isPresented: $showingCameraPermissionAlert) {
@@ -373,25 +449,26 @@ struct ContinuousMeasuringView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // 顶部安全间距（减少，文字上移）
+            // 顶部弹性空间
             Spacer()
-                .frame(height: 8)
             
-            // 1. 阶段进度提示（移到顶部，无白色底框）
-            MeasurementPhaseIndicator(
-                duration: heartRateManager.measurementDuration,
-                isFingerDetected: heartRateManager.isFingerDetected
-            )
-            .frame(height: 70)
-            .padding(.horizontal, 20)
-            
-            // 阶段提示 ↔ 圆环间距
-            Spacer()
-                .frame(height: 20)
-            
-            // 2. Center Display (Camera + Heart + BPM + Progress Ring)
-            ZStack {
-                // 进度环底色
+            // 主内容区域（居中显示）
+            VStack(spacing: 0) {
+                // 1. 阶段进度提示
+                MeasurementPhaseIndicator(
+                    duration: heartRateManager.measurementDuration,
+                    isFingerDetected: heartRateManager.isFingerDetected
+                )
+                .frame(height: 70)
+                .padding(.horizontal, 20)
+                
+                // 阶段提示 ↔ 圆环间距
+                Spacer()
+                    .frame(height: 24)
+                
+                // 2. Center Display (Camera + Heart + BPM + Progress Ring)
+                ZStack {
+                    // 进度环底色
                 Circle()
                     .stroke(AppColors.primaryRed.opacity(0.15), lineWidth: 10)
                     .frame(width: 240, height: 240)
@@ -493,18 +570,18 @@ struct ContinuousMeasuringView: View {
                 }
             }
             
-            // 圆环 ↔ 脉冲条形图间距
-            Spacer()
-                .frame(height: 32)
+                // 圆环 ↔ 脉冲条形图间距
+                Spacer()
+                    .frame(height: 32)
+                
+                // 3. 脉冲条形图
+                PulseBarChartView(heartbeatTick: heartRateManager.heartbeatTick)
+                    .frame(height: 60)
+                    .padding(.horizontal, 32)
+            }
             
-            // 3. 脉冲条形图
-            PulseBarChartView(heartbeatTick: heartRateManager.heartbeatTick)
-                .frame(height: 60)
-                .padding(.horizontal, 32)
-            
-            // 底部 Tab Bar 间距
+            // 底部弹性空间
             Spacer()
-                .frame(height: 80)
         }
     }
 }

@@ -27,12 +27,14 @@ struct DashboardView: View {
     @State private var showingDayDetail = false
     @State private var selectedTabForMeasure = 1
     @State private var showUpgradeBanner = PaywallConfiguration.showUpgradeBanner
+    @State private var showingHIVAwareness = false
+    @State private var showingPregnancyCenter = false
     
     var body: some View {
         ZStack {
             NavigationStack {
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 24) {  // 增加模块间距从16到24
                         // 1. Header with Emergency Button & Pro Badge
                         HeaderView(
                             onEmergencyTap: {
@@ -61,7 +63,8 @@ struct DashboardView: View {
                                     }
                                 }
                             )
-                            .padding(.horizontal, 20).transition(.asymmetric(
+                            .padding(.horizontal, 20)
+                            .transition(.asymmetric(
                                 insertion: .move(edge: .top).combined(with: .opacity),
                                 removal: .move(edge: .top).combined(with: .opacity)
                             ))
@@ -77,35 +80,56 @@ struct DashboardView: View {
                             }
                         )
                         .padding(.horizontal, 20)
-                        .padding(.bottom, -4) // 减少与 Health Score 间距
                         
-                        // 4. Health Score Ring (暂时隐藏)
-                        // HealthScoreRingView(
-                        //     heartRateRecords: heartRateRecords,
-                        //     bloodPressureRecords: bloodPressureRecords,
-                        //     bloodGlucoseRecords: bloodGlucoseRecords
-                        // )
-                        // .padding(.horizontal, 20)
-                        
-                        // 5. Monthly Calendar (Heatmap Style)
-                        MonthlyCalendarView(
-                            heartRateRecords: heartRateRecords,
-                            bloodPressureRecords: bloodPressureRecords,
-                            bloodGlucoseRecords: bloodGlucoseRecords,
-                            onDateTapped: { date in
-                                HapticManager.shared.selectionChanged()
-                                selectedDate = date
-                                showingDayDetail = true
-                            }
-                        )
-                        .padding(.horizontal, 20)
-                        
-                        // 6. Quick Record Cards (Horizontal List)
+                        // 4. Monthly Calendar (Heatmap Style) - 添加 Daily Check 标题
                         VStack(spacing: 12) {
-                            Text("Quick Record")
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
-                                .foregroundColor(AppColors.textPrimary).frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
+                            SectionTitleView(icon: "calendar", title: "Daily Check")
+                                .padding(.horizontal, 20)
+                            
+                            MonthlyCalendarView(
+                                heartRateRecords: heartRateRecords,
+                                bloodPressureRecords: bloodPressureRecords,
+                                bloodGlucoseRecords: bloodGlucoseRecords,
+                                onDateTapped: { date in
+                                    HapticManager.shared.selectionChanged()
+                                    selectedDate = date
+                                    showingDayDetail = true
+                                }
+                            )
+                            .padding(.horizontal, 20)
+                        }
+                        
+                        // 4.5 Self Check Section (健康自检)
+                        VStack(spacing: 12) {
+                            SectionTitleView(icon: "stethoscope", title: "Self Check")
+                                .padding(.horizontal, 20)
+                            
+                            VStack(spacing: 12) {
+                                // HIV Awareness Card
+                                Button(action: {
+                                    HapticManager.shared.lightImpact()
+                                    showingHIVAwareness = true
+                                }) {
+                                    HIVAwarenessCard(onTap: {})
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                
+                                // Pregnancy Center Card
+                                Button(action: {
+                                    HapticManager.shared.lightImpact()
+                                    showingPregnancyCenter = true
+                                }) {
+                                    PregnancyCenterCard(onTap: {})
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
+                            .padding(.horizontal, 20)
+                        }
+                        
+                        // 5. Quick Record Cards - 使用统一标题组件
+                        VStack(spacing: 12) {
+                            SectionTitleView(icon: "square.and.pencil", title: "Quick Record")
+                                .padding(.horizontal, 20)
                             
                             VStack(spacing: 12) {
                                 // Blood Pressure
@@ -175,15 +199,14 @@ struct DashboardView: View {
                             .padding(.horizontal, 20)
                         }
                         
-                        // 7. Health Knowledge Articles Section
+                        // 6. Health Knowledge Articles Section
                         DashboardArticlesSection()
                         
                         // Footer: Disclaimer & References
                         DisclaimerFooterView()
-                            .padding(.horizontal, 20)
-                            .padding(.top, 20)
+                            .padding(.top, 8)
                         
-                        Spacer(minLength: 100)
+                        Spacer(minLength: 20)
                     }
                 }
                 .background(AppColors.background.ignoresSafeArea())
@@ -212,6 +235,12 @@ struct DashboardView: View {
                             bloodGlucoseRecords: bloodGlucoseRecords.filter { Calendar.current.isDate($0.timestamp, inSameDayAs: date) }
                         )
                     }
+                }
+                .fullScreenCover(isPresented: $showingHIVAwareness) {
+                    HIVAwarenessView()
+                }
+                .fullScreenCover(isPresented: $showingPregnancyCenter) {
+                    PregnancyCenterView()
                 }
             }
         }

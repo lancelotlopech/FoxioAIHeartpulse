@@ -45,6 +45,7 @@ struct FullVideoPlayer: UIViewControllerRepresentable {
 }
 
 struct TutorialView: View {
+    @Binding var currentPage: Int
     @Binding var hasCompletedOnboarding: Bool
     
     private let accentRed = Color(hex: "F4403A")
@@ -72,23 +73,17 @@ struct TutorialView: View {
                 Spacer()
                     .frame(height: 24)
                 
-                // Title
-                VStack(spacing: 12) {
-                    (Text("How to ")
-                        .font(.system(size: 32, weight: .medium, design: .rounded))
-                        .foregroundColor(.primary)
-                    +
-                    Text("Measure")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundColor(accentRed))
-                    
-                    Text("Place your finger gently over\nthe back camera and flash")
-                        .font(.system(size: 16, weight: .regular))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                }
-                .padding(.horizontal, 24)
+                // Title (使用富文本，"phone's camera" 标红，去掉句号)
+                (Text("Measure your heart rate using your ")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.primary)
+                + Text("phone's camera")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(accentRed))
+                .multilineTextAlignment(.center)
+                .lineSpacing(2)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 20)
                 
                 Spacer()
                 
@@ -100,14 +95,14 @@ struct TutorialView: View {
                 
                 Spacer()
                 
-                // Start button - aligned with page 1
+                // Continue button
                 Button(action: {
-                    HapticManager.shared.success()
+                    HapticManager.shared.mediumImpact()
                     withAnimation {
-                        hasCompletedOnboarding = true
+                        currentPage = 2
                     }
                 }) {
-                    Text("Start Measuring")
+                    Text("Continue")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -150,5 +145,5 @@ struct TutorialTip: View {
 }
 
 #Preview {
-    TutorialView(hasCompletedOnboarding: .constant(false))
+    TutorialView(currentPage: .constant(1), hasCompletedOnboarding: .constant(false))
 }

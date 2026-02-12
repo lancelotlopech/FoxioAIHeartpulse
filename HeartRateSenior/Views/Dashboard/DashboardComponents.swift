@@ -205,23 +205,12 @@ struct HeaderView: View {
     let onProTap: () -> Void
     let isPremium: Bool
     
-    private var dateText: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMM d"
-        return formatter.string(from: Date())
-    }
-    
     var body: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Home")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.black)
-                
-                Text(dateText)
-                    .font(.system(size: 16, weight: .regular, design: .rounded))
-                    .foregroundColor(.black.opacity(0.6))
-            }
+            // 只显示 Home 标题，去掉日期
+            Text("Home")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundColor(.black)
             
             Spacer()
             
@@ -261,6 +250,42 @@ struct HeaderView: View {
                     Image(systemName: "sos")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Section Title View (统一的区块标题组件)
+struct SectionTitleView: View {
+    let icon: String
+    let title: String
+    var showSeeMore: Bool = false
+    var onSeeMoreTap: (() -> Void)? = nil
+    
+    var body: some View {
+        HStack {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(.black)  // 改为纯黑色
+                
+                Text(title)
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(.black)  // 改为纯黑色
+            }
+            
+            Spacer()
+            
+            if showSeeMore, let action = onSeeMoreTap {
+                Button(action: action) {
+                    HStack(spacing: 4) {
+                        Text("See All")
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    .foregroundColor(AppColors.primaryRed)
                 }
             }
         }
@@ -581,6 +606,94 @@ struct HorizontalRecordCard: View {
                     .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
             )
         }
+    }
+}
+
+// MARK: - HIV Awareness Card (Dashboard 入口卡片)
+struct HIVAwarenessCard: View {
+    let onTap: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // 左侧：红色医疗图标
+            ZStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(AppColors.primaryRed.opacity(0.12))
+                    .frame(width: 64, height: 64)
+                
+                Image(systemName: "cross.case.fill")
+                    .font(.system(size: 30, weight: .medium))
+                    .foregroundColor(AppColors.primaryRed)
+            }
+            
+            // 中间：标题和描述
+            VStack(alignment: .leading, spacing: 4) {
+                Text("HIV Awareness")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(AppColors.textPrimary)
+                
+                Text("Learn about prevention & testing")
+                    .font(.system(size: 15, weight: .regular, design: .rounded))
+                    .foregroundColor(AppColors.textSecondary)
+            }
+            
+            Spacer()
+            
+            // 右侧：箭头
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(AppColors.textSecondary.opacity(0.5))
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        )
+    }
+}
+
+// MARK: - Pregnancy Center Card (Dashboard 入口卡片)
+struct PregnancyCenterCard: View {
+    let onTap: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // 左侧：粉色图标
+            ZStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(red: 1.0, green: 0.75, blue: 0.8).opacity(0.3))
+                    .frame(width: 64, height: 64)
+                
+                Image(systemName: "heart.circle.fill")
+                    .font(.system(size: 30, weight: .medium))
+                    .foregroundColor(Color(red: 1.0, green: 0.6, blue: 0.7))
+            }
+            
+            // 中间：标题和描述
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Pregnancy Center")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(AppColors.textPrimary)
+                
+                Text("Self-check & guidance")
+                    .font(.system(size: 15, weight: .regular, design: .rounded))
+                    .foregroundColor(AppColors.textSecondary)
+            }
+            
+            Spacer()
+            
+            // 右侧：箭头
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(AppColors.textSecondary.opacity(0.5))
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        )
     }
 }
 

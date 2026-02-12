@@ -102,6 +102,7 @@ struct ArticleCoverPlaceholder: View {
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
                 .minimumScaleFactor(0.75)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 8)
@@ -131,16 +132,16 @@ struct DashboardArticlesSection: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            // Header
+            // Header - 图标和标题改为纯黑色
             HStack {
                 HStack(spacing: 8) {
                     Image(systemName: "book.fill")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(AppColors.primaryRed)
+                        .foregroundColor(.black)  // 改为纯黑色
                     
                     Text("Article")
                         .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
+                        .foregroundColor(.black)  // 改为纯黑色
                 }
                 Spacer()
                 

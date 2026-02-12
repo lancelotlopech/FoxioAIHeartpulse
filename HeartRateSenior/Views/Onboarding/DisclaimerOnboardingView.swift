@@ -38,9 +38,11 @@ struct DisclaimerOnboardingView: View {
             .padding(.bottom, 24)
             
             // Title
-            Text("Important Information")
+            Text("Understand more than just your heart rate")
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundColor(AppColors.textPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
                 .padding(.bottom, 8)
             
             Text("Please read before using")
@@ -166,12 +168,12 @@ struct DisclaimerOnboardingView: View {
             Spacer()
             
             // Continue Button
-            Button(action: {
-                HapticManager.shared.mediumImpact()
-                withAnimation {
-                    currentPage = 3
-                }
-            }) {
+                    Button(action: {
+                        HapticManager.shared.mediumImpact()
+                        withAnimation {
+                            currentPage = 4
+                        }
+                    }) {
                 HStack(spacing: 8) {
                     Text("I Understand")
                         .font(.system(size: 18, weight: .semibold, design: .rounded))

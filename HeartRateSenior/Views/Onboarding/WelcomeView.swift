@@ -45,54 +45,68 @@ struct WelcomeView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                Spacer()
-                .frame(height: size.height * 0.12)
+                    Spacer()
+                        .frame(height: size.height * 0.12)
                     
                     // Heart icon area with floating feature icons
                     ZStack {
-                        // Main heart SF Symbol icon
-                        Image(systemName: "heart.fill")
+                        // Main heart image (heartpic.png)
+                        Image("heartpic")
                             .resizable()
                             .scaledToFit()
                             .frame(width: heartSize, height: heartSize)
-                            .foregroundColor(accentRed)
                             .shadow(color: accentRed.opacity(0.5), radius: glowRadius, x: 0, y: 0)
                             .shadow(color: accentRed.opacity(0.3), radius: glowRadius * 1.5, x: 0, y: 0)
-                .scaleEffect(heartScale)
+                            .scaleEffect(heartScale)
                             .position(x: size.width / 2, y: iconAreaHeight / 2)
                         
                         // Feature icons around the heart
                         ForEach(Array(features.enumerated()), id: \.offset) { index, feature in
-                FeatureIconView(icon: feature.icon, accentColor: accentRed)
+                            FeatureIconView(icon: feature.icon, accentColor: accentRed)
                                 .scaleEffect(visibleIcons.contains(index) ? 1.0 : 0.3)
                                 .opacity(visibleIcons.contains(index) ? 1.0 : 0)
                                 .position(x: size.width * feature.position.x, y: iconAreaHeight * feature.position.y)
                         }
                     }
                     .frame(height: iconAreaHeight)
-                Spacer()
-                
-                    // Title and subtitle
-                    VStack(spacing: 16) {
-                        Text("FoxioAI")
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
-                            .foregroundColor(accentRed)
-                
-                        VStack(spacing: 6) {
-                            Text("Estimated heart rate")
-                                .font(.system(size: 17, weight: .medium))
-                                .foregroundColor(.primary)
-                            Text("For reference only")
-                                .font(.system(size: 15, weight: .regular))
-                                .foregroundColor(.secondary)
-                            Text("Not a medical device")
-                                .font(.system(size: 15, weight: .regular))
-                                .foregroundColor(.secondary)
-                        }
-                }
-                    .padding(.horizontal, 24)
                     
                     Spacer()
+                    
+                    // Title (使用富文本，文字连贯，位置下移更多，宽度与第二页一致)
+                    (Text("Pay attention ")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(accentRed)
+                    + Text("to changes that could affect your heart health.")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.primary))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 40)
+                    
+                    Spacer()
+                    Spacer()
+                    
+                    // Legal links
+                    VStack(spacing: 2) {
+                        Text("By continuing, you agree to our")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                        
+                        HStack(spacing: 4) {
+                            Link("Terms of Use", destination: URL(string: "https://termsheartpulse.moonspace.workers.dev/terms_of_use.html")!)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(accentRed)
+                            
+                            Text("&")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                            
+                            Link("Privacy Policy", destination: URL(string: "https://termsheartpulse.moonspace.workers.dev/privacy_policy.html")!)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(accentRed)
+                        }
+                    }
+                    .padding(.bottom, 16)
                     
                     // Get Started button
                     Button(action: {

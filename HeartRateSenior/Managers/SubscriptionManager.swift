@@ -246,8 +246,13 @@ class SubscriptionManager: ObservableObject {
     // MARK: - AppsFlyer Event Tracking
     private func trackAppsFlyerPurchase(product: Product, transaction: StoreKit.Transaction) async {
         let productId = product.id
-        let price = product.price
-        let currency = product.priceFormatStyle.currencyCode ?? "USD"
+        
+        // Use transaction.price to get the actual amount paid (e.g., $0.99 for trial, $9.99 for renewal)
+        // product.price always returns the standard subscription price, not the actual transaction amount
+        let actualPrice = transaction.price ?? product.price
+        
+        // Use transaction.currency if available, fallback to product currency
+        let currency = transaction.currency ?? product.priceFormatStyle.currencyCode ?? "USD"
         let isWeekly = product.id == PaywallConfiguration.weeklyProductID
         
         // Check if this transaction has an introductory offer (free trial)
@@ -256,11 +261,13 @@ class SubscriptionManager: ObservableObject {
         // Track subscription purchase with AppsFlyer
         AppsFlyerManager.shared.trackSubscriptionPurchase(
             productId: productId,
-            price: price,
+            price: actualPrice,
             currency: currency,
             isFreeTrial: isFreeTrial,
             isWeekly: isWeekly
         )
+        
+        print("📊 SubscriptionManager: Tracked purchase - actualPrice: \(actualPrice) \(currency), isFreeTrial: \(isFreeTrial)")
     }
     
     // MARK: - Format Price

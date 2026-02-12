@@ -34,8 +34,12 @@ enum TabItem: Int, CaseIterable {
 // MARK: - Main Tab View
 struct MainTabView: View {
     @State private var selectedTab: TabItem = .home
-    @State private var shouldAutoStartMeasure = false
+    @State private var showingMeasureFullScreen = false  // 全屏测量页面
     @State private var showingSubscription = false
+    @State private var previousTab: TabItem = .home  // 记录之前的 Tab
+    @State private var lastActiveTime: Date = Date()  // 记录最后活跃时间
+    @State private var isReturningFromBackground = false  // 是否从后台返回
+    @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var settingsManager: SettingsManager
     
     var body: some View {
@@ -47,19 +51,18 @@ struct MainTabView: View {
                     case .home:
                         DashboardView()
                     case .measure:
-                        // Embedded HomeView within the tab structure
-                        // Using ID to ensure it resets when auto-start is triggered repeatedly
-                        HomeView(
-                            autoStart: shouldAutoStartMeasure,
-                            onDismiss: {
-                                // When cancelled, return to home tab
-                                shouldAutoStartMeasure = false
-                                withAnimation {
-                                    selectedTab = .home
-                                }
-                            }
-                        )
-                        .id(shouldAutoStartMeasure ? "measure-autostart" : "measure-idle")
+                        // 非自动启动模式下显示 HomeView（手动点击 Tab）
+                        // 注意：当 fullScreenCover 显示时，这个 View 仍然存在
+                        // 但不会干扰测量，因为 autoStart=false
+                        if !showingMeasureFullScreen {
+                            HomeView(
+                                autoStart: false,
+                                onDismiss: nil
+                            )
+                        } else {
+                            // 全屏测量时显示占位视图，避免两个 HomeView 同时存在
+                            Color.white
+                        }
                         
                     case .settings:
                         SettingsView()
@@ -93,11 +96,56 @@ struct MainTabView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
+        // 全屏测量页面（沉浸式，隐藏 Tab Bar）
+        .fullScreenCover(isPresented: $showingMeasureFullScreen) {
+            HomeView(
+                autoStart: true,
+                onDismiss: {
+                    showingMeasureFullScreen = false
+                }
+            )
+            .environmentObject(settingsManager)
+        }
+        // 监听应用状态变化
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            switch newPhase {
+            case .active:
+                // 从后台返回前台
+                let timeSinceLastActive = Date().timeIntervalSince(lastActiveTime)
+                if timeSinceLastActive > 1.0 {
+                    // 超过 1 秒，标记为从后台返回
+                    isReturningFromBackground = true
+                    print("📱 App returned from background after \(timeSinceLastActive)s")
+                    
+                    // 1 秒后重置标记
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        isReturningFromBackground = false
+                    }
+                }
+                lastActiveTime = Date()
+                
+            case .inactive, .background:
+                lastActiveTime = Date()
+                
+            @unknown default:
+                break
+            }
+        }
         // Listen for navigation requests from Dashboard
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("NavigateToMeasure"))) { _ in
+            // 如果是从后台返回，忽略此通知
+            guard !isReturningFromBackground else {
+                print("📱 Ignoring NavigateToMeasure - returning from background")
+                return
+            }
             startMeasurement()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToMeasureTab"))) { _ in
+            // 如果是从后台返回，忽略此通知
+            guard !isReturningFromBackground else {
+                print("📱 Ignoring SwitchToMeasureTab - returning from background")
+                return
+            }
             startMeasurement()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowSubscription"))) { _ in
@@ -106,9 +154,14 @@ struct MainTabView: View {
     }
     
     private func startMeasurement() {
+        // 防抖：如果已经在显示测量页面，不重复触发
+        guard !showingMeasureFullScreen else {
+            print("📱 Measurement already showing, ignoring")
+            return
+        }
+        
         HapticManager.shared.mediumImpact()
-        shouldAutoStartMeasure = true
-        selectedTab = .measure
+        showingMeasureFullScreen = true
     }
 }
 

@@ -29,13 +29,13 @@ struct BigMeasureButtonCard: View {
         VStack(spacing: 8) {
             
             // ───────────────────────────────────────────────────────────
-            // 【区域 A】顶部标题栏
+            // 【区域 A】顶部标题栏 - 使用统一样式
             // ───────────────────────────────────────────────────────────
             HStack {
-                // 【A1】标题文字 - "Heart Rate"
+                // 【A1】标题 - 纯文字，无图标
                 Text("Heart Rate")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))  // 字体大小：22pt
-                    .foregroundColor(.black)  // 颜色：纯黑色
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundColor(.black)
                 
                 Spacer()
                 

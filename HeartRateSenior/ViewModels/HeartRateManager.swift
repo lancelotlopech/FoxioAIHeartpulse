@@ -2,8 +2,8 @@
 //  HeartRateManager.swift
 //  HeartRateSenior
 //
-//  Professional PPG Heart Rate Manager V4.0
-//  Features: Realistic Heartbeat Haptics, Time-Weighted EMA, Stable Torch
+//  Professional PPG Heart Rate Manager V7.0
+//  行业标准版：Session 只创建一次，Torch 延迟开启，不闪烁
 //
 
 import Foundation
@@ -39,9 +39,12 @@ enum MeasurementPhase {
     case completed   // After 60 seconds
 }
 
-// MARK: - Heart Rate Manager
+// MARK: - Heart Rate Manager (行业标准版)
 @MainActor
 class HeartRateManager: NSObject, ObservableObject {
+    
+    // MARK: - Singleton
+    static let shared = HeartRateManager()
     
     // MARK: - Published Properties
     @Published var measurementState: MeasurementState = .idle
@@ -54,29 +57,28 @@ class HeartRateManager: NSObject, ObservableObject {
     @Published var measurementPhase: MeasurementPhase = .warmup
     @Published private(set) var previewSession: AVCaptureSession?
     
-    // Heartbeat tick counter - increments on each haptic trigger for UI sync
+    // Heartbeat tick counter
     @Published var heartbeatTick: Int = 0
     
     // HRV Metrics
     @Published var currentHRV: HRVMetrics?
     
     // MARK: - Configuration
-    private let torchLevel: Float = 0.8
-    private var actualSampleRate: Double = 30.0  // Will be set based on device capability
+    private var actualSampleRate: Double = 30.0
     private let warmupDuration: TimeInterval = 4.0
     private let measurementTimeLimit: TimeInterval = 50.0
-    
-    // Fixed heartbeat rhythm: 1 second interval (60 BPM feel)
     private let hapticInterval: TimeInterval = 1.0
     
-    // Time-weighted EMA: starts responsive, becomes stable over time
-    private let emaAlphaMax: Double = 0.5   // Initial: responsive
-    private let emaAlphaMin: Double = 0.05  // Final: very stable
+    // Time-weighted EMA
+    private let emaAlphaMax: Double = 0.5
+    private let emaAlphaMin: Double = 0.05
     
-    // MARK: - Private Properties
-    private var captureSession: AVCaptureSession?
+    // MARK: - 行业标准：单一 Session，只创建一次
+    private let session = AVCaptureSession()
+    private let sessionQueue = DispatchQueue(label: "com.heartrate.session", qos: .userInteractive)
+    private var videoInput: AVCaptureDeviceInput?
     private var videoOutput: AVCaptureVideoDataOutput?
-    private var captureDevice: AVCaptureDevice?
+    private var isSessionConfigured = false
     
     // Signal Processor
     let signalProcessor: SignalProcessor
@@ -85,86 +87,62 @@ class HeartRateManager: NSObject, ObservableObject {
     private var updateTimer: Timer?
     private var hapticTimer: Timer?
     private var lastEffectiveDuration: TimeInterval = 0
-    private var lastTorchCheckTime: Date = Date()
     private var frameCount: Int = 0
     private var consecutiveGoodFrames: Int = 0
-    private let processingQueue = DispatchQueue(label: "com.heartrate.processing", qos: .userInteractive)
     
     // EMA Smoothing
     private var smoothedBPM: Double = 0
-    
-    // Final BPM calculation
     private var bpmHistory: [Int] = []
-    
-    // KVO
-    private var torchObservation: NSKeyValueObservation?
-    
-    // Track if finger was previously detected (for reset logic)
     private var wasFingerDetected: Bool = false
+    private var isMeasuring: Bool = false
     
-    // Track if torch has been turned on for this session
-    private var isTorchOnForSession: Bool = false
+    // 🔒 硬状态锁：防止 SwiftUI View 重建导致重复触发
+    private var hasEverStarted: Bool = false
     
     // MARK: - Initialization
     override init() {
         self.signalProcessor = SignalProcessor()
         super.init()
         
-        // Connect BPM callback
         self.signalProcessor.onHeartbeatDetected = { [weak self] in
             DispatchQueue.main.async {
                 guard let self = self else { return }
-                
-                // Update BPM when detected
                 if let bpm = self.signalProcessor.getCurrentBPM() {
                     self.applyBPM(bpm)
                 }
             }
         }
+        
+        // 设置 previewSession 引用
+        self.previewSession = session
     }
     
-    deinit {
-        torchObservation?.invalidate()
-    }
-    
-    // MARK: - Time-Weighted EMA Alpha
-    
-    /// Calculate EMA alpha based on elapsed time
-    /// Starts at 0.5 (responsive), decreases to 0.05 (stable) over 60 seconds
+    // MARK: - EMA Alpha
     private func getCurrentEMAAlpha() -> Double {
         let progress = min(1.0, lastEffectiveDuration / measurementTimeLimit)
         return emaAlphaMax - (emaAlphaMax - emaAlphaMin) * progress
     }
     
-    // MARK: - BPM Application with Time-Weighted EMA
-    
+    // MARK: - BPM Application
     private func applyBPM(_ bpm: Int) {
         let alpha = getCurrentEMAAlpha()
-        
         if smoothedBPM == 0 {
             smoothedBPM = Double(bpm)
         } else {
             smoothedBPM = alpha * Double(bpm) + (1 - alpha) * smoothedBPM
         }
         currentBPM = Int(round(smoothedBPM))
-        
-        // Store for final calculation
         bpmHistory.append(currentBPM)
     }
     
-    // MARK: - Fixed-Rhythm Haptic System (Realistic Heartbeat)
-    
+    // MARK: - Haptic System
     private func startHapticTimer() {
         stopHapticTimer()
-        
-        // Fixed 1-second interval for consistent heartbeat feel
         hapticTimer = Timer.scheduledTimer(withTimeInterval: hapticInterval, repeats: true) { [weak self] _ in
             Task { @MainActor in
                 self?.triggerHaptic()
             }
         }
-        
-        // Trigger first haptic immediately
         triggerHaptic()
     }
     
@@ -174,127 +152,190 @@ class HeartRateManager: NSObject, ObservableObject {
     }
     
     private func triggerHaptic() {
-        // Only trigger if finger is detected and measuring
         guard measurementState == .measuring && isFingerDetected else { return }
-        
-        // Use realistic "lub-dub" heartbeat pattern
         HapticManager.shared.playHeartbeatPattern()
-        
-        // Increment tick for UI animation sync
         heartbeatTick += 1
     }
     
-    // MARK: - Public Methods
+    // MARK: - ==================== PUBLIC METHODS ====================
     
     func startMeasurement() {
-        resetMeasurement()
-        Task {
-            await requestCameraPermission()
+        print("🎬 [START] startMeasurement() - hasEverStarted=\(hasEverStarted), isMeasuring=\(isMeasuring), state=\(measurementState)")
+        
+        // 🔒 硬状态锁：防止 SwiftUI View 重建导致重复触发
+        guard !hasEverStarted else {
+            print("🎬 [START] ❌ BLOCKED - already started once (hasEverStarted=true)")
+            return
+        }
+        
+        guard !isMeasuring else {
+            print("🎬 [START] ⚠️ IGNORED - already measuring")
+            return
+        }
+        
+        guard measurementState == .idle || measurementState == .completed else {
+            print("🎬 [START] ⚠️ IGNORED - state is \(measurementState)")
+            return
+        }
+        
+        // 🔒 设置硬状态锁
+        hasEverStarted = true
+        print("🎬 [START] ✅ PROCEEDING (hasEverStarted set to true)")
+        isMeasuring = true
+        measurementState = .preparing
+        resetMeasurementData()
+        
+        // 在 sessionQueue 中执行所有相机操作
+        sessionQueue.async { [weak self] in
+            guard let self = self else { return }
+            
+            // 1. 配置 Session（只配置一次）
+            if !self.isSessionConfigured {
+                print("📷 [SESSION] 首次配置 Session...")
+                self.configureSession()
+            }
+            
+            // 2. 启动 Session
+            if !self.session.isRunning {
+                print("📷 [SESSION] 启动 Session...")
+                self.session.startRunning()
+                print("📷 [SESSION] Session running = \(self.session.isRunning)")
+            }
+            
+            // 3. ⚠️ 关键修复：在 sessionQueue 中预先创建 PreviewLayer
+            // 这样可以确保 PreviewLayer 在手电筒开启前就已经连接到 session
+            // 避免 SwiftUI 延迟渲染导致的时序问题
+            DispatchQueue.main.sync {
+                _ = PreviewLayerManager.shared.getPreviewLayer(for: self.session)
+                print("📹 [PREVIEW] PreviewLayer 预先创建完成")
+            }
+            
+            // 4. 等 session 和 PreviewLayer 稳定（300ms 延迟）
+            Thread.sleep(forTimeInterval: 0.3)
+            
+            // 5. 开启手电筒
+            print("🔦 [TORCH] 延迟 300ms 后开启手电筒...")
+            self.enableTorch(true)
+            
+            // 6. 回到主线程开始测量
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.startContinuousMeasurement()
+                print("🎬 [START] ✅ COMPLETED")
+            }
         }
     }
     
     func stopMeasurement() {
-        stopCapture()
+        print("🛑 [STOP] stopMeasurement() called")
+        
+        guard isMeasuring else {
+            print("🛑 [STOP] ⚠️ IGNORED - not measuring")
+            return
+        }
+        
+        isMeasuring = false
+        
+        // 1. 停止定时器
+        updateTimer?.invalidate()
+        updateTimer = nil
         stopHapticTimer()
         
+        // 2. 只关闭手电筒，不停止 Session（行业标准做法）
+        sessionQueue.async { [weak self] in
+            guard let self = self else { return }
+            
+            // 只关手电筒
+            self.enableTorch(false)
+            
+            // ❌ 不要 stopRunning - 保持 session 运行，避免系统重新接管 Camera
+            // if self.session.isRunning {
+            //     self.session.stopRunning()
+            // }
+            print("🛑 [STOP] Torch OFF, Session kept running")
+        }
+        
+        // 3. 更新状态
         if currentBPM > 0 {
             measurementState = .completed
             measurementPhase = .completed
         } else {
             measurementState = .idle
         }
+        
+        // 4. 🔓 重置硬状态锁，允许下次测量
+        hasEverStarted = false
+        print("🛑 [STOP] ✅ COMPLETED, state=\(measurementState), hasEverStarted reset to false")
     }
     
-    /// Reset to idle state after viewing results
     func resetToIdle() {
-        stopCapture()
-        stopHapticTimer()
-        resetMeasurement()
+        print("🔄 [RESET] resetToIdle() called")
+        stopMeasurement()
+        resetMeasurementData()
         measurementState = .idle
+        // 🔓 确保重置硬状态锁
+        hasEverStarted = false
+        print("🔄 [RESET] ✅ COMPLETED, hasEverStarted reset to false")
     }
     
     func getFinalBPM() -> Int {
-        // Use last 20 seconds of data for final calculation
         let last20Seconds = bpmHistory.suffix(20 * 2)
-        if last20Seconds.isEmpty {
-            return currentBPM
-        }
-        let sum = last20Seconds.reduce(0, +)
-        return sum / last20Seconds.count
+        if last20Seconds.isEmpty { return currentBPM }
+        return last20Seconds.reduce(0, +) / last20Seconds.count
     }
     
-    /// Get final HRV metrics from the measurement
     func getFinalHRV() -> HRVMetrics? {
         return signalProcessor.getHRVMetrics()
     }
     
-    // MARK: - Camera Permission
+    // MARK: - ==================== SESSION CONFIGURATION (只执行一次) ====================
     
-    private func requestCameraPermission() async {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized:
-            await setupCaptureSession()
-        case .notDetermined:
-            let granted = await AVCaptureDevice.requestAccess(for: .video)
-            if granted {
-                await setupCaptureSession()
-            } else {
-                measurementState = .error("Camera access denied")
-            }
-        case .denied, .restricted:
-            measurementState = .error("Camera access denied. Please enable in Settings.")
-        @unknown default:
-            measurementState = .error("Unknown camera authorization status")
-        }
-    }
-    
-    // MARK: - Capture Session Setup
-    
-    private func setupCaptureSession() async {
-        measurementState = .preparing
+    /// 配置 Session - 只执行一次
+    private func configureSession() {
+        session.beginConfiguration()
         
-        let session = AVCaptureSession()
-        session.sessionPreset = .hd1280x720
+        // 使用低分辨率，减少功耗和发热
+        session.sessionPreset = .low
         
+        // 获取后置摄像头
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
-            measurementState = .error("No camera available")
+            print("📷 [CONFIG] ❌ No camera available")
+            session.commitConfiguration()
+            DispatchQueue.main.async {
+                self.measurementState = .error("No camera available")
+            }
             return
         }
         
-        self.captureDevice = device
-        
+        // 配置设备
         do {
             try device.lockForConfiguration()
             
-            // Frame Rate - detect device capability
-            let maxSupportedFrameRate = device.activeFormat.videoSupportedFrameRateRanges
-                .map { $0.maxFrameRate }
-                .max() ?? 30.0
-            actualSampleRate = min(60.0, maxSupportedFrameRate)  // Use up to 60fps if supported
+            // 设置帧率
+            let maxFrameRate = device.activeFormat.videoSupportedFrameRateRanges.map { $0.maxFrameRate }.max() ?? 30.0
+            actualSampleRate = min(60.0, maxFrameRate)
             
-            let targetFrameDuration = CMTime(value: 1, timescale: Int32(actualSampleRate))
-            device.activeVideoMinFrameDuration = targetFrameDuration
-            device.activeVideoMaxFrameDuration = targetFrameDuration
+            let frameDuration = CMTime(value: 1, timescale: Int32(actualSampleRate))
+            device.activeVideoMinFrameDuration = frameDuration
+            device.activeVideoMaxFrameDuration = frameDuration
             
-            // Update signal processor with actual sample rate
             signalProcessor.updateSampleRate(actualSampleRate)
             
-            // Manual Exposure
+            // 锁定曝光
             if device.isExposureModeSupported(.custom) {
                 let minISO = device.activeFormat.minISO
                 let targetISO = min(minISO * 2, 80.0)
-                let targetDuration = CMTime(value: 1, timescale: 60)
-                device.setExposureModeCustom(duration: targetDuration, iso: targetISO) { _ in }
+                device.setExposureModeCustom(duration: CMTime(value: 1, timescale: 60), iso: targetISO) { _ in }
             } else if device.isExposureModeSupported(.locked) {
                 device.exposureMode = .locked
             }
             
-            // Locked White Balance
+            // 锁定白平衡
             if device.isWhiteBalanceModeSupported(.locked) {
                 device.whiteBalanceMode = .locked
             }
             
-            // Fixed Focus
+            // 锁定对焦
             if device.isFocusModeSupported(.locked) {
                 device.focusMode = .locked
                 if device.isLockingFocusWithCustomLensPositionSupported {
@@ -302,87 +343,75 @@ class HeartRateManager: NSObject, ObservableObject {
                 }
             }
             
-            // NOTE: Torch will be turned on when finger is detected (not here)
-            // to avoid flash before user places finger
-            
             device.unlockForConfiguration()
             
-            // Input
+        } catch {
+            print("📷 [CONFIG] ❌ Device configuration failed: \(error)")
+        }
+        
+        // 添加输入
+        do {
             let input = try AVCaptureDeviceInput(device: device)
             if session.canAddInput(input) {
                 session.addInput(input)
+                self.videoInput = input
+                print("📷 [CONFIG] ✅ Input added")
             }
-            
-            // Output
-            let output = AVCaptureVideoDataOutput()
-            output.videoSettings = [
-                kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
-            ]
-            output.setSampleBufferDelegate(self, queue: processingQueue)
-            output.alwaysDiscardsLateVideoFrames = true
-            
-            if session.canAddOutput(output) {
-                session.addOutput(output)
-            }
-            
-            self.captureSession = session
-            self.videoOutput = output
-            self.previewSession = session
-            
-            setupTorchObservation(for: device)
-            
-            processingQueue.async { [weak self] in
-                session.startRunning()
-                
-                DispatchQueue.main.async {
-                    self?.startContinuousMeasurement()
-                }
-            }
-            
         } catch {
-            measurementState = .error("Failed to setup camera: \(error.localizedDescription)")
+            print("📷 [CONFIG] ❌ Input creation failed: \(error)")
         }
+        
+        // 添加输出
+        let output = AVCaptureVideoDataOutput()
+        output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+        output.setSampleBufferDelegate(self, queue: sessionQueue)
+        output.alwaysDiscardsLateVideoFrames = true
+        
+        if session.canAddOutput(output) {
+            session.addOutput(output)
+            self.videoOutput = output
+            print("📷 [CONFIG] ✅ Output added")
+        }
+        
+        session.commitConfiguration()
+        isSessionConfigured = true
+        print("📷 [CONFIG] ✅ Session configured")
     }
     
-    // MARK: - Torch Control
+    // MARK: - ==================== TORCH CONTROL (行业标准) ====================
     
-    private func setupTorchObservation(for device: AVCaptureDevice) {
-        torchObservation = device.observe(\.isTorchActive, options: [.new]) { [weak self] device, _ in
-            guard let self = self, self.measurementState == .measuring else { return }
-            
-            if !device.isTorchActive {
-                DispatchQueue.main.async {
-                    self.setTorch(on: true)
-                }
-            }
+    /// 开启/关闭手电筒 - 只在 session 稳定后调用
+    private func enableTorch(_ on: Bool) {
+        guard let device = videoInput?.device, device.hasTorch else {
+            print("🔦 [TORCH] ❌ No torch available")
+            return
         }
-    }
-    
-    private func setTorch(on: Bool) {
-        guard let device = captureDevice, device.hasTorch && device.isTorchAvailable else { return }
         
         do {
             try device.lockForConfiguration()
+            
             if on {
-                try device.setTorchModeOn(level: torchLevel)
+                if device.torchMode != .on {
+                    try device.setTorchModeOn(level: 0.8)
+                    print("🔦 [TORCH] ✅ ON (level: 0.8)")
+                }
             } else {
                 device.torchMode = .off
+                print("🔦 [TORCH] ✅ OFF")
             }
+            
             device.unlockForConfiguration()
         } catch {
-            print("Torch control failed: \(error)")
+            print("🔦 [TORCH] ❌ Error: \(error)")
         }
     }
     
     // MARK: - Measurement Logic
-    
     private func startContinuousMeasurement() {
         measurementState = .measuring
         measurementPhase = .warmup
         lastEffectiveDuration = 0
-        lastTorchCheckTime = Date()
         
-        // Start fixed-rhythm haptic timer
         startHapticTimer()
         
         updateTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
@@ -393,7 +422,6 @@ class HeartRateManager: NSObject, ObservableObject {
     }
     
     private func updateProgress() {
-        // Check for finger lift → reset progress
         if !isFingerDetected && wasFingerDetected {
             resetProgressOnFingerLift()
         }
@@ -403,7 +431,6 @@ class HeartRateManager: NSObject, ObservableObject {
             lastEffectiveDuration += 0.1
             measurementDuration = lastEffectiveDuration
             
-            // Phase transitions
             if lastEffectiveDuration < warmupDuration {
                 measurementPhase = .warmup
                 warningMessage = "Calibrating..."
@@ -413,7 +440,6 @@ class HeartRateManager: NSObject, ObservableObject {
                     warningMessage = nil
                 }
             } else {
-                // Auto-complete at 60 seconds
                 if currentBPM > 0 {
                     stopMeasurement()
                 }
@@ -422,8 +448,6 @@ class HeartRateManager: NSObject, ObservableObject {
         
         signalQuality = signalProcessor.getSignalQuality()
     }
-    
-    // MARK: - Reset on Finger Lift
     
     private func resetProgressOnFingerLift() {
         lastEffectiveDuration = 0
@@ -435,32 +459,7 @@ class HeartRateManager: NSObject, ObservableObject {
         signalProcessor.reset()
     }
     
-    // MARK: - Cleanup
-    
-    private func stopCapture() {
-        updateTimer?.invalidate()
-        updateTimer = nil
-        
-        torchObservation?.invalidate()
-        torchObservation = nil
-        
-        processingQueue.async { [weak self] in
-            self?.captureSession?.stopRunning()
-            
-            if let device = self?.captureDevice, device.hasTorch {
-                try? device.lockForConfiguration()
-                device.torchMode = .off
-                device.unlockForConfiguration()
-            }
-        }
-        
-        captureSession = nil
-        videoOutput = nil
-        previewSession = nil
-        captureDevice = nil
-    }
-    
-    private func resetMeasurement() {
+    private func resetMeasurementData() {
         currentBPM = 0
         smoothedBPM = 0
         measurementDuration = 0
@@ -474,12 +473,10 @@ class HeartRateManager: NSObject, ObservableObject {
         frameCount = 0
         consecutiveGoodFrames = 0
         measurementPhase = .warmup
-        isTorchOnForSession = false
         signalProcessor.reset()
     }
     
     // MARK: - Frame Processing
-    
     private func processPixelBuffer(_ pixelBuffer: CVPixelBuffer) {
         frameCount += 1
         
@@ -493,7 +490,6 @@ class HeartRateManager: NSObject, ObservableObject {
         guard let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer) else { return }
         let buffer = baseAddress.assumingMemoryBound(to: UInt8.self)
         
-        // Sample center region
         let sampleSize = 60
         let centerX = width / 2
         let centerY = height / 2
@@ -528,18 +524,6 @@ class HeartRateManager: NSObject, ObservableObject {
         let avgG = totalG / Double(sampleCount)
         let avgB = totalB / Double(sampleCount)
         
-        // Torch watchdog
-        if avgR < 20 && measurementState == .measuring {
-            let now = Date()
-            if now.timeIntervalSince(lastTorchCheckTime) > 1.0 {
-                DispatchQueue.main.async { [weak self] in
-                    self?.setTorch(on: true)
-                }
-                lastTorchCheckTime = now
-            }
-        }
-        
-        // Finger detection
         let isRedDominant = avgR > (avgG + avgB) * 0.8
         let isBrightnessOK = avgR > 30 && avgR < 250
         let hasFinger = isRedDominant && isBrightnessOK
@@ -552,15 +536,6 @@ class HeartRateManager: NSObject, ObservableObject {
         
         let isStable = consecutiveGoodFrames > 15
         
-        // Turn on torch when finger is first detected (not before)
-        if isStable && !isTorchOnForSession {
-            isTorchOnForSession = true
-            DispatchQueue.main.async { [weak self] in
-                self?.setTorch(on: true)
-            }
-        }
-        
-        // Process signal
         let timestamp = Double(frameCount) / actualSampleRate
         let processedValue = signalProcessor.processSample(avgR, at: timestamp, isValid: isStable)
         
@@ -581,7 +556,6 @@ class HeartRateManager: NSObject, ObservableObject {
                 self.warningMessage = nil
             }
             
-            // Update waveform
             self.waveformData.append(processedValue)
             if self.waveformData.count > 100 {
                 self.waveformData.removeFirst()

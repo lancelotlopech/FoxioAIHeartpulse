@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import AppTrackingTransparency
 import AppsFlyerLib
+import FacebookCore
 
 @main
 struct HeartRateSeniorApp: App {
@@ -79,6 +80,9 @@ struct HeartRateSeniorApp: App {
                         // 配置 AppsFlyer SDK
                         appsFlyerManager.configure()
                         
+                        // 配置 Facebook SDK
+                        FacebookSDKManager.shared.configure()
+                        
                         // 模拟加载完成（实际项目可在数据加载完成后设置）
                         // 立即设置 ready，让保底机制生效
                         appIsReady = true}
@@ -126,6 +130,8 @@ struct HeartRateSeniorApp: App {
                 // 通知 AppsFlyer ATT 授权结果并启动 SDK
                 Task { @MainActor in
                     AppsFlyerManager.shared.handleATTAuthorization(status: status)
+                    // 通知 Facebook SDK ATT 授权结果
+                    FacebookSDKManager.shared.handleATTAuthorization(authorized: status == .authorized)
                 }
             }
         }

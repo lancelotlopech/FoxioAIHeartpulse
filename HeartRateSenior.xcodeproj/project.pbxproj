@@ -18,6 +18,33 @@
 		1A3A8AB92F337202007454E0 /* ArticlesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3A8AB72F337202007454E0 /* ArticlesListView.swift */; };
 		1A3A8ABA2F337202007454E0 /* ArticleDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3A8AB62F337202007454E0 /* ArticleDetailView.swift */; };
 		1A3A8ABC2F337300007454E0 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3A8ABB2F337300007454E0 /* Article.swift */; };
+		1AD186182F355C48006B4E90 /* TorchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000091 /* TorchManager.swift */; };
+		1AD186192F355C4D006B4E90 /* VideoPreloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000092 /* VideoPreloader.swift */; };
+		1AD1861B2F38D61F006B4E90 /* InsightsVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1861A2F38D61F006B4E90 /* InsightsVideoView.swift */; };
+		1AD1861D2F38D6EF006B4E90 /* onboardingvideo.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 1AD1861C2F38D6EF006B4E90 /* onboardingvideo.mp4 */; };
+		1AD186212F3B3F4B006B4E90 /* HIVOverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1861E2F3B3F4B006B4E90 /* HIVOverviewView.swift */; };
+		1AD186222F3B3F4B006B4E90 /* HIVRiskAssessmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1861F2F3B3F4B006B4E90 /* HIVRiskAssessmentView.swift */; };
+		1AD186242F3B3F7A006B4E90 /* HIVEducation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186232F3B3F7A006B4E90 /* HIVEducation.swift */; };
+		1AD186262F3B47FD006B4E90 /* HIVRiskAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186252F3B47FD006B4E90 /* HIVRiskAssessment.swift */; };
+		1AD186292F3B84D0006B4E90 /* FacebookAEM in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD186282F3B84D0006B4E90 /* FacebookAEM */; };
+		1AD1862B2F3B84D0006B4E90 /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD1862A2F3B84D0006B4E90 /* FacebookCore */; };
+		1AD1862D2F3B859C006B4E90 /* FacebookAEM in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD1862C2F3B859C006B4E90 /* FacebookAEM */; };
+		1AD1862F2F3B859C006B4E90 /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD1862E2F3B859C006B4E90 /* FacebookCore */; };
+		1AD186312F3B900F006B4E90 /* FacebookSDKManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186302F3B900F006B4E90 /* FacebookSDKManager.swift */; };
+		1AD1864E2F3CDB30006B4E90 /* EventTrackingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1864D2F3CDB30006B4E90 /* EventTrackingManager.swift */; };
+		1AD186352F3C9152006B4E90 /* HIVAwarenessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186322F3C9152006B4E90 /* HIVAwarenessView.swift */; };
+		1AD186362F3C9152006B4E90 /* HIVSectionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186332F3C9152006B4E90 /* HIVSectionPageView.swift */; };
+		1AD186372F3C9152006B4E90 /* HIVTestingMethodDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186342F3C9152006B4E90 /* HIVTestingMethodDetailView.swift */; };
+		1AD186412F3CDB09006B4E90 /* PregnancyReminderCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1863D2F3CDB09006B4E90 /* PregnancyReminderCenterView.swift */; };
+		1AD186422F3CDB09006B4E90 /* EmotionalSupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186392F3CDB09006B4E90 /* EmotionalSupportView.swift */; };
+		1AD186432F3CDB09006B4E90 /* PregnancyTestTimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1863F2F3CDB09006B4E90 /* PregnancyTestTimingView.swift */; };
+		1AD186442F3CDB09006B4E90 /* PregnancyCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1863A2F3CDB09006B4E90 /* PregnancyCenterView.swift */; };
+		1AD186452F3CDB09006B4E90 /* PregnancyProbabilityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1863C2F3CDB09006B4E90 /* PregnancyProbabilityView.swift */; };
+		1AD186462F3CDB09006B4E90 /* PregnancyEducationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1863B2F3CDB09006B4E90 /* PregnancyEducationView.swift */; };
+		1AD186472F3CDB09006B4E90 /* PregnancyTestGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1863E2F3CDB09006B4E90 /* PregnancyTestGuideView.swift */; };
+		1AD186482F3CDB09006B4E90 /* CycleTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186382F3CDB09006B4E90 /* CycleTrackerView.swift */; };
+		1AD1864B2F3CDB2F006B4E90 /* PregnancyEducation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186492F3CDB2F006B4E90 /* PregnancyEducation.swift */; };
+		1AD1864C2F3CDB2F006B4E90 /* PregnancyProbability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1864A2F3CDB2F006B4E90 /* PregnancyProbability.swift */; };
 		1AD9B84E2F0292AB002E8F4F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AD9B84D2F0292AB002E8F4F /* WidgetKit.framework */; };
 		1AD9B8502F0292AB002E8F4F /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AD9B84F2F0292AB002E8F4F /* SwiftUI.framework */; };
 		1AD9B8612F0292AD002E8F4F /* HeartRateSeniorWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1AD9B84B2F0292AB002E8F4F /* HeartRateSeniorWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -126,6 +153,27 @@
 		1A3A8AB62F337202007454E0 /* ArticleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailView.swift; sourceTree = "<group>"; };
 		1A3A8AB72F337202007454E0 /* ArticlesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticlesListView.swift; sourceTree = "<group>"; };
 		1A3A8ABB2F337300007454E0 /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
+		1AD1861A2F38D61F006B4E90 /* InsightsVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsVideoView.swift; sourceTree = "<group>"; };
+		1AD1861C2F38D6EF006B4E90 /* onboardingvideo.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = onboardingvideo.mp4; sourceTree = "<group>"; };
+		1AD1861E2F3B3F4B006B4E90 /* HIVOverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVOverviewView.swift; sourceTree = "<group>"; };
+		1AD1861F2F3B3F4B006B4E90 /* HIVRiskAssessmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVRiskAssessmentView.swift; sourceTree = "<group>"; };
+		1AD186232F3B3F7A006B4E90 /* HIVEducation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVEducation.swift; sourceTree = "<group>"; };
+		1AD186252F3B47FD006B4E90 /* HIVRiskAssessment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVRiskAssessment.swift; sourceTree = "<group>"; };
+		1AD186302F3B900F006B4E90 /* FacebookSDKManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FacebookSDKManager.swift; sourceTree = "<group>"; };
+		1AD1864D2F3CDB30006B4E90 /* EventTrackingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTrackingManager.swift; sourceTree = "<group>"; };
+		1AD186322F3C9152006B4E90 /* HIVAwarenessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVAwarenessView.swift; sourceTree = "<group>"; };
+		1AD186332F3C9152006B4E90 /* HIVSectionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVSectionPageView.swift; sourceTree = "<group>"; };
+		1AD186342F3C9152006B4E90 /* HIVTestingMethodDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVTestingMethodDetailView.swift; sourceTree = "<group>"; };
+		1AD186382F3CDB09006B4E90 /* CycleTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleTrackerView.swift; sourceTree = "<group>"; };
+		1AD186392F3CDB09006B4E90 /* EmotionalSupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionalSupportView.swift; sourceTree = "<group>"; };
+		1AD1863A2F3CDB09006B4E90 /* PregnancyCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyCenterView.swift; sourceTree = "<group>"; };
+		1AD1863B2F3CDB09006B4E90 /* PregnancyEducationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyEducationView.swift; sourceTree = "<group>"; };
+		1AD1863C2F3CDB09006B4E90 /* PregnancyProbabilityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyProbabilityView.swift; sourceTree = "<group>"; };
+		1AD1863D2F3CDB09006B4E90 /* PregnancyReminderCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyReminderCenterView.swift; sourceTree = "<group>"; };
+		1AD1863E2F3CDB09006B4E90 /* PregnancyTestGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyTestGuideView.swift; sourceTree = "<group>"; };
+		1AD1863F2F3CDB09006B4E90 /* PregnancyTestTimingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyTestTimingView.swift; sourceTree = "<group>"; };
+		1AD186492F3CDB2F006B4E90 /* PregnancyEducation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyEducation.swift; sourceTree = "<group>"; };
+		1AD1864A2F3CDB2F006B4E90 /* PregnancyProbability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyProbability.swift; sourceTree = "<group>"; };
 		1AD9B84B2F0292AB002E8F4F /* HeartRateSeniorWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HeartRateSeniorWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AD9B84D2F0292AB002E8F4F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		1AD9B84F2F0292AB002E8F4F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -198,6 +246,8 @@
 		A20000010000000000000088 /* SpeechManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechManager.swift; sourceTree = "<group>"; };
 		A20000010000000000000089 /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
 		A20000010000000000000090 /* DisclaimerOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerOnboardingView.swift; sourceTree = "<group>"; };
+		A20000010000000000000091 /* TorchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorchManager.swift; sourceTree = "<group>"; };
+		A20000010000000000000092 /* VideoPreloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPreloader.swift; sourceTree = "<group>"; };
 		A30000010000000000000001 /* HeartRateSenior.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeartRateSenior.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -229,6 +279,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AD1862D2F3B859C006B4E90 /* FacebookAEM in Frameworks */,
+				1AD1862F2F3B859C006B4E90 /* FacebookCore in Frameworks */,
+				1AD186292F3B84D0006B4E90 /* FacebookAEM in Frameworks */,
+				1AD1862B2F3B84D0006B4E90 /* FacebookCore in Frameworks */,
 				1AD9B8FC2F0CEB79002E8F4F /* AppsFlyerLib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -254,6 +308,33 @@
 			path = Articles;
 			sourceTree = "<group>";
 		};
+		1AD186202F3B3F4B006B4E90 /* HIV */ = {
+			isa = PBXGroup;
+			children = (
+				1AD186322F3C9152006B4E90 /* HIVAwarenessView.swift */,
+				1AD186332F3C9152006B4E90 /* HIVSectionPageView.swift */,
+				1AD186342F3C9152006B4E90 /* HIVTestingMethodDetailView.swift */,
+				1AD1861E2F3B3F4B006B4E90 /* HIVOverviewView.swift */,
+				1AD1861F2F3B3F4B006B4E90 /* HIVRiskAssessmentView.swift */,
+			);
+			path = HIV;
+			sourceTree = "<group>";
+		};
+		1AD186402F3CDB09006B4E90 /* Pregnancy */ = {
+			isa = PBXGroup;
+			children = (
+				1AD186382F3CDB09006B4E90 /* CycleTrackerView.swift */,
+				1AD186392F3CDB09006B4E90 /* EmotionalSupportView.swift */,
+				1AD1863A2F3CDB09006B4E90 /* PregnancyCenterView.swift */,
+				1AD1863B2F3CDB09006B4E90 /* PregnancyEducationView.swift */,
+				1AD1863C2F3CDB09006B4E90 /* PregnancyProbabilityView.swift */,
+				1AD1863D2F3CDB09006B4E90 /* PregnancyReminderCenterView.swift */,
+				1AD1863E2F3CDB09006B4E90 /* PregnancyTestGuideView.swift */,
+				1AD1863F2F3CDB09006B4E90 /* PregnancyTestTimingView.swift */,
+			);
+			path = Pregnancy;
+			sourceTree = "<group>";
+		};
 		1AD9B84C2F0292AB002E8F4F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -269,6 +350,7 @@
 				1A3A8AA82F3342C3007454E0 /* subvideo.mp4 */,
 				1AD9B90A2F0D4E57002E8F4F /* heartbeat.mp4 */,
 				1AD9B8FD2F0D17EB002E8F4F /* pulsemeasure.mp4 */,
+				1AD1861C2F38D6EF006B4E90 /* onboardingvideo.mp4 */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -313,6 +395,10 @@
 		A50000010000000000000004 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				1AD186492F3CDB2F006B4E90 /* PregnancyEducation.swift */,
+				1AD1864A2F3CDB2F006B4E90 /* PregnancyProbability.swift */,
+				1AD186252F3B47FD006B4E90 /* HIVRiskAssessment.swift */,
+				1AD186232F3B3F7A006B4E90 /* HIVEducation.swift */,
 				1A3A8ABB2F337300007454E0 /* Article.swift */,
 				A20000010000000000000003 /* HeartRateRecord.swift */,
 				A20000010000000000000004 /* MeasurementTag.swift */,
@@ -341,6 +427,8 @@
 		A50000010000000000000006 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1AD186402F3CDB09006B4E90 /* Pregnancy */,
+				1AD186202F3B3F4B006B4E90 /* HIV */,
 				1A3A8AB82F337202007454E0 /* Articles */,
 				1A3A8AAC2F336FE7007454E0 /* Articles */,
 				A20000010000000000000010 /* MainTabView.swift */,
@@ -382,6 +470,7 @@
 		A50000010000000000000008 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				1AD1861A2F38D61F006B4E90 /* InsightsVideoView.swift */,
 				A20000010000000000000011 /* OnboardingContainerView.swift */,
 				A20000010000000000000012 /* WelcomeView.swift */,
 				A20000010000000000000013 /* PrivacyPermissionView.swift */,
@@ -535,9 +624,13 @@
 		A50000010000000000000025 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				1AD1864D2F3CDB30006B4E90 /* EventTrackingManager.swift */,
+				1AD186302F3B900F006B4E90 /* FacebookSDKManager.swift */,
 				1AD9B8D62F09340B002E8F4F /* AppsFlyerManager.swift */,
 				1AD9B8D12F09340A002E8F4F /* PaywallConfiguration.swift */,
 				1AD9B8D22F09340A002E8F4F /* SubscriptionManager.swift */,
+				A20000010000000000000091 /* TorchManager.swift */,
+				A20000010000000000000092 /* VideoPreloader.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -624,6 +717,7 @@
 			mainGroup = A50000010000000000000001;
 			packageReferences = (
 				1AD9B8FA2F0CEB79002E8F4F /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */,
+				1AD186272F3B84D0006B4E90 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
 			);
 			productRefGroup = A50000010000000000000003 /* Products */;
 			projectDirPath = "";
@@ -650,6 +744,7 @@
 				1A3A8AA92F3342C3007454E0 /* subvideo.mp4 in Resources */,
 				1AD9B8FF2F0D17EB002E8F4F /* pulsemeasure.mp4 in Resources */,
 				A10000010000000000000023 /* Assets.xcassets in Resources */,
+				1AD1861D2F38D6EF006B4E90 /* onboardingvideo.mp4 in Resources */,
 				1AD9B90B2F0D4E57002E8F4F /* heartbeat.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -676,6 +771,7 @@
 				A10000010000000000000088 /* SpeechManager.swift in Sources */,
 				1AD9B8CF2F0933FB002E8F4F /* SubscriptionView.swift in Sources */,
 				1AD9B8D02F0933FB002E8F4F /* SubscriptionCarouselView.swift in Sources */,
+				1AD186262F3B47FD006B4E90 /* HIVRiskAssessment.swift in Sources */,
 				A10000010000000000000006 /* SignalProcessor.swift in Sources */,
 				1AD9B8D32F09340A002E8F4F /* SubscriptionManager.swift in Sources */,
 				1AD9B8D52F09340B002E8F4F /* AppsFlyerManager.swift in Sources */,
@@ -695,6 +791,16 @@
 				A10000010000000000000014 /* TutorialView.swift in Sources */,
 				A10000010000000000000015 /* HomeView.swift in Sources */,
 				A10000010000000000000016 /* MeasureButton.swift in Sources */,
+				1AD186412F3CDB09006B4E90 /* PregnancyReminderCenterView.swift in Sources */,
+				1AD186422F3CDB09006B4E90 /* EmotionalSupportView.swift in Sources */,
+				1AD1864B2F3CDB2F006B4E90 /* PregnancyEducation.swift in Sources */,
+				1AD1864C2F3CDB2F006B4E90 /* PregnancyProbability.swift in Sources */,
+				1AD186432F3CDB09006B4E90 /* PregnancyTestTimingView.swift in Sources */,
+				1AD186442F3CDB09006B4E90 /* PregnancyCenterView.swift in Sources */,
+				1AD186452F3CDB09006B4E90 /* PregnancyProbabilityView.swift in Sources */,
+				1AD186462F3CDB09006B4E90 /* PregnancyEducationView.swift in Sources */,
+				1AD186472F3CDB09006B4E90 /* PregnancyTestGuideView.swift in Sources */,
+				1AD186482F3CDB09006B4E90 /* CycleTrackerView.swift in Sources */,
 				A10000010000000000000017 /* PPGWaveformView.swift in Sources */,
 				A10000010000000000000052 /* PulseBarChartView.swift in Sources */,
 				A10000010000000000000018 /* ResultView.swift in Sources */,
@@ -720,6 +826,8 @@
 				A10000010000000000000041 /* EmergencyContact.swift in Sources */,
 				A10000010000000000000042 /* ReminderManager.swift in Sources */,
 				A10000010000000000000043 /* CloudSyncManager.swift in Sources */,
+				1AD186182F355C48006B4E90 /* TorchManager.swift in Sources */,
+				1AD186242F3B3F7A006B4E90 /* HIVEducation.swift in Sources */,
 				A10000010000000000000044 /* RemindersView.swift in Sources */,
 				A10000010000000000000045 /* AddReminderView.swift in Sources */,
 				A10000010000000000000046 /* EmergencyContactsView.swift in Sources */,
@@ -735,12 +843,21 @@
 				A10000010000000000000062 /* WeightInputView.swift in Sources */,
 				A10000010000000000000063 /* OxygenInputView.swift in Sources */,
 				A10000010000000000000064 /* WeightHistoryView.swift in Sources */,
+				1AD186312F3B900F006B4E90 /* FacebookSDKManager.swift in Sources */,
+				1AD186192F355C4D006B4E90 /* VideoPreloader.swift in Sources */,
 				A10000010000000000000065 /* OxygenHistoryView.swift in Sources */,
 				A10000010000000000000066 /* UIComponents.swift in Sources */,
 				A10000010000000000000067 /* HealthRecordHistoryComponents.swift in Sources */,
 				A10000010000000000000068 /* PremiumLockedOverlay.swift in Sources */,
+				1AD186212F3B3F4B006B4E90 /* HIVOverviewView.swift in Sources */,
+				1AD186222F3B3F4B006B4E90 /* HIVRiskAssessmentView.swift in Sources */,
+				1AD1861B2F38D61F006B4E90 /* InsightsVideoView.swift in Sources */,
 				A10000010000000000000089 /* DisclaimerView.swift in Sources */,
 				A10000010000000000000090 /* DisclaimerOnboardingView.swift in Sources */,
+				1AD1864E2F3CDB30006B4E90 /* EventTrackingManager.swift in Sources */,
+				1AD186352F3C9152006B4E90 /* HIVAwarenessView.swift in Sources */,
+				1AD186362F3C9152006B4E90 /* HIVSectionPageView.swift in Sources */,
+				1AD186372F3C9152006B4E90 /* HIVTestingMethodDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1041,6 +1158,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1AD186272F3B84D0006B4E90 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 14.1.0;
+			};
+		};
 		1AD9B8FA2F0CEB79002E8F4F /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework";
@@ -1052,6 +1177,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1AD186282F3B84D0006B4E90 /* FacebookAEM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AD186272F3B84D0006B4E90 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookAEM;
+		};
+		1AD1862A2F3B84D0006B4E90 /* FacebookCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AD186272F3B84D0006B4E90 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookCore;
+		};
+		1AD1862C2F3B859C006B4E90 /* FacebookAEM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AD186272F3B84D0006B4E90 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookAEM;
+		};
+		1AD1862E2F3B859C006B4E90 /* FacebookCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AD186272F3B84D0006B4E90 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookCore;
+		};
 		1AD9B8FB2F0CEB79002E8F4F /* AppsFlyerLib */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1AD9B8FA2F0CEB79002E8F4F /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */;

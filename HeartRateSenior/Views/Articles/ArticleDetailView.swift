@@ -167,6 +167,7 @@ struct MarkdownContentView: View {
                 Text(block.replacingOccurrences(of: "> ", with: "").replacingOccurrences(of: "**", with: ""))
                     .font(.system(size: 14, weight: .regular, design: .rounded))
                     .foregroundColor(AppColors.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
                     .italic()
             }
             .padding(.vertical, 8)
@@ -188,6 +189,7 @@ struct MarkdownContentView: View {
                 .font(.system(size: 16, weight: .regular, design: .rounded))
                 .foregroundColor(AppColors.textPrimary)
                 .lineSpacing(6)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
     
@@ -222,6 +224,7 @@ struct BulletListView: View {
                         .font(.system(size: 16, weight: .regular, design: .rounded))
                         .foregroundColor(AppColors.textPrimary)
                         .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
@@ -259,6 +262,7 @@ struct NumberedListView: View {
                         .font(.system(size: 16, weight: .regular, design: .rounded))
                         .foregroundColor(AppColors.textPrimary)
                         .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
@@ -294,7 +298,9 @@ struct TableView: View {
                         ForEach(row, id: \.self) { cell in
                             Text(cell)
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                .foregroundColor(AppColors.textPrimary).frame(maxWidth: .infinity, alignment: .leading)
+                                .foregroundColor(AppColors.textPrimary)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.vertical, 10)
                                 .padding(.horizontal, 8)
                         }
@@ -307,6 +313,7 @@ struct TableView: View {
                             Text(cell.replacingOccurrences(of: "**", with: ""))
                                 .font(.system(size: 14, weight: .regular, design: .rounded))
                                 .foregroundColor(AppColors.textPrimary)
+                                .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.vertical, 8)
                                 .padding(.horizontal, 8)

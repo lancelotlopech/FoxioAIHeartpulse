@@ -10,6 +10,7 @@ import AVFoundation
 
 struct PrivacyPermissionView: View {
     @Binding var currentPage: Int
+    @Binding var hasCompletedOnboarding: Bool
     @State private var cameraPermissionGranted = false
     @State private var showingPermissionAlert = false
     
@@ -47,26 +48,18 @@ struct PrivacyPermissionView: View {
                     Spacer()
                         .frame(height: isSmallScreen ? 10 : 14)
                     
-                    // Title
-                    VStack(spacing: 6) {
-                        (Text("Your ")
-                            .font(.system(size: isSmallScreen ? 24 : 28, weight: .medium, design: .rounded))
-                            .foregroundColor(.primary)
-                        +
-                        Text("Privacy")
-                            .font(.system(size: isSmallScreen ? 24 : 28, weight: .bold, design: .rounded))
-                            .foregroundColor(accentRed)
-                        +
-                        Text(" Matters")
-                            .font(.system(size: isSmallScreen ? 24 : 28, weight: .medium, design: .rounded))
-                            .foregroundColor(.primary))
-                        
-                        Text("We keep your health data safe\nand always under your control")
-                            .font(.system(size: isSmallScreen ? 13 : 14, weight: .regular))
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(2)
-                    }
+                    // Title (字号改为24，确保三行显示，"data safe" 标红)
+                    (Text("We keep your health ")
+                        .font(.system(size: isSmallScreen ? 16 : 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                    + Text("data safe")
+                        .font(.system(size: isSmallScreen ? 16 : 20, weight: .bold, design: .rounded))
+                        .foregroundColor(accentRed)
+                    + Text("\nand always under your control")
+                        .font(.system(size: isSmallScreen ? 16 : 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(2)
                     .padding(.horizontal, 20)
                     
                     Spacer()
@@ -151,31 +144,7 @@ struct PrivacyPermissionView: View {
                     .offset(y: visibleItems.contains(4) ? 0 : 10)
                     
                     Spacer()
-                        .frame(height: isSmallScreen ? 10 : 14)
-                    
-                    // Legal links
-                    VStack(spacing: 2) {
-                        Text("By continuing, you agree to our")
-                            .font(.system(size: isSmallScreen ? 11 : 12))
-                            .foregroundColor(.secondary)
-                        
-                        HStack(spacing: 4) {
-                            Link("Terms of Use", destination: URL(string: "https://termsheartpulse.moonspace.workers.dev/terms_of_use.html")!)
-                                .font(.system(size: isSmallScreen ? 11 : 12, weight: .semibold))
-                                .foregroundColor(accentRed)
-                            
-                            Text("&")
-                                .font(.system(size: isSmallScreen ? 11 : 12))
-                                .foregroundColor(.secondary)
-                            
-                            Link("Privacy Policy", destination: URL(string: "https://termsheartpulse.moonspace.workers.dev/privacy_policy.html")!)
-                                .font(.system(size: isSmallScreen ? 11 : 12, weight: .semibold))
-                                .foregroundColor(accentRed)
-                        }
-                    }
-                    
-                    Spacer()
-                        .frame(height: isSmallScreen ? 12 : 16)
+                        .frame(height: isSmallScreen ? 16 : 20)
                     
                     // Continue button
                     Button(action: {
@@ -198,20 +167,6 @@ struct PrivacyPermissionView: View {
                     }
                     .padding(.horizontal, 20)
                     
-                    // Skip button
-                    if !cameraPermissionGranted {
-                        Button(action: {
-                            withAnimation {
-                                currentPage = 2
-                            }
-                        }) {
-                            Text("Skip for now")
-                                .font(.system(size: isSmallScreen ? 13 : 14, weight: .medium))
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.top, 8)
-                    }
-                    
                     // Bottom spacing
                     Spacer()
                         .frame(height: max(16, bottomInset) + 12)
@@ -225,7 +180,7 @@ struct PrivacyPermissionView: View {
             resetAndStartAnimations()
         }
         .onChange(of: currentPage) { newPage in
-            if newPage == 1 {
+            if newPage == 4 {
                 resetAndStartAnimations()
             }
         }
@@ -278,8 +233,9 @@ struct PrivacyPermissionView: View {
     
     private func requestCameraPermission() {
         if cameraPermissionGranted {
+            HapticManager.shared.success()
             withAnimation {
-                currentPage = 2
+                hasCompletedOnboarding = true
             }
             return
         }
@@ -295,7 +251,7 @@ struct PrivacyPermissionView: View {
                         HapticManager.shared.success()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             withAnimation {
-                                currentPage = 2
+                                hasCompletedOnboarding = true
                             }
                         }
                     }
@@ -305,8 +261,9 @@ struct PrivacyPermissionView: View {
             showingPermissionAlert = true
         case .authorized:
             cameraPermissionGranted = true
+            HapticManager.shared.success()
             withAnimation {
-                currentPage = 2
+                hasCompletedOnboarding = true
             }
         @unknown default:
             break
@@ -359,5 +316,5 @@ struct PrivacyFeatureRowCompact: View {
 }
 
 #Preview {
-    PrivacyPermissionView(currentPage: .constant(1))
+    PrivacyPermissionView(currentPage: .constant(4), hasCompletedOnboarding: .constant(false))
 }

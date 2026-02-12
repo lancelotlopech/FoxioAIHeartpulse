@@ -14,26 +14,31 @@ struct OnboardingContainerView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Page content
+            // Page content (移除第四页 DisclaimerOnboardingView)
             TabView(selection: $currentPage) {
                 WelcomeView(currentPage: $currentPage)
                     .tag(0)
                 
-                PrivacyPermissionView(currentPage: $currentPage)
+                TutorialView(currentPage: $currentPage, hasCompletedOnboarding: $hasCompletedOnboarding)
                     .tag(1)
                 
-                DisclaimerOnboardingView(currentPage: $currentPage)
+                InsightsVideoView(currentPage: $currentPage)
                     .tag(2)
                 
-                TutorialView(hasCompletedOnboarding: $hasCompletedOnboarding)
-                    .tag(3)
+                PrivacyPermissionView(currentPage: $currentPage, hasCompletedOnboarding: $hasCompletedOnboarding)
+                    .tag(4)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut, value: currentPage)
+            .highPriorityGesture(
+                DragGesture()
+                    .onChanged { _ in }
+                    .onEnded { _ in }
+            )  // 拦截滑动手势但保留按钮交互
             
-            // Page indicator
+            // Page indicator (改为4个点，对应4个页面)
             HStack(spacing: 12) {
-                ForEach(0..<4, id: \.self) { index in
+                ForEach([0, 1, 2, 4], id: \.self) { index in
                     Circle()
                         .fill(index == currentPage ? AppColors.primaryRed : Color.gray.opacity(0.3))
                         .frame(width: 12, height: 12)
@@ -44,6 +49,10 @@ struct OnboardingContainerView: View {
             .padding(.bottom, AppDimensions.paddingXLarge)
         }
         .background(Color.white.ignoresSafeArea())
+        .onAppear {
+            // 在 Onboarding 开始时预加载订阅页视频
+            VideoPreloader.shared.preloadSubscriptionVideo()
+        }
     }
 }
 

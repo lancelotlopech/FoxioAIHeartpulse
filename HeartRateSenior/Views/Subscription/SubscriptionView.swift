@@ -9,10 +9,13 @@ import SwiftUI
 import StoreKit
 import AVKit
 
-// MARK: - Looping Video Player for Subscription
+// MARK: - Looping Video Player for Subscription (使用预加载的播放器)
 struct SubscriptionVideoPlayer: UIViewControllerRepresentable {
     let videoName: String
     let videoExtension: String
+    
+    // 使用预加载的播放器
+    @ObservedObject private var videoPreloader = VideoPreloader.shared
     
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -22,31 +25,53 @@ struct SubscriptionVideoPlayer: UIViewControllerRepresentable {
         let controller = AVPlayerViewController()
         controller.showsPlaybackControls = false
         controller.videoGravity = .resizeAspectFill
-        controller.view.backgroundColor = UIColor(Color(hex: "EFF0F3"))
+        // 使用与视频背景相近的颜色，避免白色闪烁
+        controller.view.backgroundColor = UIColor(red: 0.94, green: 0.94, blue: 0.96, alpha: 1.0) // #EFF0F3
         
-        if let url = Bundle.main.url(forResource: videoName, withExtension: videoExtension) {
-            let player = AVPlayer(url: url)
-            player.isMuted = true
-            controller.player = player
-            context.coordinator.player = player
-            
-            // 设置循环播放
-            context.coordinator.setupLooping(for: player)
-            
-            // 监听 App 生命周期 - 解决后台播放和切回卡死问题
-            context.coordinator.setupAppLifecycleObservers()
-            
-            // Start playing
-            player.play()
+        // 优先使用预加载的播放器
+        if let preloadedPlayer = videoPreloader.player, videoPreloader.isReady {
+            controller.player = preloadedPlayer
+            context.coordinator.player = preloadedPlayer
+            context.coordinator.isUsingPreloadedPlayer = true
+            // 开始播放
+            preloadedPlayer.seek(to: .zero)
+            preloadedPlayer.play()
+        } else {
+            // 回退：如果预加载未完成，创建新的播放器
+            if let url = Bundle.main.url(forResource: videoName, withExtension: videoExtension) {
+                let playerItem = AVPlayerItem(url: url)
+                let player = AVPlayer(playerItem: playerItem)
+                player.isMuted = true
+                controller.player = player
+                context.coordinator.player = player
+                context.coordinator.isUsingPreloadedPlayer = false
+                
+                // 监听视频准备状态，准备好后再播放
+                let coordinator = context.coordinator
+                context.coordinator.statusObserver = playerItem.observe(\.status, options: [.new]) { [weak player, weak coordinator] item, _ in
+                    DispatchQueue.main.async {
+                        if item.status == .readyToPlay {
+                            // 设置循环播放
+                            if let player = player {
+                                coordinator?.setupLooping(for: player)
+                            }
+                            // 监听 App 生命周期
+                            coordinator?.setupAppLifecycleObservers()
+                            // 开始播放
+                            player?.play()
+                        }
+                    }
+                }
+            }
         }
         
         return controller
     }
     
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-        // 视图重新出现时恢复播放
+        // 视图重新出现时恢复播放（只有在视频准备好时）
         if let player = context.coordinator.player {
-            if player.timeControlStatus != .playing {
+            if player.currentItem?.status == .readyToPlay && player.timeControlStatus != .playing {
                 player.play()
             }
         }
@@ -54,6 +79,8 @@ struct SubscriptionVideoPlayer: UIViewControllerRepresentable {
     
     class Coordinator {
         var player: AVPlayer?
+        var isUsingPreloadedPlayer = false
+        var statusObserver: NSKeyValueObservation?
         var loopObserver: Any?
         var resignObserver: Any?
         var activeObserver: Any?
@@ -85,26 +112,32 @@ struct SubscriptionVideoPlayer: UIViewControllerRepresentable {
                 object: nil,
                 queue: .main
             ) { [weak self] _ in
-                // 延迟一点恢复播放，确保视图已经完全显示
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self?.player?.seek(to: .zero)
-                    self?.player?.play()
+                    if self?.player?.currentItem?.status == .readyToPlay {
+                        self?.player?.seek(to: .zero)
+                        self?.player?.play()
+                    }
                 }
             }
         }
         
         deinit {
-            // 清理所有观察者
-            if let observer = loopObserver {
-                NotificationCenter.default.removeObserver(observer)
+            // 清理状态观察者
+            statusObserver?.invalidate()
+            
+            // 只清理非预加载播放器的观察者
+            if !isUsingPreloadedPlayer {
+                if let observer = loopObserver {
+                    NotificationCenter.default.removeObserver(observer)
+                }
+                if let observer = resignObserver {
+                    NotificationCenter.default.removeObserver(observer)
+                }
+                if let observer = activeObserver {
+                    NotificationCenter.default.removeObserver(observer)
+                }
+                player?.pause()
             }
-            if let observer = resignObserver {
-                NotificationCenter.default.removeObserver(observer)
-            }
-            if let observer = activeObserver {
-                NotificationCenter.default.removeObserver(observer)
-            }
-            player?.pause()
             player = nil
         }
     }
@@ -667,7 +700,7 @@ struct PricingCardNew: View {
                 
                 // 价格
                 Text(price)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(.primary)
             }
             .padding(.horizontal, 16)

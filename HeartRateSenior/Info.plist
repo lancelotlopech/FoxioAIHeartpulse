@@ -63,5 +63,24 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>FacebookAppID</key>
+	<string>905154591983080</string>
+	<key>FacebookClientToken</key>
+	<string>d35f41b45b80899af61789d2aa590351</string>
+	<key>FacebookDisplayName</key>
+	<string>i heart</string>
+	<key>FacebookAutoLogAppEventsEnabled</key>
+	<true/>
+	<key>FacebookAdvertiserIDCollectionEnabled</key>
+	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb905154591983080</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
