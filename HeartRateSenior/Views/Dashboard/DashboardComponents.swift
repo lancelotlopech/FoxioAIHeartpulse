@@ -2,7 +2,7 @@
 //  DashboardComponents.swift
 //  HeartRateSenior
 //
-//  Various smaller components for Dashboard
+//  Dashboard components - 1:1 matching HTML design
 //
 
 import SwiftUI
@@ -37,7 +37,7 @@ struct ShimmerOverlay: View {
     }
 }
 
-// MARK: - Limited Time Offer Manager (倒计时管理器 - 精确到毫秒)
+// MARK: - Limited Time Offer Manager
 class LimitedTimeOfferManager: ObservableObject {
     static let shared = LimitedTimeOfferManager()
     
@@ -45,9 +45,8 @@ class LimitedTimeOfferManager: ObservableObject {
     @Published var isOfferExpired: Bool = false
     
     private var timer: Timer?
-    private let offerDuration: TimeInterval = 2 * 60 * 60 // 2小时
+    private let offerDuration: TimeInterval = 2 * 60 * 60
     
-    // UserDefaults keys
     private let lastOpenDateKey = "limitedOfferLastOpenDate"
     private let offerEndTimeKey = "limitedOfferEndTime"
     
@@ -61,7 +60,6 @@ class LimitedTimeOfferManager: ObservableObject {
         let lastOpenDate = UserDefaults.standard.object(forKey: lastOpenDateKey) as? Date
         let lastOpenDay = lastOpenDate.map { Calendar.current.startOfDay(for: $0) }
         
-        // 如果是新的一天，重置倒计时
         if lastOpenDay != today {
             let newEndTime = Date().addingTimeInterval(offerDuration)
             UserDefaults.standard.set(today, forKey: lastOpenDateKey)
@@ -78,7 +76,6 @@ class LimitedTimeOfferManager: ObservableObject {
             remainingTime = max(0, endTime.timeIntervalSince(Date()))
             isOfferExpired = remainingTime <= 0
         } else {
-            // 首次使用，设置倒计时
             let newEndTime = Date().addingTimeInterval(offerDuration)
             UserDefaults.standard.set(Date(), forKey: lastOpenDateKey)
             UserDefaults.standard.set(newEndTime.timeIntervalSince1970, forKey: offerEndTimeKey)
@@ -88,13 +85,11 @@ class LimitedTimeOfferManager: ObservableObject {
     }
     
     private func startTimer() {
-        // 每 10 毫秒更新一次，实现毫秒级显示
         timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [weak self] _ in
             self?.updateRemainingTime()
         }
     }
     
-    // 格式化时间（精确到毫秒）
     func formattedTime() -> String {
         let hours = Int(remainingTime) / 3600
         let minutes = (Int(remainingTime) % 3600) / 60
@@ -108,51 +103,41 @@ class LimitedTimeOfferManager: ObservableObject {
     }
 }
 
-// MARK: - Upgrade Banner View (升级横幅 + 流光效果 + 倒计时)
+// MARK: - Upgrade Banner View
 struct UpgradeBannerView: View {
     let onTap: () -> Void
     let onClose: () -> Void
     
-    @State private var isAnimating = false
     @State private var giftScale: CGFloat = 1.0
     @StateObject private var offerManager = LimitedTimeOfferManager.shared
     
-    // 浅红色（渐变右边的颜色）
     private let lightRedColor = AppColors.primaryRed.opacity(0.6)
     
     var body: some View {
         Button(action: onTap) {
             ZStack {
-                // 底层：渐变背景（红色→浅红色）
                 RoundedRectangle(cornerRadius: 18)
                     .fill(
                         LinearGradient(
-                            colors: [
-                                AppColors.primaryRed,      // 主红色
-                                lightRedColor              // 浅红色
-                            ],
+                            colors: [AppColors.primaryRed, lightRedColor],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                 
-                // 中层：流光效果
                 ShimmerOverlay()
                     .clipShape(RoundedRectangle(cornerRadius: 18))
-                // 上层：内容
+                
                 HStack(spacing: 12) {
-                    // 左侧：文字 + 倒计时
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Limited Time Offer")
                             .font(.system(size: 22, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
-                            .shadow(color: Color.black.opacity(0.15), radius: 1, x: 0, y: 1)
                         
                         Text("Unlock premium features")
                             .font(.system(size: 8, weight: .regular, design: .rounded))
                             .foregroundColor(.white.opacity(0.85))
                         
-                        // 倒计时（左下角）- 字体变细，背景改为浅红色
                         Text(offerManager.isOfferExpired ? "00:00:00.00" : offerManager.formattedTime())
                             .font(.system(size: 18, weight: .regular, design: .monospaced))
                             .foregroundColor(.white)
@@ -160,25 +145,19 @@ struct UpgradeBannerView: View {
                             .padding(.vertical, 5)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(lightRedColor.opacity(0.9))  // 浅红色背景
+                                    .fill(lightRedColor.opacity(0.9))
                             )
-                            .shadow(color: AppColors.primaryRed.opacity(0.3), radius: 3, x: 0, y: 2)
                     }
                     
                     Spacer()
                     
-                    // 右侧：礼盒图片 + 星星装饰
-                    ZStack {
-                        // 礼盒图片（向左旋转15度 + 呼吸动效）
-                        Image("gift")
-                            .resizable()
-                            .interpolation(.medium)
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 75, height: 75)
-                            .rotationEffect(.degrees(-15))  // 向左旋转15度
-                            .scaleEffect(giftScale)
-                    }
-                    .frame(width: 90, height: 80)
+                    Image("gift")
+                        .resizable()
+                        .interpolation(.medium)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 75, height: 75)
+                        .rotationEffect(.degrees(-15))
+                        .scaleEffect(giftScale)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
@@ -188,18 +167,77 @@ struct UpgradeBannerView: View {
         }
         .buttonStyle(PlainButtonStyle())
         .onAppear {
-            // 礼盒呼吸动画
-            withAnimation(
-                Animation.easeInOut(duration: 1.5)
-                    .repeatForever(autoreverses: true)
-            ) {
+            withAnimation(Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 giftScale = 1.08
             }
         }
     }
 }
 
-// MARK: - Header View with Emergency Button & Pro Badge
+// MARK: - Modern Header View (匹配HTML: Home + Welcome back + PRO + SOS)
+struct ModernHeaderView: View {
+    let userName: String
+    var showProBadge: Bool = false
+    var onProTap: (() -> Void)? = nil
+    let onEmergencyTap: () -> Void
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Home")
+                    .font(.system(size: 30, weight: .heavy))
+                    .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                    .tracking(-0.5)
+                
+                if !userName.isEmpty {
+                    Text("Welcome back, \(userName)")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+                }
+            }
+            
+            Spacer()
+            
+            if showProBadge, let proAction = onProTap {
+                Button(action: proAction) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 12, weight: .semibold))
+                        Text("PRO")
+                            .font(.system(size: 12, weight: .bold))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        LinearGradient(
+                            colors: [Color(red: 1.0, green: 0.6, blue: 0.2), Color(red: 1.0, green: 0.4, blue: 0.3)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .cornerRadius(14)
+                    .shadow(color: Color(red: 1.0, green: 0.5, blue: 0.25).opacity(0.3), radius: 6, x: 0, y: 3)
+                }
+            }
+            
+            Button(action: onEmergencyTap) {
+                Text("SOS")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.white)
+                    .tracking(0.5)
+                    .frame(width: 48, height: 48)
+                    .background(
+                        Circle()
+                            .fill(AppColors.primaryRed)
+                            .shadow(color: AppColors.primaryRed.opacity(0.3), radius: 8, x: 0, y: 4)
+                    )
+            }
+        }
+    }
+}
+
+// MARK: - Header View (旧版兼容)
 struct HeaderView: View {
     let onEmergencyTap: () -> Void
     let onProTap: () -> Void
@@ -207,56 +245,667 @@ struct HeaderView: View {
     
     var body: some View {
         HStack {
-            // 只显示 Home 标题，去掉日期
             Text("Home")
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundColor(.black)
-            
             Spacer()
-            
-            // Pro Badge (非订阅用户显示)
             if !isPremium && PaywallConfiguration.showProBadgeInDashboard {
                 Button(action: onProTap) {
                     HStack(spacing: 4) {
-                        Image(systemName: "crown.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                        Text("PRO")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                        Image(systemName: "crown.fill").font(.system(size: 12, weight: .semibold))
+                        Text("PRO").font(.system(size: 12, weight: .bold, design: .rounded))
                     }
                     .foregroundColor(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(
-                        LinearGradient(
-                            colors: [
-                                Color(red: 1.0, green: 0.6, blue: 0.2),
-                                Color(red: 1.0, green: 0.4, blue: 0.3)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .background(LinearGradient(colors: [Color(red: 1.0, green: 0.6, blue: 0.2), Color(red: 1.0, green: 0.4, blue: 0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
                     .cornerRadius(12)
-                    .shadow(color: Color.orange.opacity(0.3), radius: 4, x: 0, y: 2)
                 }
             }
-            // Emergency Button - 红色背景 + 白色图标
             Button(action: onEmergencyTap) {
                 ZStack {
-                    Circle()
-                        .fill(AppColors.primaryRed)
-                        .frame(width: 50, height: 50)
-                    
-                    Image(systemName: "sos")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                    Circle().fill(AppColors.primaryRed).frame(width: 50, height: 50)
+                    Image(systemName: "sos").font(.system(size: 18, weight: .bold)).foregroundColor(.white)
                 }
             }
         }
     }
 }
 
-// MARK: - Section Title View (统一的区块标题组件)
+// MARK: - Week Calendar Strip (逐日滑动, 自动吸附, 机械表震动反馈)
+struct WeekCalendarStripView: View {
+    let heartRateRecords: [HeartRateRecord]
+    let bloodPressureRecords: [BloodPressureRecord]
+    let bloodGlucoseRecords: [BloodGlucoseRecord]
+    let onDateTapped: (Date) -> Void
+    var onViewMoreHistory: (() -> Void)? = nil
+    
+    private let calendar = Calendar.current
+    private let itemWidth: CGFloat = 42
+    private let itemSpacing: CGFloat = 6
+    
+    // 生成日期范围: 过去60天 + 今天 + 未来30天 (共91天)
+    private var allDates: [Date] {
+        let today = calendar.startOfDay(for: Date())
+        return (-60...30).compactMap { offset in
+            calendar.date(byAdding: .day, value: offset, to: today)
+        }
+    }
+    
+    // 今天的索引
+    private var todayIndex: Int { 60 }
+    
+    @State private var currentCenterIndex: Int = 60
+    
+    private func hasRecords(on date: Date) -> Bool {
+        heartRateRecords.contains { calendar.isDate($0.timestamp, inSameDayAs: date) } ||
+        bloodPressureRecords.contains { calendar.isDate($0.timestamp, inSameDayAs: date) } ||
+        bloodGlucoseRecords.contains { calendar.isDate($0.timestamp, inSameDayAs: date) }
+    }
+    
+    private func weekdayLabel(for date: Date) -> String {
+        let weekday = calendar.component(.weekday, from: date)
+        let labels = ["S", "M", "T", "W", "T", "F", "S"]
+        return labels[weekday - 1]
+    }
+    
+    private enum DateCategory {
+        case past, today, future
+    }
+    
+    private func dateCategory(_ date: Date) -> DateCategory {
+        let today = calendar.startOfDay(for: Date())
+        let dateStart = calendar.startOfDay(for: date)
+        if dateStart == today { return .today }
+        if dateStart < today { return .past }
+        return .future
+    }
+    
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: itemSpacing) {
+                    ForEach(Array(allDates.enumerated()), id: \.offset) { index, date in
+                        let category = dateCategory(date)
+                        let isToday = category == .today
+                        let dayNumber = calendar.component(.day, from: date)
+                        let hasData = hasRecords(on: date)
+                        
+                        Button(action: {
+                            HapticManager.shared.selectionChanged()
+                            onDateTapped(date)
+                        }) {
+                            VStack(spacing: 4) {
+                                Text(weekdayLabel(for: date))
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(
+                                        isToday ? .white.opacity(0.9) :
+                                        category == .future ? Color(red: 0.75, green: 0.78, blue: 0.82) :
+                                        Color(red: 0.392, green: 0.455, blue: 0.545)
+                                    )
+                                
+                                Text("\(dayNumber)")
+                                    .font(.system(size: isToday ? 18 : 15, weight: .bold))
+                                    .foregroundColor(
+                                        isToday ? .white :
+                                        category == .future ? Color(red: 0.75, green: 0.78, blue: 0.82) :
+                                        Color(red: 0.118, green: 0.161, blue: 0.231)
+                                    )
+                                
+                                // 指示点
+                                if isToday {
+                                    Circle()
+                                        .fill(.white)
+                                        .frame(width: 5, height: 5)
+                                } else if hasData {
+                                    Circle()
+                                        .fill(Color(red: 0.2, green: 0.78, blue: 0.35))
+                                        .frame(width: 6, height: 6)
+                                        .shadow(color: Color(red: 0.2, green: 0.78, blue: 0.35).opacity(0.5), radius: 2)
+                                } else {
+                                    Circle()
+                                        .fill(Color.clear)
+                                        .frame(width: 5, height: 5)
+                                }
+                            }
+                            .frame(width: itemWidth, height: 62)
+                            .background(
+                                Group {
+                                    if isToday {
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(AppColors.primaryRed)
+                                            .shadow(color: AppColors.primaryRed.opacity(0.25), radius: 8, x: 0, y: 4)
+                                    }
+                                }
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .id(index)
+                        .scrollTransition { content, phase in
+                            content
+                                .scaleEffect(phase.isIdentity ? 1.0 : 0.95)
+                                .opacity(phase.isIdentity ? 1.0 : 0.7)
+                        }
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .scrollTargetBehavior(.viewAligned)
+            .scrollPosition(id: .init(get: {
+                currentCenterIndex
+            }, set: { newValue in
+                if let newIndex = newValue as? Int, newIndex != currentCenterIndex {
+                    currentCenterIndex = newIndex
+                    HapticManager.shared.selectionChanged()
+                }
+            }))
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    proxy.scrollTo(todayIndex, anchor: .center)
+                }
+            }
+        }
+        .frame(height: 76)
+        .padding(.vertical, 3)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        )
+    }
+}
+
+// 辅助: 滚动偏移量 PreferenceKey
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+// MARK: - Modern Heart Rate Card (匹配HTML: 渐变 + 大心形SVG)
+struct ModernHeartRateCard: View {
+    let lastRecord: HeartRateRecord?
+    let onMeasureTap: () -> Void
+    
+    @State private var isPulsing = false
+    
+    private func timeAgo(from date: Date) -> String {
+        let interval = Date().timeIntervalSince(date)
+        if interval < 60 { return "Just now" }
+        else if interval < 3600 { return "\(Int(interval / 60)) min ago" }
+        else if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+        else { return "\(Int(interval / 86400))d ago" }
+    }
+    
+    var body: some View {
+        Button(action: onMeasureTap) {
+            ZStack {
+                // 背景渐变
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.937, green: 0.267, blue: 0.267), // red-500
+                                AppColors.primaryRed,
+                                Color(red: 0.98, green: 0.55, blue: 0.24)  // orange-400
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: AppColors.primaryRed.opacity(0.2), radius: 12, x: 0, y: 6)
+                
+                // 右上角白色光晕
+                Circle()
+                    .fill(Color.white.opacity(0.1))
+                    .frame(width: 160, height: 160)
+                    .blur(radius: 40)
+                    .offset(x: 60, y: -60)
+                
+                // 白色边框
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                
+                HStack {
+                    // 左侧内容
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Heart Rate 标题
+                        HStack(spacing: 6) {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 18))
+                                .foregroundColor(.white.opacity(0.9))
+                            
+                            Text("Heart Rate")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        
+                        // Last checked
+                        if let record = lastRecord {
+                            Text("Last checked \(timeAgo(from: record.timestamp))")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color(red: 1.0, green: 0.85, blue: 0.85))
+                                .padding(.top, 2)
+                        } else {
+                            Text("No readings yet")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color(red: 1.0, green: 0.85, blue: 0.85))
+                                .padding(.top, 2)
+                        }
+                        
+                        Spacer()
+                        
+                        // BPM 大数字
+                        if let record = lastRecord {
+                            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                Text("\(record.bpm)")
+                                    .font(.system(size: 48, weight: .black))
+                                    .foregroundColor(.white)
+                                
+                                Text("BPM")
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(Color(red: 1.0, green: 0.85, blue: 0.85))
+                            }
+                            
+                            // Stable Trend 标签
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 10, weight: .medium))
+                                Text("Stable Trend")
+                                    .font(.system(size: 12, weight: .medium))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule()
+                                    .fill(Color.white.opacity(0.2))
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    )
+                            )
+                            .padding(.top, 4)
+                        } else {
+                            Text("Tap to measure")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // 右侧: 大心形图标 (匹配HTML的SVG心形+十字)
+                    ZStack {
+                        // 脉动光晕
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 88, height: 88)
+                            .blur(radius: 16)
+                            .scaleEffect(isPulsing ? 1.1 : 0.9)
+                        
+                        // 心形 + 十字
+                        ZStack {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(.white)
+                                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                            
+                            // 十字标记
+                            Image(systemName: "plus")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(AppColors.primaryRed)
+                        }
+                        .scaleEffect(isPulsing ? 1.05 : 1.0)
+                    }
+                    .frame(width: 100, height: 100)
+                }
+                .padding(24)
+            }
+            .frame(height: 180)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onAppear {
+            withAnimation(Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                isPulsing = true
+            }
+        }
+    }
+}
+
+// MARK: - Quick Record Section Title
+struct QuickRecordTitleView: View {
+    var body: some View {
+        HStack {
+            Text("Quick Record")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+            
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Compact Health Card (匹配HTML: 圆形图标+状态标签+数值+单位, 整个卡片可点击)
+struct CompactHealthCard: View {
+    let icon: String
+    let title: String
+    let lastValue: String?
+    let unit: String
+    let color: Color
+    let iconBgColor: Color
+    var iconCircleBgColor: Color? = nil
+    let statusText: String?
+    let statusColor: Color
+    let onAddTap: () -> Void
+    
+    var body: some View {
+        Button(action: onAddTap) {
+            ZStack(alignment: .bottomTrailing) {
+                VStack(alignment: .leading, spacing: 0) {
+                    // 顶部: 圆形图标 + 状态标签
+                    HStack {
+                        // 圆形图标背景
+                        ZStack {
+                            Circle()
+                                .fill(iconCircleBgColor ?? iconBgColor.opacity(0.15))
+                                .frame(width: 40, height: 40)
+                            
+                            Image(systemName: icon)
+                                .font(.system(size: 18))
+                                .foregroundColor(iconBgColor)
+                        }
+                        
+                        Spacer()
+                        
+                        // 状态标签
+                        if let status = statusText {
+                            Text(status)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(statusColor)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    Capsule()
+                                        .fill(statusColor.opacity(0.12))
+                                )
+                        }
+                    }
+                    
+                    Spacer().frame(height: 12)
+                    
+                    // 标题
+                    Text(title)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                        .lineLimit(1)
+                    
+                    Spacer().frame(height: 4)
+                    
+                    // 数值
+                    Text(lastValue ?? "--")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                    
+                    Spacer().frame(height: 2)
+                    
+                    // 单位
+                    Text(unit)
+                        .font(.system(size: 12))
+                        .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+                }
+                
+                // 右下角加号图标（装饰性，整个卡片都可点击）
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 0.973, green: 0.976, blue: 0.984))
+                        .frame(width: 32, height: 32)
+                        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                    
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, minHeight: 150, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(Color.white)
+                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Self Check Section Title
+struct SelfCheckTitleView: View {
+    var body: some View {
+        HStack {
+            Text("Self Check")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Image Based Self Check Card (匹配HTML: 并排2列, 图片背景+渐变+图标+文字)
+struct ImageBasedSelfCheckCard: View {
+    let imageName: String
+    let title: String
+    let subtitle: String
+    let iconName: String
+    let gradientColor: Color
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            GeometryReader { geo in
+                ZStack(alignment: .bottomLeading) {
+                    // 背景图片
+                    Image(imageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: 176)
+                        .clipped()
+                    
+                    // 渐变遮罩
+                    LinearGradient(
+                        colors: [
+                            Color.clear,
+                            gradientColor.opacity(0.4),
+                            gradientColor.opacity(0.9)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    
+                    // 内容
+                    VStack(alignment: .leading, spacing: 0) {
+                        Spacer()
+                        
+                        // 圆形图标
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(width: 40, height: 40)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                )
+                            
+                            Image(systemName: iconName)
+                                .font(.system(size: 18))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.bottom, 12)
+                        
+                        // 标题
+                        Text(title)
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                        
+                        // 副标题
+                        Text(subtitle)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.white.opacity(0.9))
+                            .lineLimit(2)
+                            .padding(.top, 2)
+                    }
+                    .padding(16)
+                }
+            }
+            .frame(height: 176)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Health Articles Title
+struct HealthArticlesTitleView: View {
+    var onSeeAllTap: (() -> Void)? = nil
+    
+    var body: some View {
+        HStack {
+            Text("Health Articles")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+            
+            Spacer()
+            
+            if let action = onSeeAllTap {
+                Button(action: action) {
+                    Text("See All")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(AppColors.primaryRed)
+                }
+            } else {
+                Text("See All")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(AppColors.primaryRed)
+            }
+        }
+    }
+}
+
+// MARK: - Article Image Card (匹配HTML: 图片背景+渐变+标签+标题)
+struct ArticleImageCard: View {
+    let imageName: String
+    let tag: String
+    let tagColor: Color
+    let title: String
+    let height: CGFloat
+    var onTap: (() -> Void)? = nil
+    
+    var body: some View {
+        Button(action: { onTap?() }) {
+            GeometryReader { geo in
+                ZStack(alignment: .bottomLeading) {
+                    // 背景图片
+                    Image(imageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: height)
+                        .clipped()
+                    
+                    // 渐变遮罩
+                    LinearGradient(
+                        colors: [
+                            Color.clear,
+                            Color.black.opacity(0.6)
+                        ],
+                        startPoint: .center,
+                        endPoint: .bottom
+                    )
+                    
+                    // 内容
+                    VStack(alignment: .leading, spacing: 6) {
+                        Spacer()
+                        
+                        // 标签
+                        Text(tag.uppercased())
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white)
+                            .tracking(0.5)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Capsule().fill(tagColor))
+                        
+                        // 标题
+                        Text(title)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                    }
+                    .padding(16)
+                }
+            }
+            .frame(height: height)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Disclaimer Footer (匹配HTML: 白色卡片 + info图标 + 文字 + 下箭头)
+struct DashboardDisclaimerFooter: View {
+    @State private var isExpanded = false
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    isExpanded.toggle()
+                }
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(AppColors.primaryRed)
+                    
+                    Text("References & Disclaimer")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+                    
+                    Spacer()
+                    
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+                }
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white)
+                        .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 2)
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+            
+            if isExpanded {
+                Text("This app is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white)
+                    )
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+    }
+}
+
+// MARK: - 旧版组件保留兼容
+
 struct SectionTitleView: View {
     let icon: String
     let title: String
@@ -268,22 +917,17 @@ struct SectionTitleView: View {
             HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.black)  // 改为纯黑色
-                
+                    .foregroundColor(.black)
                 Text(title)
                     .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundColor(.black)  // 改为纯黑色
+                    .foregroundColor(.black)
             }
-            
             Spacer()
-            
             if showSeeMore, let action = onSeeMoreTap {
                 Button(action: action) {
                     HStack(spacing: 4) {
-                        Text("See All")
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 12, weight: .semibold))
+                        Text("See All").font(.system(size: 14, weight: .semibold, design: .rounded))
+                        Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold))
                     }
                     .foregroundColor(AppColors.primaryRed)
                 }
@@ -292,490 +936,37 @@ struct SectionTitleView: View {
     }
 }
 
-// MARK: - Horizontal Record Card View (支持历史入口 + 添加按钮 + 封面图片)
-struct HorizontalRecordCardView: View {
-    let icon: String
-    let title: String
-    let lastValue: String?
-    let color: Color
-    let onAddTap: () -> Void
-    var coverImage: String? = nil  // 可选的封面图片名称
-    
-    var body: some View {
-        HStack(spacing: 16) {
-            // 左侧：封面图片或图标
-            if let imageName = coverImage {
-                Image(imageName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 64, height: 64)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-            } else {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(color.opacity(0.12))
-                        .frame(width: 64, height: 64)
-                    
-                    Image(systemName: icon)
-                        .font(.system(size: 30, weight: .medium))
-                        .foregroundColor(color)
-                }
-            }
-            
-            // 中间：标题和上次值
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(AppColors.textPrimary)
-                
-                if let value = lastValue {
-                    Text("Last: \(value)")
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundColor(color)
-                } else {
-                    Text("Tap to view history")
-                        .font(.system(size: 15, weight: .regular, design: .rounded))
-                        .foregroundColor(AppColors.textSecondary)
-                }
-            }
-            
-            Spacer()
-            
-            // 右侧：添加按钮
-            Button(action: onAddTap) {
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.12))
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(color)
-                }
-            }
-            // 箭头
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(AppColors.textSecondary.opacity(0.5))
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
-        )
-    }
-}
-
-// MARK: - Weekly Trend Card
 struct WeeklyTrendCard: View {
     let records: [HeartRateRecord]
-    
     private var recentRecords: [HeartRateRecord] {
         let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
         return records.filter { $0.timestamp >= sevenDaysAgo }.reversed()
     }
-    
     private var averageBPM: Int? {
         guard !recentRecords.isEmpty else { return nil }
-        let total = recentRecords.reduce(0) { $0 + $1.bpm }
-        return total / recentRecords.count
+        return recentRecords.reduce(0) { $0 + $1.bpm } / recentRecords.count
     }
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("This Week")
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(AppColors.textPrimary)
+                Text("This Week").font(.system(size: 16, weight: .semibold, design: .rounded)).foregroundColor(AppColors.textPrimary)
                 Spacer()
-                
                 if let avg = averageBPM {
-                    Text("Avg: \(avg) BPM")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(AppColors.textSecondary)
+                    Text("Avg: \(avg) BPM").font(.system(size: 14, weight: .medium, design: .rounded)).foregroundColor(AppColors.textSecondary)
                 }
             }
-            
             if recentRecords.count >= 2 {
                 Chart(Array(recentRecords)) { record in
-                    LineMark(
-                        x: .value("Time", record.timestamp),
-                        y: .value("BPM", record.bpm)
-                    )
-                    .foregroundStyle(AppColors.primaryRed.gradient)
-                    .interpolationMethod(.catmullRom)
-                    
-                    AreaMark(
-                        x: .value("Time", record.timestamp),
-                        y: .value("BPM", record.bpm)
-                    )
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [AppColors.primaryRed.opacity(0.3), AppColors.primaryRed.opacity(0.05)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .interpolationMethod(.catmullRom)
+                    LineMark(x: .value("Time", record.timestamp), y: .value("BPM", record.bpm))
+                        .foregroundStyle(AppColors.primaryRed.gradient).interpolationMethod(.catmullRom)
+                    AreaMark(x: .value("Time", record.timestamp), y: .value("BPM", record.bpm))
+                        .foregroundStyle(LinearGradient(colors: [AppColors.primaryRed.opacity(0.3), AppColors.primaryRed.opacity(0.05)], startPoint: .top, endPoint: .bottom))
+                        .interpolationMethod(.catmullRom)
                 }
-                .chartXAxis(.hidden)
-                .chartYAxis(.hidden)
-                .chartYScale(domain: .automatic(includesZero: false))
-                .frame(height: 80)
+                .chartXAxis(.hidden).chartYAxis(.hidden).chartYScale(domain: .automatic(includesZero: false)).frame(height: 80)
             }
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 4)
-        )
-    }
-}
-
-// MARK: - Quick Record Card (Senior-Friendly Large Design)
-struct QuickRecordCard: View {
-    let icon: String
-    let title: String
-    let lastValue: String?
-    let color: Color
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
-                // Left: Icon
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.15))
-                        .frame(width: 56, height: 56)
-                    
-                    Image(systemName: icon)
-                        .font(.system(size: 28))
-                        .foregroundColor(color)
-                }
-                
-                // Middle: Title & Value
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 20, weight: .semibold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
-                    
-                    if let value = lastValue {
-                        Text("Last: \(value)")
-                            .font(.system(size: 16, weight: .regular, design: .rounded))
-                            .foregroundColor(AppColors.textSecondary)
-                    } else {
-                        Text("Tap to record")
-                            .font(.system(size: 16, weight: .regular, design: .rounded))
-                            .foregroundColor(AppColors.textSecondary)
-                    }
-                }
-                
-                Spacer()
-                
-                // Right: Add Button
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 32))
-                    .foregroundColor(color)
-            }
-            .padding(20)
-            .frame(maxWidth: .infinity, minHeight: 80, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white)
-                    .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 4)
-            )
-        }
-    }
-}
-
-// MARK: - Compact Record Card (for 2x2 Grid)
-struct CompactRecordCard: View {
-    let icon: String
-    let title: String
-    let lastValue: String?
-    let color: Color
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 12) {
-                // Icon
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.15))
-                        .frame(width: 48, height: 48)
-                    
-                    Image(systemName: icon)
-                        .font(.system(size: 22))
-                        .foregroundColor(color)
-                }
-                
-                // Title
-                Text(title)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundColor(AppColors.textPrimary).lineLimit(1)
-                
-                // Value or Tap to record
-                if let value = lastValue {
-                    Text(value)
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundColor(color)
-                        .lineLimit(1)
-                } else {
-                    Text("Tap to add")
-                        .font(.system(size: 12, weight: .regular, design: .rounded))
-                        .foregroundColor(AppColors.textSecondary)
-                }
-                
-                // Add Icon
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(color.opacity(0.7))
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity)
-            .frame(height: 150)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
-            )
-        }
-    }
-}
-
-// MARK: - Horizontal Record Card (横向卡片 - 旧版)
-struct HorizontalRecordCard: View {
-    let icon: String
-    let title: String
-    let lastValue: String?
-    let color: Color
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
-                // 左侧：大图标
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(color.opacity(0.12))
-                        .frame(width: 64, height: 64)
-                    
-                    Image(systemName: icon)
-                        .font(.system(size: 30, weight: .medium))
-                        .foregroundColor(color)
-                }
-                
-                // 中间：标题和上次值
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
-                    
-                    if let value = lastValue {
-                        Text("Last: \(value)")
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
-                            .foregroundColor(color)
-                    } else {
-                        Text("Tap to record")
-                            .font(.system(size: 15, weight: .regular, design: .rounded))
-                            .foregroundColor(AppColors.textSecondary)
-                    }
-                }
-                
-                Spacer()
-                
-                // 右侧：添加按钮
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.12))
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(color)
-                }
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white)
-                    .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
-            )
-        }
-    }
-}
-
-// MARK: - HIV Awareness Card (Dashboard 入口卡片)
-struct HIVAwarenessCard: View {
-    let onTap: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 16) {
-            // 左侧：红色医疗图标
-            ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(AppColors.primaryRed.opacity(0.12))
-                    .frame(width: 64, height: 64)
-                
-                Image(systemName: "cross.case.fill")
-                    .font(.system(size: 30, weight: .medium))
-                    .foregroundColor(AppColors.primaryRed)
-            }
-            
-            // 中间：标题和描述
-            VStack(alignment: .leading, spacing: 4) {
-                Text("HIV Awareness")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(AppColors.textPrimary)
-                
-                Text("Learn about prevention & testing")
-                    .font(.system(size: 15, weight: .regular, design: .rounded))
-                    .foregroundColor(AppColors.textSecondary)
-            }
-            
-            Spacer()
-            
-            // 右侧：箭头
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(AppColors.textSecondary.opacity(0.5))
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
-        )
-    }
-}
-
-// MARK: - Pregnancy Center Card (Dashboard 入口卡片)
-struct PregnancyCenterCard: View {
-    let onTap: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 16) {
-            // 左侧：粉色图标
-            ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(red: 1.0, green: 0.75, blue: 0.8).opacity(0.3))
-                    .frame(width: 64, height: 64)
-                
-                Image(systemName: "heart.circle.fill")
-                    .font(.system(size: 30, weight: .medium))
-                    .foregroundColor(Color(red: 1.0, green: 0.6, blue: 0.7))
-            }
-            
-            // 中间：标题和描述
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Pregnancy Center")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(AppColors.textPrimary)
-                
-                Text("Self-check & guidance")
-                    .font(.system(size: 15, weight: .regular, design: .rounded))
-                    .foregroundColor(AppColors.textSecondary)
-            }
-            
-            Spacer()
-            
-            // 右侧：箭头
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(AppColors.textSecondary.opacity(0.5))
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
-        )
-    }
-}
-
-// MARK: - Quick Heart Rate Measure Card (旧版，保留兼容)
-struct QuickHeartRateMeasureCard: View {
-    let lastRecord: HeartRateRecord?
-    let onMeasureTap: () -> Void
-    private func timeAgo(from date: Date) -> String {
-        let interval = Date().timeIntervalSince(date)
-        if interval < 60 { return "Just now" }
-        else if interval < 3600 { return "\(Int(interval / 60))m ago" }
-        else if interval < 86400 { return "\(Int(interval / 3600))h ago" }
-        else { return "\(Int(interval / 86400))d ago" }
-    }
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            HStack(spacing: 16) {
-                // Heart Icon
-                ZStack {
-                    Circle()
-                        .fill(AppColors.primaryRed.opacity(0.15))
-                        .frame(width: 60, height: 60)
-                    
-                    Image(systemName: "heart.fill")
-                        .font(.system(size: 28))
-                        .foregroundColor(AppColors.primaryRed)
-                }
-                
-                // Title & Last Value
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Heart Rate")
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
-                    
-                    if let record = lastRecord {
-                        HStack(spacing: 6) {
-                            Text("\(record.bpm) BPM")
-                                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                                .foregroundColor(AppColors.primaryRed)
-                            
-                            Text("· \(timeAgo(from: record.timestamp))")
-                                .font(.system(size: 14, weight: .regular, design: .rounded))
-                                .foregroundColor(AppColors.textSecondary)
-                        }
-                    } else {
-                        Text("No readings yet")
-                            .font(.system(size: 16, weight: .regular, design: .rounded))
-                            .foregroundColor(AppColors.textSecondary)
-                    }
-                }
-                
-                Spacer()
-            }
-            
-            // Big Measure Button
-            Button(action: onMeasureTap) {
-                HStack(spacing: 12) {
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 22, weight: .semibold))
-                    
-                    Text("Start Measuring")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                }
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 56)
-                .background(
-                    LinearGradient(
-                        colors: [AppColors.primaryRed, AppColors.primaryRed.opacity(0.8)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .cornerRadius(16)
-            }
-        }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.white)
-                .shadow(color: AppColors.primaryRed.opacity(0.15), radius: 12, x: 0, y: 6)
-        )
+        .background(RoundedRectangle(cornerRadius: 20).fill(Color.white).shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 4))
     }
 }

@@ -252,7 +252,7 @@ class SubscriptionManager: ObservableObject {
         let actualPrice = transaction.price ?? product.price
         
         // Use transaction.currency if available, fallback to product currency
-        let currency = transaction.currency ?? product.priceFormatStyle.currencyCode ?? "USD"
+        let currency = transaction.currency?.identifier ?? product.priceFormatStyle.currencyCode ?? "USD"
         let isWeekly = product.id == PaywallConfiguration.weeklyProductID
         
         // Check if this transaction has an introductory offer (free trial)

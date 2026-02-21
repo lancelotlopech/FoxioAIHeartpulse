@@ -17,7 +17,7 @@ struct ArticlesListView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 24) {
                     // Header
                     VStack(spacing: 8) {
                         Text("Article")

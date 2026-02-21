@@ -152,6 +152,7 @@ struct SubscriptionView: View {
     
     @State private var selectedProductID: String = PaywallConfiguration.weeklyProductID  // 默认选中 $0.99
     @State private var isTrialEnabled: Bool = true  // 默认开启试用
+    @State private var showCloseButton = false  // 控制关闭按钮的显示动画
     
     // 关闭方法：优先使用 binding，否则使用 dismiss（无动画，瞬间关闭）
     private func closeView() {
@@ -313,10 +314,18 @@ struct SubscriptionView: View {
                     .font(.system(size: 28))
                     .foregroundStyle(.gray.opacity(0.5))
             }
+            .opacity(showCloseButton ? 1 : 0)
+            .animation(.easeIn(duration: 0.3), value: showCloseButton)
             
             Spacer()
         }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                showCloseButton = true
+            }
+        }
     }
+
     
     private var heroSection: some View {
         VStack(spacing: 4) {

@@ -197,95 +197,73 @@ struct SplashView: View {
     @State private var showContent = false
     @State private var minTimeReached = false  // 最短时间已到
     
-    private let heartColor = Color(hex: "FF6B6B")
+    private let heartColor = AppColors.primaryRed
     private let minDuration: Double = 1.2  // 最短动画时长
     private let timer = Timer.publish(every: 0.012, on: .main, in: .common).autoconnect()
     
+    private let ringSize: CGFloat = 240
+    private let ringLineWidth: CGFloat = 10
+    
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color(hex: "FFF5F5"), Color.white],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // 奶白色背景
+            AppColors.background
+                .ignoresSafeArea()
             
-            VStack(spacing: 40) {
+            VStack(spacing: 28) {
                 Spacer()
                 
-                // 跳动的心心
+                // 圆环进度 + 心形图标
                 ZStack {
+                    // 底环（灰色）
                     Circle()
-                        .fill(heartColor.opacity(0.12))
-                        .frame(width: 160, height: 160)
-                        .scaleEffect(isBeating ? 1.15 : 0.95)
+                        .stroke(Color.gray.opacity(0.15), lineWidth: ringLineWidth)
+                        .frame(width: ringSize, height: ringSize)
                     
+                    // 进度弧线（红色）
                     Circle()
-                        .fill(heartColor.opacity(0.08))
-                        .frame(width: 200, height: 200)
-                        .scaleEffect(isBeating ? 1.1 : 0.9)
-                    
-                    Image(systemName: "heart.fill")
-                        .font(.system(size: 90, weight: .medium))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [heartColor, Color(hex: "FF8E8E")],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+                        .trim(from: 0, to: CGFloat(progressPercent) / 100.0)
+                        .stroke(
+                            heartColor,
+                            style: StrokeStyle(lineWidth: ringLineWidth, lineCap: .round)
                         )
-                        .scaleEffect(isBeating ? 1.12 : 1.0)
-                        .shadow(color: heartColor.opacity(0.4), radius: isBeating ? 25 : 12)
-                }
-                
-                Spacer()
-                
-                // 进度条
-                HStack(spacing: 15) {
-                    GeometryReader { geometry in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.gray.opacity(0.15))
-                            
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [heartColor, Color(hex: "FF8E8E")],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .frame(width: geometry.size.width * CGFloat(progressPercent) / 100.0)
-                        }
-                    }
-                    .frame(height: 14)
+                        .frame(width: ringSize, height: ringSize)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.linear(duration: 0.05), value: progressPercent)
                     
-                    Text("\(progressPercent)%")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                    // 内圈淡灰背景
+                    Circle()
+                        .fill(Color.gray.opacity(0.04))
+                        .frame(width: ringSize - ringLineWidth * 4, height: ringSize - ringLineWidth * 4)
+                    
+                    // 心形轮廓图标
+                    Image(systemName: "heart")
+                        .font(.system(size: 50, weight: .light))
                         .foregroundColor(heartColor)
-                        .frame(width: 55, alignment: .trailing)
                 }
-                .padding(.horizontal, 50)
+                
+                // 百分比数字
+                Text("\(progressPercent)%")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(heartColor)
                 
                 // App 名称
                 VStack(spacing: 8) {
                     Text("Heart Pulse")
                         .font(.system(size: 34, weight: .bold, design: .rounded))
-                        .foregroundColor(Color(hex: "2D3436"))
+                        .foregroundColor(AppColors.textPrimary)
                     
                     Text("Your Health Companion")
                         .font(.system(size: 17, weight: .medium, design: .rounded))
-                        .foregroundColor(.gray)
+                        .foregroundColor(AppColors.textSecondary)
                 }
-                .padding(.top, 10)
                 
-                Spacer().frame(height: 70)
+                Spacer()
             }
             .opacity(showContent ? 1 : 0)
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.3)) { showContent = true }
-            withAnimation(.easeInOut(duration: 0.75).repeatForever(autoreverses: true)) { isBeating = true }
             // 最短时间计时器
             DispatchQueue.main.asyncAfter(deadline: .now() + minDuration) {
                 minTimeReached = true

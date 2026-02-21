@@ -129,8 +129,9 @@ struct HIVTestingMethodDetailView: View {
             }
             .background(Color(red: 1.0, green: 0.96, blue: 0.96).ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 16, weight: .semibold))

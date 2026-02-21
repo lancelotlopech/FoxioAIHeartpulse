@@ -2,7 +2,7 @@
 //  PregnancyTestGuideView.swift
 //  HeartRateSenior
 //
-//  Pregnancy test usage guide (4-page carousel)
+//  Pregnancy test usage guide — Minimalist redesign
 //
 
 import SwiftUI
@@ -12,108 +12,94 @@ struct PregnancyTestGuideView: View {
     @State private var currentPage = 0
     
     private let pages = TestGuideData.allPages
-    private let primaryColor = Color(red: 1.0, green: 0.7, blue: 0.75)
+    private let primaryColor = Color(red: 0.93, green: 0.17, blue: 0.36)
     
     var body: some View {
         ZStack {
-            AppColors.background.ignoresSafeArea()
+            Color.white.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
+                // Top bar
                 HStack {
-                    Button(action: {
+                    Button {
                         HapticManager.shared.lightImpact()
                         dismiss()
-                    }) {
+                    } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(AppColors.textPrimary)
-                            .frame(width: 44, height: 44)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Color(hex: "1a1a1a"))
+                            .frame(width: 40, height: 40)
+                            .background(Circle().fill(Color(hex: "f8f6f6")))
                     }
                     
                     Spacer()
                     
                     Text("How to Use a Test")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(Color(hex: "1a1a1a"))
                     
                     Spacer()
                     
-                    Color.clear.frame(width: 44, height: 44)
+                    Color.clear.frame(width: 40, height: 40)
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 16)
+                .padding(.top, 12)
                 
-                // Page Indicators
-                HStack(spacing: 8) {
-                    ForEach(0..<pages.count, id: \.self) { index in
-                        Circle()
-                            .fill(currentPage == index ? primaryColor : Color.gray.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                            .animation(.spring(response: 0.3), value: currentPage)
-                    }
-                }
-                .padding(.top, 16)
+                // Horizontal step bar
+                GuideStepBar(
+                    total: pages.count,
+                    current: currentPage,
+                    primaryColor: primaryColor
+                )
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
                 
                 // Content
                 TabView(selection: $currentPage) {
                     ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
-                        GuidePageView(page: page)
+                        GuideMinimalPageView(page: page, primaryColor: primaryColor)
                             .tag(index)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(.easeInOut(duration: 0.3), value: currentPage)
                 
-                // Navigation Buttons
-                HStack(spacing: 16) {
+                // Bottom nav
+                HStack(spacing: 12) {
                     if currentPage > 0 {
-                        Button(action: {
+                        Button {
                             HapticManager.shared.lightImpact()
-                            withAnimation {
-                                currentPage -= 1
-                            }
-                        }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: 14, weight: .semibold))
-                                Text("Previous")
-                                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                            }
-                            .foregroundColor(primaryColor)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .strokeBorder(primaryColor, lineWidth: 2)
-                            )
+                            withAnimation { currentPage -= 1 }
+                        } label: {
+                            Text("Back")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(Color(hex: "1a1a1a"))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .strokeBorder(Color(hex: "e8e6e6"), lineWidth: 1)
+                                )
                         }
                     }
                     
-                    Button(action: {
+                    Button {
                         HapticManager.shared.mediumImpact()
                         if currentPage < pages.count - 1 {
-                            withAnimation {
-                                currentPage += 1
-                            }
+                            withAnimation { currentPage += 1 }
                         } else {
                             dismiss()
                         }
-                    }) {
-                        HStack(spacing: 8) {
-                            Text(currentPage < pages.count - 1 ? "Next" : "Done")
-                                .font(.system(size: 16, weight: .bold, design: .rounded))
-                            if currentPage < pages.count - 1 {
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .semibold))
-                            }
-                        }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(primaryColor)
-                        )
+                    } label: {
+                        Text(currentPage < pages.count - 1 ? "Next" : "Done")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(primaryColor)
+                            )
                     }
                 }
                 .padding(.horizontal, 20)
@@ -124,105 +110,128 @@ struct PregnancyTestGuideView: View {
     }
 }
 
-// MARK: - Guide Page View
-struct GuidePageView: View {
-    let page: TestGuidePage
-    
-    private let primaryColor = Color(red: 1.0, green: 0.7, blue: 0.75)
+// MARK: - Step Bar
+private struct GuideStepBar: View {
+    let total: Int
+    let current: Int
+    let primaryColor: Color
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // Icon
+        HStack(spacing: 0) {
+            ForEach(0..<total, id: \.self) { index in
+                // Circle
                 ZStack {
-                    Circle()
-                        .fill(primaryColor.opacity(0.15))
-                        .frame(width: 100, height: 100)
-                    
-                    Image(systemName: page.icon)
-                        .font(.system(size: 48, weight: .medium))
-                        .foregroundColor(primaryColor)
+                    if index <= current {
+                        Circle()
+                            .fill(primaryColor)
+                            .frame(width: 28, height: 28)
+                        
+                        Text("\(index + 1)")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(.white)
+                    } else {
+                        Circle()
+                            .strokeBorder(Color(hex: "dddddd"), lineWidth: 1.5)
+                            .frame(width: 28, height: 28)
+                        
+                        Text("\(index + 1)")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(Color(hex: "bbbbbb"))
+                    }
                 }
-                .padding(.top, 20)
                 
-                // Step Number
-                Text("Step \(page.stepNumber)")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                // Connector line
+                if index < total - 1 {
+                    Rectangle()
+                        .fill(index < current ? primaryColor : Color(hex: "e8e6e6"))
+                        .frame(height: 2)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Page Content
+private struct GuideMinimalPageView: View {
+    let page: TestGuidePage
+    let primaryColor: Color
+    
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Step label
+                Text("STEP \(page.stepNumber)")
+                    .font(.system(size: 12, weight: .bold))
                     .foregroundColor(primaryColor)
+                    .tracking(1)
+                    .padding(.top, 28)
                 
                 // Title
                 Text(page.title)
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(AppColors.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(Color(hex: "1a1a1a"))
+                    .padding(.top, 8)
                 
                 // Description
                 Text(page.description)
-                    .font(.system(size: 16, weight: .regular, design: .rounded))
-                    .foregroundColor(AppColors.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(6)
-                    .padding(.horizontal, 32)
+                    .font(.system(size: 14))
+                    .foregroundColor(Color(hex: "999999"))
+                    .lineSpacing(4)
+                    .padding(.top, 8)
                 
-                // Details
-                VStack(alignment: .leading, spacing: 16) {
+                // Details with red checkmarks
+                VStack(alignment: .leading, spacing: 14) {
                     ForEach(page.details, id: \.self) { detail in
                         HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 20))
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(primaryColor)
+                                .frame(width: 20, height: 20)
+                                .background(
+                                    Circle().fill(primaryColor.opacity(0.1))
+                                )
                             
                             Text(detail)
-                                .font(.system(size: 15, weight: .regular, design: .rounded))
-                                .foregroundColor(AppColors.textSecondary)
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(hex: "555555"))
+                                .lineSpacing(3)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(20)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(.systemBackground))
-                )
-                .padding(.horizontal, 20)
+                .padding(.top, 20)
                 
-                // Tips (if available)
+                // Tips card (gray background)
                 if !page.tips.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "lightbulb.fill")
-                                .foregroundColor(.orange)
-                            
-                            Text("Pro Tips")
-                                .font(.system(size: 16, weight: .semibold, design: .rounded))
-                                .foregroundColor(AppColors.textPrimary)
-                        }
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Tips")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(Color(hex: "1a1a1a"))
                         
                         ForEach(page.tips, id: \.self) { tip in
                             HStack(alignment: .top, spacing: 8) {
                                 Text("•")
-                                    .foregroundColor(.orange)
+                                    .font(.system(size: 14))
+                                    .foregroundColor(Color(hex: "999999"))
                                 
                                 Text(tip)
-                                    .font(.system(size: 14, weight: .regular, design: .rounded))
-                                    .foregroundColor(AppColors.textSecondary)
+                                    .font(.system(size: 13))
+                                    .foregroundColor(Color(hex: "777777"))
                                     .fixedSize(horizontal: false, vertical: true)
                             }
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.orange.opacity(0.08))
+                            .fill(Color(hex: "f8f6f6"))
                     )
-                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
                 }
-                
-                Spacer(minLength: 40)
             }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
         }
     }
 }

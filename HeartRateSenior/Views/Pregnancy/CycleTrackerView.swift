@@ -2,7 +2,7 @@
 //  CycleTrackerView.swift
 //  HeartRateSenior
 //
-//  Enhanced cycle tracker with beautiful UI
+//  Modern cycle tracker matching Dashboard design system
 //
 
 import SwiftUI
@@ -12,11 +12,23 @@ struct CycleTrackerView: View {
     @State private var lastPeriodDate = Date()
     @State private var cycleLength: Double = 28
     @State private var periodLength: Double = 5
+    @State private var isPulsing = false
     
-    private let primaryColor = Color(red: 1.0, green: 0.6, blue: 0.7)
-    private let secondaryColor = Color(red: 1.0, green: 0.75, blue: 0.8)
-    private let ovulationColor = Color(red: 0.6, green: 0.8, blue: 1.0)
+    // Dashboard-consistent colors
+    private let accentColor = AppColors.primaryRed
+    private let accentGradient = LinearGradient(
+        colors: [
+            Color(red: 0.937, green: 0.267, blue: 0.267),
+            AppColors.primaryRed,
+            Color(red: 0.98, green: 0.55, blue: 0.24)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    private let ovulationColor = Color(red: 0.35, green: 0.6, blue: 0.95)
+    private let fertileColor = Color(red: 0.6, green: 0.35, blue: 0.85)
     
+    // Computed properties
     private var nextPeriodDate: Date {
         Calendar.current.date(byAdding: .day, value: Int(cycleLength), to: lastPeriodDate) ?? Date()
     }
@@ -50,262 +62,387 @@ struct CycleTrackerView: View {
         return "Luteal"
     }
     
+    private var phaseIcon: String {
+        switch currentPhase {
+        case "Period": return "drop.fill"
+        case "Follicular": return "leaf.fill"
+        case "Fertile Window": return "sparkles"
+        default: return "moon.fill"
+        }
+    }
+    
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [primaryColor.opacity(0.05), secondaryColor.opacity(0.08), AppColors.background],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            AppColors.background.ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 28) {
-                    // Header
-                    VStack(spacing: 12) {
-                        ZStack {
-                            Circle()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [primaryColor.opacity(0.2), secondaryColor.opacity(0.3)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .frame(width: 90, height: 90)
-                            
-                            Image(systemName: "calendar.circle.fill")
-                                .font(.system(size: 44))
-                                .foregroundStyle(
-                                    LinearGradient(colors: [primaryColor, secondaryColor], startPoint: .topLeading, endPoint: .bottomTrailing)
-                                )
-                        }
-                        .shadow(color: primaryColor.opacity(0.25), radius: 16, x: 0, y: 8)
-                        
-                        Text("Cycle Tracker")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundColor(AppColors.textPrimary)
-                    }
-                    .padding(.top, 16)
+                VStack(spacing: 20) {
+                    // Modern Header
+                    headerSection
                     
-                    // Progress Ring Card
-                    VStack(spacing: 20) {
-                        ZStack {
-                            Circle()
-                                .stroke(primaryColor.opacity(0.12), lineWidth: 18)
-                                .frame(width: 180, height: 180)
-                            
-                            Circle()
-                                .trim(from: 0, to: cycleProgress)
-                                .stroke(
-                                    LinearGradient(colors: [primaryColor, secondaryColor], startPoint: .topLeading, endPoint: .bottomTrailing),
-                                    style: StrokeStyle(lineWidth: 18, lineCap: .round)
-                                )
-                                .frame(width: 180, height: 180)
-                                .rotationEffect(.degrees(-90))
-                                .animation(.spring(response: 0.6), value: cycleProgress)
-                            
-                            VStack(spacing: 6) {
-                                Text("\(max(0, daysUntilNextPeriod))")
-                                    .font(.system(size: 48, weight: .bold, design: .rounded))
-                                    .foregroundColor(primaryColor)
-                                
-                                Text("days left")
-                                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                                    .foregroundColor(AppColors.textSecondary)
-                            }
-                        }
-                        
-                        // Current Phase Badge
-                        Text(currentPhase)
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(
-                                Capsule()
-                                    .fill(
-                                        LinearGradient(colors: [primaryColor, secondaryColor], startPoint: .leading, endPoint: .trailing)
-                                    )
-                            )
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 28)
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(Color(.systemBackground))
-                            .shadow(color: primaryColor.opacity(0.1), radius: 16, x: 0, y: 8)
-                    )
-                    .padding(.horizontal, 20)
+                    // Hero Progress Ring Card
+                    progressRingCard
+                    
+                    // Quick Stats Row
+                    quickStatsRow
                     
                     // Settings Card
-                    VStack(spacing: 24) {
-                        HStack {
-                            Image(systemName: "gearshape.fill")
-                                .foregroundColor(primaryColor)
-                            Text("Cycle Settings")
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
-                                .foregroundColor(AppColors.textPrimary)
-                            Spacer()
-                        }
-                        
-                        // Last Period Date
-                        HStack {
-                            HStack(spacing: 10) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(primaryColor.opacity(0.12))
-                                        .frame(width: 40, height: 40)
-                                    Image(systemName: "calendar")
-                                        .foregroundColor(primaryColor)
-                                }
-                                Text("Last Period")
-                                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                                    .foregroundColor(AppColors.textPrimary)
-                            }
-                            Spacer()
-                            DatePicker("", selection: $lastPeriodDate, displayedComponents: .date)
-                                .datePickerStyle(.compact)
-                                .labelsHidden()
-                                .tint(primaryColor)
-                        }
-                        
-                        Divider().opacity(0.5)
-                        
-                        // Cycle Length
-                        VStack(spacing: 12) {
-                            HStack {
-                                HStack(spacing: 10) {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .fill(primaryColor.opacity(0.12))
-                                            .frame(width: 40, height: 40)
-                                        Image(systemName: "arrow.triangle.2.circlepath")
-                                            .foregroundColor(primaryColor)
-                                    }
-                                    Text("Cycle Length")
-                                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                                        .foregroundColor(AppColors.textPrimary)
-                                }
-                                Spacer()
-                                Text("\(Int(cycleLength)) days")
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(primaryColor)
-                            }
-                            
-                            Slider(value: $cycleLength, in: 21...35, step: 1)
-                                .tint(primaryColor)
-                        }
-                        
-                        Divider().opacity(0.5)
-                        
-                        // Period Length
-                        VStack(spacing: 12) {
-                            HStack {
-                                HStack(spacing: 10) {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .fill(primaryColor.opacity(0.12))
-                                            .frame(width: 40, height: 40)
-                                        Image(systemName: "drop.fill")
-                                            .foregroundColor(primaryColor)
-                                    }
-                                    Text("Period Length")
-                                        .font(.system(size: 16, weight: .medium, design: .rounded))
-                                        .foregroundColor(AppColors.textPrimary)
-                                }
-                                Spacer()
-                                Text("\(Int(periodLength)) days")
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(primaryColor)
-                            }
-                            
-                            Slider(value: $periodLength, in: 3...7, step: 1)
-                                .tint(primaryColor)
-                        }
-                    }
-                    .padding(24)
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(Color(.systemBackground))
-                            .shadow(color: primaryColor.opacity(0.1), radius: 16, x: 0, y: 8)
-                    )
-                    .padding(.horizontal, 20)
+                    settingsCard
                     
                     // Predictions Card
-                    VStack(spacing: 16) {
-                        HStack {
-                            Image(systemName: "sparkles")
-                                .foregroundColor(primaryColor)
-                            Text("Predictions")
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
-                                .foregroundColor(AppColors.textPrimary)
-                            Spacer()
-                        }
-                        
-                        CyclePredictionCard(
-                            icon: "calendar.badge.clock",
-                            iconColor: primaryColor,
-                            title: "Next Period",
-                            date: nextPeriodDate,
-                            subtitle: "\(max(0, daysUntilNextPeriod)) days away"
-                        )
-                        
-                        CyclePredictionCard(
-                            icon: "star.fill",
-                            iconColor: ovulationColor,
-                            title: "Ovulation",
-                            date: ovulationDate,
-                            subtitle: "Estimated"
-                        )
-                        
-                        CyclePredictionCard(
-                            icon: "heart.fill",
-                            iconColor: Color.purple.opacity(0.7),
-                            title: "Fertile Window",
-                            date: fertileStart,
-                            subtitle: formattedRange(fertileStart, fertileEnd)
-                        )
-                    }
-                    .padding(24)
-                    .background(
-                        RoundedRectangle(cornerRadius: 24)
-                            .fill(Color(.systemBackground))
-                            .shadow(color: primaryColor.opacity(0.1), radius: 16, x: 0, y: 8)
-                    )
-                    .padding(.horizontal, 20)
+                    predictionsCard
                     
                     // Disclaimer
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "info.circle.fill")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 18))
-                        
-                        Text("This is a basic tracker for reference only. For accurate fertility tracking, consult a healthcare provider.")
-                            .font(.system(size: 13, weight: .regular, design: .rounded))
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.blue.opacity(0.06))
-                    )
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
+                    disclaimerSection
                 }
+                .padding(.bottom, 30)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
+                    HapticManager.shared.lightImpact()
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
                 }
             }
         }
+        .onAppear {
+            withAnimation(Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                isPulsing = true
+            }
+        }
+    }
+    
+    // MARK: - Header
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("Cycle Tracker")
+                .font(.system(size: 30, weight: .heavy))
+                .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                .tracking(-0.5)
+            
+            Text("Track your menstrual cycle")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+    }
+    
+    // MARK: - Progress Ring Card (Hero card matching ModernHeartRateCard style)
+    private var progressRingCard: some View {
+        ZStack {
+            // Background gradient
+            RoundedRectangle(cornerRadius: 24)
+                .fill(accentGradient)
+                .shadow(color: accentColor.opacity(0.2), radius: 12, x: 0, y: 6)
+            
+            // Glow effect
+            Circle()
+                .fill(Color.white.opacity(0.1))
+                .frame(width: 160, height: 160)
+                .blur(radius: 40)
+                .offset(x: 60, y: -60)
+            
+            // Border
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            
+            HStack {
+                // Left: text content
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(spacing: 6) {
+                        Image(systemName: phaseIcon)
+                            .font(.system(size: 16))
+                            .foregroundColor(.white.opacity(0.9))
+                        Text("Current Phase")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    
+                    Text("Day \(Calendar.current.dateComponents([.day], from: lastPeriodDate, to: Date()).day ?? 0) of \(Int(cycleLength))")
+                        .font(.system(size: 12))
+                        .foregroundColor(Color.white.opacity(0.75))
+                        .padding(.top, 2)
+                    
+                    Spacer()
+                    
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(max(0, daysUntilNextPeriod))")
+                            .font(.system(size: 48, weight: .black))
+                            .foregroundColor(.white)
+                        Text("days")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(Color.white.opacity(0.75))
+                    }
+                    
+                    // Phase badge
+                    HStack(spacing: 4) {
+                        Image(systemName: phaseIcon)
+                            .font(.system(size: 10, weight: .medium))
+                        Text(currentPhase)
+                            .font(.system(size: 12, weight: .medium))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(Color.white.opacity(0.2))
+                            .overlay(Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                    )
+                    .padding(.top, 4)
+                }
+                
+                Spacer()
+                
+                // Right: progress ring
+                ZStack {
+                    // Pulsing glow
+                    Circle()
+                        .fill(Color.white.opacity(0.15))
+                        .frame(width: 110, height: 110)
+                        .blur(radius: 12)
+                        .scaleEffect(isPulsing ? 1.08 : 0.92)
+                    
+                    // Track
+                    Circle()
+                        .stroke(Color.white.opacity(0.2), lineWidth: 10)
+                        .frame(width: 100, height: 100)
+                    
+                    // Progress
+                    Circle()
+                        .trim(from: 0, to: cycleProgress)
+                        .stroke(Color.white, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                        .frame(width: 100, height: 100)
+                        .rotationEffect(.degrees(-90))
+                        .animation(.spring(response: 0.6), value: cycleProgress)
+                    
+                    // Center percentage
+                    Text("\(Int(cycleProgress * 100))%")
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+            .padding(24)
+        }
+        .frame(height: 190)
+        .padding(.horizontal, 20)
+    }
+    
+    // MARK: - Quick Stats Row
+    private var quickStatsRow: some View {
+        HStack(spacing: 12) {
+            quickStatItem(
+                icon: "calendar.badge.clock",
+                label: "Next Period",
+                value: shortDate(nextPeriodDate),
+                color: accentColor
+            )
+            
+            quickStatItem(
+                icon: "star.fill",
+                label: "Ovulation",
+                value: shortDate(ovulationDate),
+                color: ovulationColor
+            )
+            
+            quickStatItem(
+                icon: "heart.fill",
+                label: "Fertile",
+                value: shortDate(fertileStart),
+                color: fertileColor
+            )
+        }
+        .padding(.horizontal, 20)
+    }
+    
+    private func quickStatItem(icon: String, label: String, value: String, color: Color) -> some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.12))
+                    .frame(width: 36, height: 36)
+                Image(systemName: icon)
+                    .font(.system(size: 16))
+                    .foregroundColor(color)
+            }
+            
+            Text(label)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+                .lineLimit(1)
+            
+            Text(value)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        )
+    }
+    
+    // MARK: - Settings Card
+    private var settingsCard: some View {
+        VStack(spacing: 20) {
+            // Title
+            HStack {
+                Text("Cycle Settings")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                Spacer()
+            }
+            
+            // Last Period Date
+            HStack {
+                settingIcon("calendar", color: accentColor)
+                Text("Last Period")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                Spacer()
+                DatePicker("", selection: $lastPeriodDate, displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .tint(accentColor)
+            }
+            
+            Divider().foregroundColor(Color.black.opacity(0.06))
+            
+            // Cycle Length
+            VStack(spacing: 10) {
+                HStack {
+                    settingIcon("arrow.triangle.2.circlepath", color: ovulationColor)
+                    Text("Cycle Length")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                    Spacer()
+                    Text("\(Int(cycleLength)) days")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(accentColor)
+                }
+                Slider(value: $cycleLength, in: 21...35, step: 1)
+                    .tint(accentColor)
+            }
+            
+            Divider().foregroundColor(Color.black.opacity(0.06))
+            
+            // Period Length
+            VStack(spacing: 10) {
+                HStack {
+                    settingIcon("drop.fill", color: fertileColor)
+                    Text("Period Length")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                    Spacer()
+                    Text("\(Int(periodLength)) days")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(accentColor)
+                }
+                Slider(value: $periodLength, in: 3...7, step: 1)
+                    .tint(accentColor)
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        )
+        .padding(.horizontal, 20)
+    }
+    
+    private func settingIcon(_ name: String, color: Color) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(color.opacity(0.12))
+                .frame(width: 38, height: 38)
+            Image(systemName: name)
+                .font(.system(size: 16))
+                .foregroundColor(color)
+        }
+    }
+    
+    // MARK: - Predictions Card
+    private var predictionsCard: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Text("Predictions")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
+                Spacer()
+            }
+            
+            CyclePredictionCard(
+                icon: "calendar.badge.clock",
+                iconColor: accentColor,
+                title: "Next Period",
+                date: nextPeriodDate,
+                subtitle: "\(max(0, daysUntilNextPeriod)) days away"
+            )
+            
+            CyclePredictionCard(
+                icon: "star.fill",
+                iconColor: ovulationColor,
+                title: "Ovulation",
+                date: ovulationDate,
+                subtitle: "Estimated"
+            )
+            
+            CyclePredictionCard(
+                icon: "heart.fill",
+                iconColor: fertileColor,
+                title: "Fertile Window",
+                date: fertileStart,
+                subtitle: formattedRange(fertileStart, fertileEnd)
+            )
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        )
+        .padding(.horizontal, 20)
+    }
+    
+    // MARK: - Disclaimer
+    private var disclaimerSection: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "info.circle.fill")
+                .foregroundColor(accentColor)
+                .font(.system(size: 16))
+            
+            Text("This is a basic tracker for reference only. For accurate fertility tracking, consult a healthcare provider.")
+                .font(.system(size: 13, weight: .regular))
+                .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
+                .lineSpacing(3)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 2)
+        )
+        .padding(.horizontal, 20)
+    }
+    
+    // MARK: - Helpers
+    private func shortDate(_ date: Date) -> String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "MMM d"
+        return fmt.string(from: date)
     }
     
     private func formattedRange(_ start: Date, _ end: Date) -> String {
@@ -315,7 +452,7 @@ struct CycleTrackerView: View {
     }
 }
 
-// MARK: - Prediction Card
+// MARK: - Prediction Card (Dashboard style)
 struct CyclePredictionCard: View {
     let icon: String
     let iconColor: Color
@@ -324,37 +461,39 @@ struct CyclePredictionCard: View {
     let subtitle: String
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 14) {
             ZStack {
-                RoundedRectangle(cornerRadius: 14)
+                Circle()
                     .fill(iconColor.opacity(0.12))
-                    .frame(width: 48, height: 48)
-                
+                    .frame(width: 44, height: 44)
                 Image(systemName: icon)
-                    .font(.system(size: 22))
+                    .font(.system(size: 20))
                     .foregroundColor(iconColor)
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(Color(.label))
-                
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                 Text(subtitle)
-                    .font(.system(size: 13, weight: .regular, design: .rounded))
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
             }
             
             Spacer()
             
             Text(date, style: .date)
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(iconColor)
         }
-        .padding(16)
+        .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(iconColor.opacity(0.04))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(iconColor.opacity(0.08), lineWidth: 1)
+                )
         )
     }
 }

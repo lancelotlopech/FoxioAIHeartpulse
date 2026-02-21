@@ -2,7 +2,7 @@
 //  PregnancyReminderCenterView.swift
 //  HeartRateSenior
 //
-//  Pregnancy-related reminder center
+//  Pregnancy reminder center — Minimalist redesign
 //
 
 import SwiftUI
@@ -12,65 +12,75 @@ struct PregnancyReminderCenterView: View {
     @State private var reminders: [PregnancyReminder] = []
     @State private var showAddReminder = false
     
-    private let primaryColor = Color(red: 0.85, green: 0.45, blue: 0.65)
+    private let primaryColor = Color(red: 0.93, green: 0.17, blue: 0.36)
     
     var body: some View {
         ZStack {
-            AppColors.background.ignoresSafeArea()
+            Color.white.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
+                // Top bar
                 HStack {
-                    Text("Reminder Center")
-                        .font(.system(size: 26, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
+                    Button {
+                        HapticManager.shared.lightImpact()
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Color(hex: "1a1a1a"))
+                            .frame(width: 40, height: 40)
+                            .background(Circle().fill(Color(hex: "f8f6f6")))
+                    }
                     
                     Spacer()
                     
-                    Button(action: {
+                    Text("Reminders")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(Color(hex: "1a1a1a"))
+                    
+                    Spacer()
+                    
+                    Button {
                         HapticManager.shared.lightImpact()
                         showAddReminder = true
-                    }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: 28))
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(primaryColor)
+                            .frame(width: 40, height: 40)
+                            .background(Circle().fill(primaryColor.opacity(0.1)))
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 20)
+                .padding(.top, 12)
                 
                 if reminders.isEmpty {
-                    EmptyStateView()
+                    MinimalEmptyStateView(primaryColor: primaryColor)
                 } else {
-                    ScrollView {
-                        VStack(spacing: 12) {
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: 10) {
                             ForEach(reminders) { reminder in
-                                ReminderCard(reminder: reminder) {
-                                    toggleReminder(reminder)
-                                } onDelete: {
-                                    deleteReminder(reminder)
-                                }
+                                MinimalReminderCard(
+                                    reminder: reminder,
+                                    primaryColor: primaryColor,
+                                    onToggle: { toggleReminder(reminder) },
+                                    onDelete: { deleteReminder(reminder) }
+                                )
                             }
                         }
-                        .padding(20)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 20)
+                        .padding(.bottom, 24)
                     }
                 }
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
-                }
-            }
-        }
+        .navigationBarHidden(true)
         .sheet(isPresented: $showAddReminder) {
-            AddPregnancyReminderView { reminder in
-                reminders.append(reminder)
+            MinimalAddReminderView(primaryColor: primaryColor) { reminder in
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    reminders.append(reminder)
+                }
             }
         }
         .onAppear {
@@ -86,7 +96,9 @@ struct PregnancyReminderCenterView: View {
     }
     
     private func deleteReminder(_ reminder: PregnancyReminder) {
-        reminders.removeAll { $0.id == reminder.id }
+        withAnimation(.easeInOut(duration: 0.25)) {
+            reminders.removeAll { $0.id == reminder.id }
+        }
         HapticManager.shared.lightImpact()
     }
     
@@ -109,81 +121,90 @@ struct PregnancyReminderCenterView: View {
 }
 
 // MARK: - Empty State
-struct EmptyStateView: View {
-    private let primaryColor = Color(red: 0.85, green: 0.45, blue: 0.65)
+private struct MinimalEmptyStateView: View {
+    let primaryColor: Color
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             Spacer()
             
-            ZStack {
-                Circle()
-                    .fill(primaryColor.opacity(0.15))
-                    .frame(width: 100, height: 100)
-                
-                Image(systemName: "bell.slash.fill")
-                    .font(.system(size: 48))
-                    .foregroundColor(primaryColor.opacity(0.5))
-            }
+            Image(systemName: "bell.slash")
+                .font(.system(size: 40, weight: .light))
+                .foregroundColor(Color(hex: "cccccc"))
             
             Text("No Reminders Yet")
-                .font(.system(size: 22, weight: .bold, design: .rounded))
-                .foregroundColor(AppColors.textPrimary)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(Color(hex: "1a1a1a"))
             
             Text("Tap + to add your first reminder")
-                .font(.system(size: 16, weight: .regular, design: .rounded))
-                .foregroundColor(AppColors.textSecondary)
+                .font(.system(size: 14))
+                .foregroundColor(Color(hex: "999999"))
             
             Spacer()
         }
     }
 }
 
-// MARK: - Reminder Card
-struct ReminderCard: View {
+// MARK: - Reminder Card with left indicator bar
+private struct MinimalReminderCard: View {
     let reminder: PregnancyReminder
+    let primaryColor: Color
     let onToggle: () -> Void
     let onDelete: () -> Void
     
-    private let primaryColor = Color(red: 0.85, green: 0.45, blue: 0.65)
-    
     var body: some View {
-        HStack(spacing: 16) {
-            // Icon
-            ZStack {
-                Circle()
-                    .fill(reminder.type.color.opacity(0.15))
-                    .frame(width: 44, height: 44)
-                
+        HStack(spacing: 0) {
+            // Left colored indicator bar
+            RoundedRectangle(cornerRadius: 2)
+                .fill(reminder.type.accentColor)
+                .frame(width: 4)
+                .padding(.vertical, 12)
+            
+            HStack(spacing: 14) {
+                // Icon
                 Image(systemName: reminder.type.icon)
-                    .font(.system(size: 20))
-                    .foregroundColor(reminder.type.color)
-            }
-            
-            // Content
-            VStack(alignment: .leading, spacing: 4) {
-                Text(reminder.title)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundColor(AppColors.textPrimary)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(reminder.type.accentColor)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(reminder.type.accentColor.opacity(0.1))
+                    )
                 
-                Text(reminder.time, style: .time)
-                    .font(.system(size: 14, weight: .regular, design: .rounded))
-                    .foregroundColor(AppColors.textSecondary)
+                // Content
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(reminder.title)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(Color(hex: "1a1a1a"))
+                    
+                    HStack(spacing: 6) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color(hex: "bbbbbb"))
+                        
+                        Text(reminder.time, style: .time)
+                            .font(.system(size: 13))
+                            .foregroundColor(Color(hex: "999999"))
+                    }
+                }
+                
+                Spacer()
+                
+                // Toggle with red tint
+                Toggle("", isOn: Binding(
+                    get: { reminder.isEnabled },
+                    set: { _ in onToggle() }
+                ))
+                .labelsHidden()
+                .tint(primaryColor)
             }
-            
-            Spacer()
-            
-            // Toggle
-            Toggle("", isOn: Binding(
-                get: { reminder.isEnabled },
-                set: { _ in onToggle() }
-            ))
-            .labelsHidden()
+            .padding(.leading, 12)
+            .padding(.trailing, 16)
+            .padding(.vertical, 14)
         }
-        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
+            RoundedRectangle(cornerRadius: 14)
+                .strokeBorder(Color(hex: "e8e6e6"), lineWidth: 1)
         )
         .contextMenu {
             Button(role: .destructive) {
@@ -195,44 +216,46 @@ struct ReminderCard: View {
     }
 }
 
-// MARK: - Add Reminder View
-struct AddPregnancyReminderView: View {
+// MARK: - Add Reminder Sheet
+private struct MinimalAddReminderView: View {
     @Environment(\.dismiss) private var dismiss
+    let primaryColor: Color
     let onAdd: (PregnancyReminder) -> Void
     
     @State private var title = ""
     @State private var selectedType: PregnancyReminderType = .test
     @State private var selectedTime = Date()
     
-    private let primaryColor = Color(red: 0.85, green: 0.45, blue: 0.65)
-    
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Reminder Details") {
-                    TextField("Title", text: $title)
-                    
-                    Picker("Type", selection: $selectedType) {
-                        ForEach(PregnancyReminderType.allCases, id: \.self) { type in
-                            Label(type.rawValue, systemImage: type.icon)
-                                .tag(type)
-                        }
-                    }
-                    
-                    DatePicker("Time", selection: $selectedTime)
-                }
-            }
-            .navigationTitle("New Reminder")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
+        ZStack {
+            Color.white.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Handle bar
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color(hex: "dddddd"))
+                    .frame(width: 36, height: 4)
+                    .padding(.top, 10)
                 
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
+                // Header
+                HStack {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text("Cancel")
+                            .font(.system(size: 15))
+                            .foregroundColor(Color(hex: "999999"))
+                    }
+                    
+                    Spacer()
+                    
+                    Text("New Reminder")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(Color(hex: "1a1a1a"))
+                    
+                    Spacer()
+                    
+                    Button {
                         let reminder = PregnancyReminder(
                             title: title.isEmpty ? "Reminder" : title,
                             time: selectedTime,
@@ -241,10 +264,97 @@ struct AddPregnancyReminderView: View {
                         )
                         onAdd(reminder)
                         dismiss()
+                    } label: {
+                        Text("Add")
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(primaryColor)
                     }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 24) {
+                        // Title field
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Title")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(Color(hex: "999999"))
+                                .tracking(0.5)
+                            
+                            TextField("e.g. Take pregnancy test", text: $title)
+                                .font(.system(size: 15))
+                                .foregroundColor(Color(hex: "1a1a1a"))
+                                .padding(14)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color(hex: "f8f6f6"))
+                                )
+                        }
+                        
+                        // Type selector
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Type")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(Color(hex: "999999"))
+                                .tracking(0.5)
+                            
+                            HStack(spacing: 8) {
+                                ForEach(PregnancyReminderType.allCases, id: \.self) { type in
+                                    Button {
+                                        HapticManager.shared.selectionChanged()
+                                        selectedType = type
+                                    } label: {
+                                        VStack(spacing: 6) {
+                                            Image(systemName: type.icon)
+                                                .font(.system(size: 16, weight: .medium))
+                                                .foregroundColor(
+                                                    selectedType == type ? .white : type.accentColor
+                                                )
+                                                .frame(width: 40, height: 40)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: 10)
+                                                        .fill(
+                                                            selectedType == type
+                                                            ? type.accentColor
+                                                            : type.accentColor.opacity(0.1)
+                                                        )
+                                                )
+                                            
+                                            Text(type.rawValue)
+                                                .font(.system(size: 11, weight: .medium))
+                                                .foregroundColor(
+                                                    selectedType == type
+                                                    ? Color(hex: "1a1a1a")
+                                                    : Color(hex: "999999")
+                                                )
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Time picker
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Time")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(Color(hex: "999999"))
+                                .tracking(0.5)
+                            
+                            DatePicker("", selection: $selectedTime)
+                                .labelsHidden()
+                                .datePickerStyle(.wheel)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 24)
                 }
             }
         }
+        .presentationDetents([.medium, .large])
     }
 }
 
@@ -260,8 +370,8 @@ struct PregnancyReminder: Identifiable {
 enum PregnancyReminderType: String, CaseIterable {
     case test = "Test"
     case period = "Period"
-    case appointment = "Appointment"
-    case medication = "Medication"
+    case appointment = "Appt"
+    case medication = "Meds"
     
     var icon: String {
         switch self {
@@ -272,18 +382,17 @@ enum PregnancyReminderType: String, CaseIterable {
         }
     }
     
-    var color: Color {
+    var accentColor: Color {
+        let primary = Color(red: 0.93, green: 0.17, blue: 0.36)
         switch self {
-        case .test: return Color(red: 1.0, green: 0.6, blue: 0.7)
-        case .period: return Color(red: 0.95, green: 0.65, blue: 0.75)
-        case .appointment: return Color(red: 0.9, green: 0.5, blue: 0.7)
-        case .medication: return Color(red: 0.85, green: 0.45, blue: 0.65)
+        case .test: return primary
+        case .period: return Color(red: 0.95, green: 0.45, blue: 0.25)
+        case .appointment: return Color(red: 0.35, green: 0.65, blue: 0.95)
+        case .medication: return Color(red: 0.45, green: 0.78, blue: 0.45)
         }
     }
 }
 
 #Preview {
-    NavigationStack {
-        PregnancyReminderCenterView()
-    }
+    PregnancyReminderCenterView()
 }

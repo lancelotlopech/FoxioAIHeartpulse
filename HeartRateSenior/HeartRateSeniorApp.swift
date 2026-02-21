@@ -11,8 +11,21 @@ import AppTrackingTransparency
 import AppsFlyerLib
 import FacebookCore
 
+// MARK: - AppDelegate for Facebook SDK lifecycle
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        ApplicationDelegate.shared.application(application, didFinishLaunchingWithOptions: launchOptions)
+        return true
+    }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        ApplicationDelegate.shared.application(app, open: url, sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String, annotation: options[UIApplication.OpenURLOptionsKey.annotation])
+    }
+}
+
 @main
 struct HeartRateSeniorApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var settingsManager = SettingsManager()
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false

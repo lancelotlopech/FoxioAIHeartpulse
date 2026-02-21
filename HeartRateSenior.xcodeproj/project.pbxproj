@@ -35,6 +35,12 @@
 		1AD186352F3C9152006B4E90 /* HIVAwarenessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186322F3C9152006B4E90 /* HIVAwarenessView.swift */; };
 		1AD186362F3C9152006B4E90 /* HIVSectionPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186332F3C9152006B4E90 /* HIVSectionPageView.swift */; };
 		1AD186372F3C9152006B4E90 /* HIVTestingMethodDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186342F3C9152006B4E90 /* HIVTestingMethodDetailView.swift */; };
+		1AD186702F3D0001006B4E90 /* HIVCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186712F3D0001006B4E90 /* HIVCenterView.swift */; };
+		1AD186722F3D0001006B4E90 /* HIVEducationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186732F3D0001006B4E90 /* HIVEducationView.swift */; };
+		1AD186742F3D0001006B4E90 /* HIVSymptomsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186752F3D0001006B4E90 /* HIVSymptomsDetailView.swift */; };
+		1AD186762F3D0001006B4E90 /* HIVTestingGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186772F3D0001006B4E90 /* HIVTestingGuideView.swift */; };
+		1AD186782F3D0001006B4E90 /* HIVTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186792F3D0001006B4E90 /* HIVTimelineView.swift */; };
+		1AD1867A2F3D0001006B4E90 /* HIVSubComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1867B2F3D0001006B4E90 /* HIVSubComponents.swift */; };
 		1AD186412F3CDB09006B4E90 /* PregnancyReminderCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1863D2F3CDB09006B4E90 /* PregnancyReminderCenterView.swift */; };
 		1AD186422F3CDB09006B4E90 /* EmotionalSupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD186392F3CDB09006B4E90 /* EmotionalSupportView.swift */; };
 		1AD186432F3CDB09006B4E90 /* PregnancyTestTimingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD1863F2F3CDB09006B4E90 /* PregnancyTestTimingView.swift */; };
@@ -164,6 +170,12 @@
 		1AD186322F3C9152006B4E90 /* HIVAwarenessView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVAwarenessView.swift; sourceTree = "<group>"; };
 		1AD186332F3C9152006B4E90 /* HIVSectionPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVSectionPageView.swift; sourceTree = "<group>"; };
 		1AD186342F3C9152006B4E90 /* HIVTestingMethodDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVTestingMethodDetailView.swift; sourceTree = "<group>"; };
+		1AD186712F3D0001006B4E90 /* HIVCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVCenterView.swift; sourceTree = "<group>"; };
+		1AD186732F3D0001006B4E90 /* HIVEducationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVEducationView.swift; sourceTree = "<group>"; };
+		1AD186752F3D0001006B4E90 /* HIVSymptomsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVSymptomsDetailView.swift; sourceTree = "<group>"; };
+		1AD186772F3D0001006B4E90 /* HIVTestingGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVTestingGuideView.swift; sourceTree = "<group>"; };
+		1AD186792F3D0001006B4E90 /* HIVTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVTimelineView.swift; sourceTree = "<group>"; };
+		1AD1867B2F3D0001006B4E90 /* HIVSubComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVSubComponents.swift; sourceTree = "<group>"; };
 		1AD186382F3CDB09006B4E90 /* CycleTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleTrackerView.swift; sourceTree = "<group>"; };
 		1AD186392F3CDB09006B4E90 /* EmotionalSupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionalSupportView.swift; sourceTree = "<group>"; };
 		1AD1863A2F3CDB09006B4E90 /* PregnancyCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyCenterView.swift; sourceTree = "<group>"; };
@@ -311,6 +323,12 @@
 		1AD186202F3B3F4B006B4E90 /* HIV */ = {
 			isa = PBXGroup;
 			children = (
+				1AD186712F3D0001006B4E90 /* HIVCenterView.swift */,
+				1AD186732F3D0001006B4E90 /* HIVEducationView.swift */,
+				1AD186752F3D0001006B4E90 /* HIVSymptomsDetailView.swift */,
+				1AD186772F3D0001006B4E90 /* HIVTestingGuideView.swift */,
+				1AD186792F3D0001006B4E90 /* HIVTimelineView.swift */,
+				1AD1867B2F3D0001006B4E90 /* HIVSubComponents.swift */,
 				1AD186322F3C9152006B4E90 /* HIVAwarenessView.swift */,
 				1AD186332F3C9152006B4E90 /* HIVSectionPageView.swift */,
 				1AD186342F3C9152006B4E90 /* HIVTestingMethodDetailView.swift */,
@@ -858,6 +876,12 @@
 				1AD186352F3C9152006B4E90 /* HIVAwarenessView.swift in Sources */,
 				1AD186362F3C9152006B4E90 /* HIVSectionPageView.swift in Sources */,
 				1AD186372F3C9152006B4E90 /* HIVTestingMethodDetailView.swift in Sources */,
+				1AD186702F3D0001006B4E90 /* HIVCenterView.swift in Sources */,
+				1AD186722F3D0001006B4E90 /* HIVEducationView.swift in Sources */,
+				1AD186742F3D0001006B4E90 /* HIVSymptomsDetailView.swift in Sources */,
+				1AD186762F3D0001006B4E90 /* HIVTestingGuideView.swift in Sources */,
+				1AD186782F3D0001006B4E90 /* HIVTimelineView.swift in Sources */,
+				1AD1867A2F3D0001006B4E90 /* HIVSubComponents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

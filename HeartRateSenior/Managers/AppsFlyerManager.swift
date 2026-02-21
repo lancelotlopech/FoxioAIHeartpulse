@@ -112,9 +112,9 @@ class AppsFlyerManager: NSObject, ObservableObject {
         ]
         
         AppsFlyerLib.shared().logEvent(Events.startTrial, withValues: params)
+        FacebookSDKManager.shared.trackStartTrial(productId: productId)
         eventManager.markStartTrialTriggered()
         print("📊 AppsFlyer: Tracked start_trial - productId: \(productId)")
-        FacebookSDKManager.shared.trackStartTrial(productId: productId)
     }
     
     /// Track subscribe event (first-time subscription)
@@ -132,9 +132,9 @@ class AppsFlyerManager: NSObject, ObservableObject {
         ]
         
         AppsFlyerLib.shared().logEvent(Events.subscribe, withValues: params)
+        FacebookSDKManager.shared.trackSubscribe(productId: productId, price: price, currency: currency)
         eventManager.markSubscribeTriggered()
         print("📊 AppsFlyer: Tracked subscribe - productId: \(productId), price: \(price) \(currency)")
-        FacebookSDKManager.shared.trackSubscribe(productId: productId, price: price, currency: currency)
     }
     
     /// Track purchase event (actual payment, all types)
@@ -151,9 +151,9 @@ class AppsFlyerManager: NSObject, ObservableObject {
         ]
         
         AppsFlyerLib.shared().logEvent(Events.purchase, withValues: params)
+        FacebookSDKManager.shared.trackPurchase(revenue: revenue, currency: currency)
         eventManager.markPurchaseTriggered()
         print("📊 AppsFlyer: Tracked purchase - revenue: \(revenue) \(currency)")
-        FacebookSDKManager.shared.trackPurchase(revenue: revenue, currency: currency)
     }
     
     /// Track purchase_week event
@@ -170,9 +170,9 @@ class AppsFlyerManager: NSObject, ObservableObject {
         ]
         
         AppsFlyerLib.shared().logEvent(Events.purchaseWeek, withValues: params)
+        FacebookSDKManager.shared.trackPurchaseWeek(revenue: revenue, currency: currency)
         eventManager.markPurchaseWeekTriggered()
         print("📊 AppsFlyer: Tracked purchase_week - revenue: \(revenue) \(currency)")
-        FacebookSDKManager.shared.trackPurchaseWeek(revenue: revenue, currency: currency)
     }
     
     /// Track purchase_year event
@@ -189,9 +189,9 @@ class AppsFlyerManager: NSObject, ObservableObject {
         ]
         
         AppsFlyerLib.shared().logEvent(Events.purchaseYear, withValues: params)
+        FacebookSDKManager.shared.trackPurchaseYear(revenue: revenue, currency: currency)
         eventManager.markPurchaseYearTriggered()
         print("📊 AppsFlyer: Tracked purchase_year - revenue: \(revenue) \(currency)")
-        FacebookSDKManager.shared.trackPurchaseYear(revenue: revenue, currency: currency)
     }
     
     /// Combined subscription purchase handler
@@ -251,9 +251,9 @@ class AppsFlyerManager: NSObject, ObservableObject {
     func trackViewReport() {
         if eventManager.canTriggerFirstViewReport() {
             AppsFlyerLib.shared().logEvent(Events.firstViewReport, withValues: nil)
+            FacebookSDKManager.shared.trackViewReport()
             eventManager.markFirstViewReportTriggered()
             print("📊 AppsFlyer: Tracked first_view_report")
-            FacebookSDKManager.shared.trackViewReport()
         }
     }
     

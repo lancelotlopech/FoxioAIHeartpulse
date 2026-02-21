@@ -51,11 +51,12 @@ struct ArticleDetailView: View {
                     }
                     // Title
                     Text(article.title)
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                         .fixedSize(horizontal: false, vertical: true)
+                        .lineSpacing(2)
                     Divider()
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 4)
                     
                     // Markdown Content
                     MarkdownContentView(content: article.content)

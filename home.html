@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Red Vitality Home Enhanced V3</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#EF4444", // Red-500
+                        "primary-dark": "#DC2626", // Red-600 for hover/active
+                        "primary-light": "#FEE2E2", // Red-100 for backgrounds
+                        "background-light": "#F8FAFC", // Slate-50
+                        "background-dark": "#18181B", // Zinc-900
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#27272A", // Zinc-800
+                        "text-main-light": "#1E293B",
+                        "text-main-dark": "#F1F5F9",
+                        "text-sub-light": "#64748B",
+                        "text-sub-dark": "#94A3B8",
+                    },
+                    fontFamily: {
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1.5rem", // 24px as requested
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(239, 68, 68, 0.15)',
+                        'card': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'inner-glow': 'inset 0 0 20px rgba(239, 68, 68, 0.1)',
+                        'nav-glow': '0 -4px 20px rgba(0,0,0,0.05)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-overlay {
+            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+        .dark .glass-card {
+            background: rgba(39, 39, 42, 0.7);
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-body text-text-main-light dark:text-text-main-dark transition-colors duration-300 antialiased pb-32">
+<header class="pt-14 pb-4 px-6 flex justify-between items-center sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-100/50 dark:border-zinc-800/50">
+<div>
+<h1 class="text-3xl font-extrabold tracking-tight">Home</h1>
+<p class="text-sm text-text-sub-light dark:text-text-sub-dark mt-0.5">Welcome back, Robert</p>
+</div>
+<button class="bg-primary hover:bg-primary-dark text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg shadow-red-500/30 active:scale-95 transition-all">
+<span class="font-bold text-sm tracking-wide">SOS</span>
+</button>
+</header>
+<section class="px-6 mb-8">
+<div class="flex justify-between items-center bg-card-light dark:bg-card-dark p-4 rounded-2xl shadow-card">
+<div class="flex flex-col items-center justify-center w-10 opacity-50 relative">
+<span class="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">M</span>
+<span class="text-sm font-bold">10</span>
+<div class="w-1 h-1 bg-green-500 rounded-full absolute -bottom-1"></div>
+</div>
+<div class="flex flex-col items-center justify-center w-10 opacity-50 relative">
+<span class="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">T</span>
+<span class="text-sm font-bold">11</span>
+<div class="w-1 h-1 bg-green-500 rounded-full absolute -bottom-1"></div>
+</div>
+<div class="flex flex-col items-center justify-center w-12 h-16 bg-primary text-white rounded-2xl shadow-lg shadow-red-500/20 transform scale-110">
+<span class="text-xs font-semibold opacity-90 mb-1">W</span>
+<span class="text-lg font-bold">12</span>
+<div class="w-1.5 h-1.5 bg-white rounded-full mt-1"></div>
+</div>
+<div class="flex flex-col items-center justify-center w-10 opacity-50 relative">
+<span class="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">T</span>
+<span class="text-sm font-bold">13</span>
+</div>
+<div class="flex flex-col items-center justify-center w-10 opacity-50 relative">
+<span class="text-xs font-semibold text-text-sub-light dark:text-text-sub-dark mb-1">F</span>
+<span class="text-sm font-bold">14</span>
+</div>
+</div>
+</section>
+<section class="px-6 mb-8">
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-500 via-primary to-orange-400 dark:from-red-900 dark:to-orange-900 p-6 shadow-lg shadow-red-500/20 border border-white/10">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+<div class="flex justify-between items-center relative z-10 text-white">
+<div>
+<h2 class="text-lg font-bold flex items-center gap-2 mb-1">
+<span class="material-icons-round text-white/90 text-xl">favorite</span>
+                        Heart Rate
+                    </h2>
+<p class="text-red-100 text-xs mb-6">Last checked 2 min ago</p>
+<div class="flex items-baseline gap-2">
+<span class="text-5xl font-black text-white">72</span>
+<span class="text-lg font-semibold text-red-100">BPM</span>
+</div>
+<div class="mt-2 flex items-center gap-2 text-xs font-medium text-white bg-white/20 backdrop-blur-sm border border-white/20 px-3 py-1.5 rounded-full w-fit">
+<span class="material-icons-round text-sm">trending_flat</span>
+                        Stable Trend
+                    </div>
+</div>
+<div class="relative w-32 h-32 flex items-center justify-center">
+<div class="absolute inset-0 bg-white/20 rounded-full blur-xl animate-pulse"></div>
+<div class="relative w-28 h-28 drop-shadow-2xl filter transform hover:scale-105 transition-transform duration-500">
+<svg class="w-full h-full text-white drop-shadow-lg" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="white"></path>
+<path class="drop-shadow-md" d="M11 7h2v4h4v2h-4v4h-2v-4H7v-2h4V7z" fill="#EF4444"></path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="px-6 mb-8">
+<div class="flex justify-between items-end mb-4">
+<h3 class="text-xl font-bold">Quick Record</h3>
+<a class="text-sm font-semibold text-primary hover:text-primary-dark" href="#">Edit</a>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-3xl shadow-card relative group active:scale-95 transition-all">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-500">
+<span class="material-icons-round">speed</span>
+</div>
+<span class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold px-2 py-1 rounded-full">Normal</span>
+</div>
+<h4 class="font-bold text-sm mb-1">Blood Pressure</h4>
+<p class="text-lg font-bold text-text-main-light dark:text-text-main-dark">120/80</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">mmHg</p>
+<button class="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors flex items-center justify-center text-text-sub-light dark:text-text-sub-dark shadow-sm">
+<span class="material-icons-round text-lg">add</span>
+</button>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-3xl shadow-card relative group active:scale-95 transition-all">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
+<span class="material-icons-round">water_drop</span>
+</div>
+<span class="bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 text-[10px] font-bold px-2 py-1 rounded-full">Elevated</span>
+</div>
+<h4 class="font-bold text-sm mb-1">Blood Glucose</h4>
+<p class="text-lg font-bold text-text-main-light dark:text-text-main-dark">7.2</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">mmol/L</p>
+<button class="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors flex items-center justify-center text-text-sub-light dark:text-text-sub-dark shadow-sm">
+<span class="material-icons-round text-lg">add</span>
+</button>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-3xl shadow-card relative group active:scale-95 transition-all">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-500">
+<span class="material-icons-round">monitor_weight</span>
+</div>
+<span class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold px-2 py-1 rounded-full">Good</span>
+</div>
+<h4 class="font-bold text-sm mb-1">Weight</h4>
+<p class="text-lg font-bold text-text-main-light dark:text-text-main-dark">75</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">kg</p>
+<button class="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors flex items-center justify-center text-text-sub-light dark:text-text-sub-dark shadow-sm">
+<span class="material-icons-round text-lg">add</span>
+</button>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-3xl shadow-card relative group active:scale-95 transition-all">
+<div class="flex justify-between items-start mb-3">
+<div class="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/20 flex items-center justify-center text-teal-500">
+<span class="material-icons-round">air</span>
+</div>
+<span class="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-[10px] font-bold px-2 py-1 rounded-full">98%</span>
+</div>
+<h4 class="font-bold text-sm mb-1">Blood Oxygen</h4>
+<p class="text-lg font-bold text-text-main-light dark:text-text-main-dark">98</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark mb-2">%</p>
+<button class="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-background-light dark:bg-background-dark hover:bg-primary hover:text-white transition-colors flex items-center justify-center text-text-sub-light dark:text-text-sub-dark shadow-sm">
+<span class="material-icons-round text-lg">add</span>
+</button>
+</div>
+</div>
+</section>
+<section class="mb-8 px-6">
+<h3 class="text-xl font-bold mb-4">Self Check</h3>
+<div class="grid grid-cols-2 gap-4">
+<button class="relative h-44 rounded-3xl overflow-hidden shadow-lg group active:scale-[0.98] transition-all duration-300">
+<div class="absolute inset-0 bg-red-500/10 dark:bg-red-900/20 z-0"></div>
+<img alt="HIV Awareness Background" class="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXA-7c1rQ_GNIHd_6uAhuUem-NdQJb8QH8DJJkT43u9C_L6H6Cdu1eK9hLY8lOUDbZ7EtZ033OGGnJ1pVeEMmpoNnqfXyJMcjAC-wQbJ5sE3FL9g6vXKk8Y3OVXmq2aOcz-or6O63iqPOpSVX13_lf81duyq3QrVVLIqv28gIGf7XqLc1yTwj8Z71BkOSX8YiYzi3o38UFYo1gF_JVhHqK3RAiGuxuABfKiFzmJB8zPiKD7NFKSE61JyvaSuxIFNrF4g851jLJF1E"/>
+<div class="absolute inset-0 bg-gradient-to-t from-red-900/90 via-red-900/40 to-transparent"></div>
+<div class="relative z-10 flex flex-col justify-end h-full p-4 text-left">
+<div class="w-10 h-10 mb-3 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
+<span class="material-icons-round text-white text-xl">medical_services</span>
+</div>
+<h4 class="text-white font-bold text-lg leading-tight mb-1">HIV Awareness</h4>
+<p class="text-red-100 text-[10px] font-medium leading-tight opacity-90">Prevention, testing &amp; early care steps</p>
+</div>
+</button>
+<button class="relative h-44 rounded-3xl overflow-hidden shadow-lg group active:scale-[0.98] transition-all duration-300">
+<div class="absolute inset-0 bg-pink-500/10 dark:bg-pink-900/20 z-0"></div>
+<img alt="Pregnancy Background" class="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_2-XbFmTml3bePYsaUK1zkpv5t9fnJeK2GM0Y3jvofbm9BKrTylDLsL1XalKmT9y_MZmSzS6aeGQv6vpT0KpJgdqEPb6ikgeDpI33jqufV-rdYyb04f70llduCeMKdV6fUakhbCydDJdp3lrI7wqvY0XqnIqoFOaW0jYHwu2wwI4ZD6a2b3TqUZYJnLy9NOEiLfDktWIZOF5H-iaJMo-3a2NpAwuqgWWnkvrRrjHqSKlbNQdpDSHpb5LVVCWCPkqunFpTOlsttQA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-pink-900/90 via-pink-900/40 to-transparent"></div>
+<div class="relative z-10 flex flex-col justify-end h-full p-4 text-left">
+<div class="w-10 h-10 mb-3 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
+<span class="material-icons-round text-white text-xl">pregnant_woman</span>
+</div>
+<h4 class="text-white font-bold text-lg leading-tight mb-1">Pregnancy</h4>
+<p class="text-pink-100 text-[10px] font-medium leading-tight opacity-90">Weekly guide &amp; health monitoring</p>
+</div>
+</button>
+</div>
+</section>
+<section class="px-6 mb-8">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-xl font-bold">Health Articles</h3>
+<a class="text-sm font-semibold text-primary hover:text-primary-dark" href="#">See All</a>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="relative h-48 rounded-3xl overflow-hidden group shadow-md">
+<img alt="Person stretching outdoors" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXduklJdCeKaQHPOFrpttgxaCfz4tRaBi7p_qhPsuOxn2583FcmUUlnF1fJMj5NA86W_ZFxJuShO0H7-l-AZcLjaGuTRLuQnWtf26sLJ9VJm4431CopxZ2ivqH1wvSUFjJOFLyp2kHM_rgbGjEXamyc1KngUm-N09j_rrBbLzqixDIc-3UD_38fje7cxh43b1PHqck1Xuhn4g41LwQYZag8PcL8ftsNIHDPR-seFaN6tcs6v_g5VD_EvA1M7pO9q6P59u-6vJ7Vt0"/>
+<div class="absolute inset-0 glass-overlay flex flex-col justify-end p-4">
+<span class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full w-fit mb-2 uppercase tracking-wide">Wellness</span>
+<h4 class="text-white font-bold text-sm leading-tight">Heart Rate Variability Explained</h4>
+</div>
+</div>
+<div class="relative h-48 rounded-3xl overflow-hidden group shadow-md">
+<img alt="Doctor checking blood pressure" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmcuxQnQGp3mvn2QezAbfueCQaGSjN1u39NMYcG3aAyCbw-K80wG5rw8N-C4WHtH5AbbuFZ6xmcytEZF18TGA9yE5jWIZ_mRqcweDwrHY2nwcOb91LlJ40PVjjxbUGQonsPJBpnC8HkjjNfcTAwelvPdlw7AjNIv42pDkswKIBaZ7H4fLBdDOnTGlfk6vK_K3nhqrioXOjQ2wDC7-BbqXPsHnCwY3v98J0mDJlQrcCUAOxhaDr7WhqvB_8p_4i5rkfTnEXCXq4gC4"/>
+<div class="absolute inset-0 glass-overlay flex flex-col justify-end p-4">
+<span class="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full w-fit mb-2 uppercase tracking-wide">Guide</span>
+<h4 class="text-white font-bold text-sm leading-tight">Home BP Monitoring Tips</h4>
+</div>
+</div>
+<div class="col-span-2 relative h-40 rounded-3xl overflow-hidden group shadow-md mt-2">
+<img alt="Meditation and yoga" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVX-P9iutnvWDduo7ONLdbmg7kX2CLMEQNVtQBVMbr9tkPZ2KpH1waC4t-BYh1MBrh0gopBkrW97oeezMAwXL8TI5kQhzjwVUsn8FvEvNcIGWVYE_PgN_j2k_sPOYpzKo1HYAOpUmY6EJ80f8Oa-Phvta8OqUWVGrmKEDw0tQEysr0szRmWDB0iw27OycTYbBWgROxgdUClYF5GWUmVF6LOX3RguYkgxr_la0q0XIeHRfiRuXrt_ZC0fTS-Uck1AxH6PGWi_MzvmY"/>
+<div class="absolute inset-0 glass-overlay flex flex-col justify-end p-5">
+<span class="bg-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full w-fit mb-2 uppercase tracking-wide">Lifestyle</span>
+<h4 class="text-white font-bold text-lg leading-tight">Understanding Heart Rhythms &amp; Meditation</h4>
+</div>
+</div>
+</div>
+</section>
+<section class="px-6 mb-24">
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-2xl flex justify-between items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-icons-round text-primary text-sm">info</span>
+<span class="text-sm font-semibold text-text-sub-light dark:text-text-sub-dark">References &amp; Disclaimer</span>
+</div>
+<span class="material-icons-round text-text-sub-light dark:text-text-sub-dark">expand_more</span>
+</div>
+</section>
+<nav class="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-card-dark/95 backdrop-blur-xl border-t border-gray-100 dark:border-zinc-800 pb-safe px-6 shadow-nav-glow z-50 rounded-t-[2.5rem]">
+<div class="flex justify-between items-end h-24 pb-4 px-4">
+<button class="flex flex-col items-center gap-1.5 w-20 group">
+<div class="relative">
+<span class="material-symbols-outlined text-[32px] font-semibold text-primary drop-shadow-sm transition-transform duration-300 group-hover:-translate-y-1">home</span>
+<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></div>
+</div>
+<span class="text-[11px] font-bold text-primary">Home</span>
+</button>
+<div class="relative -top-8 group">
+<div class="absolute inset-0 bg-red-500 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+<button class="relative bg-gradient-to-br from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 text-white rounded-full w-20 h-20 flex flex-col items-center justify-center shadow-[0_8px_30px_rgb(239,68,68,0.3)] border-4 border-white dark:border-zinc-900 transform transition-all duration-300 active:scale-95 group-hover:shadow-[0_15px_35px_rgb(239,68,68,0.4)] z-10">
+<div class="absolute inset-0 rounded-full bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
+<span class="material-symbols-outlined text-[36px] font-medium drop-shadow-md mb-0.5 filled-icon">ecg_heart</span>
+<span class="text-[10px] font-extrabold tracking-wide drop-shadow-sm uppercase">Measure</span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1.5 w-20 group text-text-sub-light dark:text-text-sub-dark hover:text-text-main-light dark:hover:text-text-main-dark transition-colors">
+<div class="relative">
+<span class="material-symbols-outlined text-[32px] font-normal transition-transform duration-300 group-hover:-translate-y-1 group-hover:text-primary">settings</span>
+</div>
+<span class="text-[11px] font-semibold">Settings</span>
+</button>
+</div>
+</nav>
+<div class="h-8"></div>
+
+</body></html>

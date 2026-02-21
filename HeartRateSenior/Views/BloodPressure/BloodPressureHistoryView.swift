@@ -123,7 +123,7 @@ struct BloodPressureHistoryView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingAddSheet) {
+            .fullScreenCover(isPresented: $showingAddSheet) {
                 BloodPressureInputView()
             }
             .alert("Delete Record?", isPresented: $showDeleteAlert) {

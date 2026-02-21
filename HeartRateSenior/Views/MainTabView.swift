@@ -11,12 +11,14 @@ import SwiftUI
 // MARK: - Tab Item Enum
 enum TabItem: Int, CaseIterable {
     case home = 0
-    case measure = 1
-    case settings = 2
+    case history = 1
+    case measure = 2
+    case settings = 3
     
     var title: String {
         switch self {
         case .home: return "Home"
+        case .history: return "History"
         case .measure: return "Check"
         case .settings: return "Settings"
         }
@@ -25,6 +27,7 @@ enum TabItem: Int, CaseIterable {
     var icon: String {
         switch self {
         case .home: return "house.fill"
+        case .history: return "clock.arrow.circlepath"
         case .measure: return "heart.fill"
         case .settings: return "gearshape.fill"
         }
@@ -39,6 +42,7 @@ struct MainTabView: View {
     @State private var previousTab: TabItem = .home  // 记录之前的 Tab
     @State private var lastActiveTime: Date = Date()  // 记录最后活跃时间
     @State private var isReturningFromBackground = false  // 是否从后台返回
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var settingsManager: SettingsManager
     
@@ -50,6 +54,8 @@ struct MainTabView: View {
                     switch selectedTab {
                     case .home:
                         DashboardView()
+                    case .history:
+                        HistoryView()
                     case .measure:
                         // 非自动启动模式下显示 HomeView（手动点击 Tab）
                         // 注意：当 fullScreenCover 显示时，这个 View 仍然存在
@@ -76,8 +82,12 @@ struct MainTabView: View {
                     Spacer()
                     CustomTabBar(
                         selectedTab: $selectedTab,
+                        isPremium: subscriptionManager.isPremium,
                         onMeasureTapped: {
                             startMeasurement()
+                        },
+                        onLockedTabTapped: {
+                            showingSubscription = true
                         }
                     )
                 }
@@ -168,7 +178,9 @@ struct MainTabView: View {
 // MARK: - Custom Tab Bar
 struct CustomTabBar: View {
     @Binding var selectedTab: TabItem
+    var isPremium: Bool = true
     var onMeasureTapped: () -> Void
+    var onLockedTabTapped: (() -> Void)? = nil
     
     var body: some View {
         HStack(spacing: 0) {
@@ -179,6 +191,21 @@ struct CustomTabBar: View {
                 action: { 
                     HapticManager.shared.selectionChanged()
                     selectedTab = .home 
+                }
+            )
+            
+            // History Tab (Premium locked)
+            TabBarButton(
+                tab: .history,
+                isSelected: selectedTab == .history,
+                isLocked: !isPremium,
+                action: { 
+                    HapticManager.shared.selectionChanged()
+                    if isPremium {
+                        selectedTab = .history
+                    } else {
+                        onLockedTabTapped?()
+                    }
                 }
             )
             
@@ -212,17 +239,30 @@ struct CustomTabBar: View {
 struct TabBarButton: View {
     let tab: TabItem
     let isSelected: Bool
+    var isLocked: Bool = false
     let action: () -> Void
     
     var body: some View {
         Button(action: action) {
             VStack(spacing: 3) {
-                Image(systemName: tab.icon)
-                    .font(.system(size: 28, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? AppColors.primaryRed : AppColors.textSecondary)
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: tab.icon)
+                        .font(.system(size: 24, weight: isSelected ? .semibold : .regular))
+                        .foregroundColor(isSelected ? AppColors.primaryRed : AppColors.textSecondary)
+                    
+                    if isLocked {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 8, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(3)
+                            .background(AppColors.primaryRed)
+                            .clipShape(Circle())
+                            .offset(x: 6, y: -4)
+                    }
+                }
                 
                 Text(tab.title)
-                    .font(.system(size: 13, weight: isSelected ? .semibold : .medium, design: .rounded))
+                    .font(.system(size: 11, weight: isSelected ? .semibold : .medium, design: .rounded))
                     .foregroundColor(isSelected ? AppColors.primaryRed : AppColors.textSecondary)
             }
             .frame(maxWidth: .infinity)
@@ -240,7 +280,7 @@ struct CenterMeasureButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            VStack(spacing: 3) {
                 ZStack {
                     // Background circle
                     Circle()
@@ -261,14 +301,14 @@ struct CenterMeasureButton: View {
                         .foregroundColor(.white)
                         .scaleEffect(scale)
                 }
-                .offset(y: -7)
+                .offset(y: -18)
                 
                 Text("Measure")
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundColor(AppColors.primaryRed)
-                    .offset(y: -3)
             }
             .frame(maxWidth: .infinity)
+            .frame(height: 42)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pregnancy Quiz - Pure Minimalist</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee2b5b",
+                        "background-light": "#ffffff", /* Overridden to pure white as per specific design requirement */
+                        "background-dark": "#221015",
+                        "surface-light": "#f8f6f6",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom styles for smoother rendering */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex items-center justify-center font-display text-gray-900 dark:text-white transition-colors duration-300">
+<!-- Mobile Container -->
+<div class="w-full max-w-md h-screen max-h-[900px] bg-background-light dark:bg-background-dark flex flex-col relative overflow-hidden shadow-2xl sm:rounded-[3rem] sm:h-[850px] sm:border-8 sm:border-gray-100 dark:sm:border-gray-800">
+<!-- Header / Progress Bar -->
+<div class="pt-12 px-6 pb-4 flex flex-col gap-6">
+<!-- Navigation -->
+<button class="w-10 h-10 -ml-2 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-800 dark:text-white group">
+<span class="material-icons-round text-3xl group-hover:-translate-x-1 transition-transform">chevron_left</span>
+</button>
+<!-- Progress Bar -->
+<div class="w-full h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[35%] rounded-full shadow-[0_0_10px_rgba(238,43,91,0.3)]"></div>
+</div>
+</div>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col px-6 pt-4 pb-8">
+<!-- Question Section -->
+<div class="mb-12 animate-fade-in-up">
+<span class="text-primary font-bold text-lg mb-2 block opacity-90">03</span>
+<h1 class="text-3xl font-extrabold tracking-tight leading-tight text-gray-900 dark:text-white">
+                    Did you use <br/>contraception?
+                </h1>
+</div>
+<!-- Answer Options -->
+<div class="flex flex-col gap-4 flex-1 justify-center">
+<!-- Option 1: Selected State -->
+<label class="group relative cursor-pointer">
+<input checked="" class="peer sr-only" name="contraception" type="radio" value="yes"/>
+<div class="relative p-6 rounded-lg border-2 border-primary bg-primary/5 dark:bg-primary/10 transition-all duration-300 flex items-center justify-between">
+<span class="text-lg font-medium text-primary dark:text-primary-300 group-hover:text-primary transition-colors">Yes, always</span>
+<div class="w-6 h-6 rounded-full border-2 border-primary flex items-center justify-center bg-primary">
+<span class="material-icons-round text-white text-sm">check</span>
+</div>
+</div>
+</label>
+<!-- Option 2: Default State -->
+<label class="group relative cursor-pointer">
+<input class="peer sr-only" name="contraception" type="radio" value="sometimes"/>
+<div class="relative p-6 rounded-lg border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-50 dark:hover:bg-white/10 transition-all duration-300 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:dark:bg-primary/10 flex items-center justify-between shadow-sm">
+<span class="text-lg font-medium text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors peer-checked:text-primary">Sometimes / Irregularly</span>
+<div class="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-gray-600 group-hover:border-primary/50 transition-colors peer-checked:border-primary peer-checked:bg-primary peer-checked:flex peer-checked:items-center peer-checked:justify-center">
+<!-- Check icon hidden by default, visible when checked via CSS if needed, or handled by replacing the div content -->
+<span class="material-icons-round text-white text-sm opacity-0 peer-checked:opacity-100">check</span>
+</div>
+</div>
+</label>
+<!-- Option 3: Default State -->
+<label class="group relative cursor-pointer">
+<input class="peer sr-only" name="contraception" type="radio" value="no"/>
+<div class="relative p-6 rounded-lg border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-50 dark:hover:bg-white/10 transition-all duration-300 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:dark:bg-primary/10 flex items-center justify-between shadow-sm">
+<span class="text-lg font-medium text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors peer-checked:text-primary">No, never</span>
+<div class="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-gray-600 group-hover:border-primary/50 transition-colors peer-checked:border-primary peer-checked:bg-primary peer-checked:flex peer-checked:items-center peer-checked:justify-center">
+<span class="material-icons-round text-white text-sm opacity-0 peer-checked:opacity-100">check</span>
+</div>
+</div>
+</label>
+<!-- Option 4: I'm not sure -->
+<label class="group relative cursor-pointer">
+<input class="peer sr-only" name="contraception" type="radio" value="unsure"/>
+<div class="relative p-6 rounded-lg border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-gray-50 dark:hover:bg-white/10 transition-all duration-300 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:dark:bg-primary/10 flex items-center justify-between shadow-sm">
+<span class="text-lg font-medium text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors peer-checked:text-primary">I'm not sure</span>
+<div class="w-6 h-6 rounded-full border-2 border-gray-200 dark:border-gray-600 group-hover:border-primary/50 transition-colors peer-checked:border-primary peer-checked:bg-primary peer-checked:flex peer-checked:items-center peer-checked:justify-center">
+<span class="material-icons-round text-white text-sm opacity-0 peer-checked:opacity-100">check</span>
+</div>
+</div>
+</label>
+</div>
+<!-- Bottom Action -->
+<div class="mt-auto pt-8">
+<button class="w-full bg-primary hover:bg-[#d6204b] text-white font-bold text-lg py-5 px-8 rounded-full shadow-lg shadow-primary/30 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group">
+                    Next
+                    <span class="material-icons-round text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</main>
+</div>
+</body></html>

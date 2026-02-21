@@ -2,7 +2,7 @@
 //  PregnancyTestTimingView.swift
 //  HeartRateSenior
 //
-//  Pregnancy test timing calculator
+//  Pregnancy test timing calculator — Minimalist redesign
 //
 
 import SwiftUI
@@ -12,272 +12,257 @@ struct PregnancyTestTimingView: View {
     @State private var selectedOption: TestTimingOption?
     @State private var showResult = false
     
-    private let primaryColor = Color(red: 0.9, green: 0.5, blue: 0.7)
+    private let primaryColor = Color(red: 0.93, green: 0.17, blue: 0.36)
     
     var body: some View {
         ZStack {
-            AppColors.background.ignoresSafeArea()
+            Color.white.ignoresSafeArea()
             
-            if showResult, let option = selectedOption {
-                TimingResultView(option: option, onDismiss: {
-                    dismiss()
-                })
-            } else {
-                ScrollView {
-                    VStack(spacing: 24) {
-                        // Header
-                        VStack(spacing: 12) {
-                            ZStack {
-                                Circle()
-                                    .fill(primaryColor.opacity(0.15))
-                                    .frame(width: 80, height: 80)
-                                
-                                Image(systemName: "clock.fill")
-                                    .font(.system(size: 36, weight: .medium))
+            VStack(spacing: 0) {
+                // Top bar
+                HStack {
+                    Button {
+                        HapticManager.shared.lightImpact()
+                        if showResult {
+                            withAnimation(.easeInOut(duration: 0.25)) {
+                                showResult = false
+                                selectedOption = nil
+                            }
+                        } else {
+                            dismiss()
+                        }
+                    } label: {
+                        Image(systemName: showResult ? "chevron.left" : "xmark")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(Color(hex: "1a1a1a"))
+                            .frame(width: 40, height: 40)
+                            .background(Circle().fill(Color(hex: "f8f6f6")))
+                    }
+                    
+                    Spacer()
+                    
+                    Text("When Should I Test?")
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(Color(hex: "1a1a1a"))
+                    
+                    Spacer()
+                    
+                    Color.clear.frame(width: 40, height: 40)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                
+                if showResult, let option = selectedOption {
+                    TimingResultMinimalView(
+                        option: option,
+                        primaryColor: primaryColor,
+                        onDismiss: { dismiss() }
+                    )
+                } else {
+                    TimingSelectionView(
+                        selectedOption: $selectedOption,
+                        showResult: $showResult,
+                        primaryColor: primaryColor
+                    )
+                }
+            }
+        }
+        .navigationBarHidden(true)
+    }
+}
+
+// MARK: - Selection View
+private struct TimingSelectionView: View {
+    @Binding var selectedOption: TestTimingOption?
+    @Binding var showResult: Bool
+    let primaryColor: Color
+    
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Choose your situation")
+                    .font(.system(size: 14))
+                    .foregroundColor(Color(hex: "999999"))
+                    .padding(.top, 24)
+                    .padding(.horizontal, 20)
+                
+                VStack(spacing: 12) {
+                    ForEach(TestTimingOption.allCases) { option in
+                        Button {
+                            HapticManager.shared.selectionChanged()
+                            selectedOption = option
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    showResult = true
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 14) {
+                                Image(systemName: option.icon)
+                                    .font(.system(size: 18, weight: .medium))
                                     .foregroundColor(primaryColor)
+                                    .frame(width: 24)
+                                
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(option.title)
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(Color(hex: "1a1a1a"))
+                                    
+                                    Text(option.subtitle)
+                                        .font(.system(size: 13))
+                                        .foregroundColor(Color(hex: "999999"))
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(Color(hex: "cccccc"))
                             }
-                            
-                            Text("When Should I Test?")
-                                .font(.system(size: 26, weight: .bold, design: .rounded))
-                                .foregroundColor(AppColors.textPrimary)
-                            
-                            Text("Choose your situation to get personalized timing advice")
-                                .font(.system(size: 15, weight: .regular, design: .rounded))
-                                .foregroundColor(AppColors.textSecondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 32)
+                            .padding(16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .strokeBorder(Color(hex: "e8e6e6"), lineWidth: 1)
+                            )
                         }
-                        .padding(.top, 40)
-                        
-                        // Options
-                        VStack(spacing: 16) {
-                            ForEach(TestTimingOption.allCases) { option in
-                                TimingOptionCard(
-                                    option: option,
-                                    isSelected: selectedOption == option,
-                                    onTap: {
-                                        HapticManager.shared.selectionChanged()
-                                        selectedOption = option
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                            showResult = true
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
                     }
                 }
-            }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    HapticManager.shared.lightImpact()
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(AppColors.textPrimary)
-                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
             }
         }
     }
 }
 
-// MARK: - Timing Option Card
-struct TimingOptionCard: View {
+// MARK: - Result View
+private struct TimingResultMinimalView: View {
     let option: TestTimingOption
-    let isSelected: Bool
-    let onTap: () -> Void
-    
-    private let primaryColor = Color(red: 0.9, green: 0.5, blue: 0.7)
-    
-    var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 16) {
-                // Icon
-                ZStack {
-                    Circle()
-                        .fill(primaryColor.opacity(0.15))
-                        .frame(width: 50, height: 50)
-                    
-                    Image(systemName: option.icon)
-                        .font(.system(size: 22, weight: .medium))
-                        .foregroundColor(primaryColor)
-                }
-                
-                // Content
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(option.title)
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
-                    
-                    Text(option.subtitle)
-                        .font(.system(size: 14, weight: .regular, design: .rounded))
-                        .foregroundColor(AppColors.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.secondary)
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(isSelected ? primaryColor : Color.clear, lineWidth: 2)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
-        }
-    }
-}
-
-// MARK: - Timing Result View
-struct TimingResultView: View {
-    let option: TestTimingOption
+    let primaryColor: Color
     let onDismiss: () -> Void
     
-    private let primaryColor = Color(red: 0.9, green: 0.5, blue: 0.7)
-    
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // Icon
-                ZStack {
-                    Circle()
-                        .fill(primaryColor.opacity(0.15))
-                        .frame(width: 100, height: 100)
-                    
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Result badge
+                HStack(spacing: 8) {
                     Image(systemName: option.resultIcon)
-                        .font(.system(size: 48, weight: .medium))
+                        .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(primaryColor)
+                    
+                    Text(option.resultTitle)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(primaryColor)
+                        .tracking(0.5)
                 }
-                .padding(.top, 40)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule().fill(primaryColor.opacity(0.1))
+                )
+                .padding(.top, 24)
                 
                 // Title
-                Text(option.resultTitle)
-                    .font(.system(size: 26, weight: .bold, design: .rounded))
-                    .foregroundColor(AppColors.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                Text(option.title)
+                    .font(.system(size: 26, weight: .bold))
+                    .foregroundColor(Color(hex: "1a1a1a"))
+                    .padding(.top, 16)
                 
-                // Timing Info
-                VStack(spacing: 16) {
-                    InfoRow(icon: "calendar", title: "Best Time", value: option.bestTime)
-                    InfoRow(icon: "clock", title: "Time of Day", value: option.timeOfDay)
-                    InfoRow(icon: "checkmark.circle", title: "Accuracy", value: option.accuracy)
+                // Table-style timing info
+                VStack(spacing: 0) {
+                    TimingInfoTableRow(label: "Best Time", value: option.bestTime, primaryColor: primaryColor)
+                    Divider().background(Color(hex: "f0eeee"))
+                    TimingInfoTableRow(label: "Time of Day", value: option.timeOfDay, primaryColor: primaryColor)
+                    Divider().background(Color(hex: "f0eeee"))
+                    TimingInfoTableRow(label: "Accuracy", value: option.accuracy, primaryColor: primaryColor)
                 }
-                .padding(20)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(.systemBackground))
+                    RoundedRectangle(cornerRadius: 14)
+                        .strokeBorder(Color(hex: "e8e6e6"), lineWidth: 1)
                 )
-                .padding(.horizontal, 20)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .padding(.top, 20)
                 
-                // Why This Timing
-                VStack(alignment: .leading, spacing: 12) {
+                // Explanation
+                VStack(alignment: .leading, spacing: 10) {
                     Text("Why This Timing?")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Color(hex: "1a1a1a"))
                     
                     Text(option.explanation)
-                        .font(.system(size: 15, weight: .regular, design: .rounded))
-                        .foregroundColor(AppColors.textSecondary)
-                        .lineSpacing(6)
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(hex: "777777"))
+                        .lineSpacing(5)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(20)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(primaryColor.opacity(0.08))
-                )
-                .padding(.horizontal, 20)
+                .padding(.top, 24)
                 
                 // Tips
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Testing Tips")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(AppColors.textPrimary)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Tips")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Color(hex: "1a1a1a"))
                     
-                    ForEach(option.tips, id: \.self) { tip in
+                    ForEach(Array(option.tips.enumerated()), id: \.offset) { index, tip in
                         HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: "lightbulb.fill")
-                                .font(.system(size: 18))
-                                .foregroundColor(.orange)
+                            Text("\(index + 1)")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 22, height: 22)
+                                .background(Circle().fill(primaryColor))
                             
                             Text(tip)
-                                .font(.system(size: 15, weight: .regular, design: .rounded))
-                                .foregroundColor(AppColors.textSecondary)
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(hex: "777777"))
+                                .lineSpacing(3)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(20)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(.systemBackground))
-                )
-                .padding(.horizontal, 20)
+                .padding(.top, 24)
                 
-                // Done Button
-                Button(action: {
+                // Done button
+                Button {
                     HapticManager.shared.mediumImpact()
                     onDismiss()
-                }) {
+                } label: {
                     Text("Got It")
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 52)
+                        .frame(height: 50)
                         .background(
-                            RoundedRectangle(cornerRadius: 16)
+                            RoundedRectangle(cornerRadius: 14)
                                 .fill(primaryColor)
                         )
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
+                .padding(.top, 32)
+                .padding(.bottom, 24)
             }
+            .padding(.horizontal, 20)
         }
-        .background(AppColors.background.ignoresSafeArea())
     }
 }
 
-// MARK: - Info Row
-struct InfoRow: View {
-    let icon: String
-    let title: String
+// MARK: - Table Row
+private struct TimingInfoTableRow: View {
+    let label: String
     let value: String
-    
-    private let primaryColor = Color(red: 0.9, green: 0.5, blue: 0.7)
+    let primaryColor: Color
     
     var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundColor(primaryColor)
-                .frame(width: 24)
-            
-            Text(title)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
-                .foregroundColor(AppColors.textSecondary)
+        HStack {
+            Text(label)
+                .font(.system(size: 14))
+                .foregroundColor(Color(hex: "999999"))
             
             Spacer()
             
             Text(value)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundColor(AppColors.textPrimary)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(Color(hex: "1a1a1a"))
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
     }
 }
 
@@ -406,7 +391,5 @@ enum TestTimingOption: String, CaseIterable, Identifiable {
 }
 
 #Preview {
-    NavigationStack {
-        PregnancyTestTimingView()
-    }
+    PregnancyTestTimingView()
 }
