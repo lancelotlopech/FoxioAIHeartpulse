@@ -29,10 +29,12 @@ enum TimeRange: String, CaseIterable {
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \HeartRateRecord.timestamp, order: .reverse) private var allRecords: [HeartRateRecord]
+    @StateObject private var subscriptionManager = SubscriptionManager.shared
     
     @State private var selectedTimeRange: TimeRange = .week
     @State private var selectedTag: MeasurementTag? = nil
     @State private var showingExportSheet = false
+    @State private var showingSubscription = false
     @State private var showingDeleteConfirmation = false
     @State private var recordToDelete: HeartRateRecord?
     @State private var selectedRecord: HeartRateRecord?
@@ -81,64 +83,66 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
-                    // Time Range Selector
-                    TimeRangeSelector(selectedRange: $selectedTimeRange)
-                    
-                    // 1. Health Score Card (NEW)
-                    if filteredRecords.count >= 3 {
-                        HealthScoreCard(records: filteredRecords)
-                    }
-                    
-                    // 2. Calendar Heatmap (NEW)
-                    CalendarHeatmapCard(
-                        records: allRecords,
-                        selectedDate: $selectedCalendarDate
-                    )
-                    
-                    // 3. Period Conclusion Card (NEW)
-                    if filteredRecords.count >= 3 {
-                        PeriodConclusionCard(
-                            records: filteredRecords,
-                            timeRange: selectedTimeRange
+                PremiumSectionContainer(showSubscription: $showingSubscription) {
+                    VStack(spacing: 16) {
+                        // Time Range Selector
+                        TimeRangeSelector(selectedRange: $selectedTimeRange)
+                        
+                        // 1. Health Score Card (NEW)
+                        if filteredRecords.count >= 3 {
+                            HealthScoreCard(records: filteredRecords)
+                        }
+                        
+                        // 2. Calendar Heatmap (NEW)
+                        CalendarHeatmapCard(
+                            records: allRecords,
+                            selectedDate: $selectedCalendarDate
+                        )
+                        
+                        // 3. Period Conclusion Card (NEW)
+                        if filteredRecords.count >= 3 {
+                            PeriodConclusionCard(
+                                records: filteredRecords,
+                                timeRange: selectedTimeRange
+                            )
+                        }
+                        
+                        // 4. Daily Overview Chart (折线图+面积图)
+                        DailyOverviewChartCard(records: filteredRecords, timeRange: selectedTimeRange)
+                        
+                        // 5. Week Comparison (NEW)
+                        if selectedTimeRange == .week {
+                            WeekComparisonCard(allRecords: allRecords)
+                        }
+                        
+                        // 6. Heart Rate Zone Distribution (NEW)
+                        if filteredRecords.count >= 3 {
+                            HeartRateZoneCard(records: filteredRecords)
+                        }
+                        
+                        // 7. Time of Day Analysis (NEW)
+                        if filteredRecords.count >= 3 {
+                            TimeOfDayAnalysisCard(records: filteredRecords)
+                        }
+                        
+                        // 8. Activity Distribution (NEW)
+                        if filteredRecords.count >= 3 {
+                            ActivityDistributionCard(records: filteredRecords)
+                        }
+                        
+                        // 9. Measurement Consistency (NEW)
+                        MeasurementConsistencyCard(records: allRecords)
+                        
+                        // Records Section (含筛选器)
+                        RecordsSectionView(
+                            allRecords: allRecords,
+                            selectedTag: $selectedTag,
+                            onDelete: { record in
+                                recordToDelete = record
+                                showingDeleteConfirmation = true
+                            }
                         )
                     }
-                    
-                    // 4. Daily Overview Chart (折线图+面积图)
-                    DailyOverviewChartCard(records: filteredRecords, timeRange: selectedTimeRange)
-                    
-                    // 5. Week Comparison (NEW)
-                    if selectedTimeRange == .week {
-                        WeekComparisonCard(allRecords: allRecords)
-                    }
-                    
-                    // 6. Heart Rate Zone Distribution (NEW)
-                    if filteredRecords.count >= 3 {
-                        HeartRateZoneCard(records: filteredRecords)
-                    }
-                    
-                    // 7. Time of Day Analysis (NEW)
-                    if filteredRecords.count >= 3 {
-                        TimeOfDayAnalysisCard(records: filteredRecords)
-                    }
-                    
-                    // 8. Activity Distribution (NEW)
-                    if filteredRecords.count >= 3 {
-                        ActivityDistributionCard(records: filteredRecords)
-                    }
-                    
-                    // 9. Measurement Consistency (NEW)
-                    MeasurementConsistencyCard(records: allRecords)
-                    
-                    // Records Section (含筛选器)
-                    RecordsSectionView(
-                        allRecords: allRecords,
-                        selectedTag: $selectedTag,
-                        onDelete: { record in
-                            recordToDelete = record
-                            showingDeleteConfirmation = true
-                        }
-                    )
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
@@ -147,7 +151,7 @@ struct HistoryView: View {
             .navigationTitle("History")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                if !allRecords.isEmpty {
+                if !allRecords.isEmpty && subscriptionManager.isPremium {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             HapticManager.shared.lightImpact()
@@ -161,6 +165,9 @@ struct HistoryView: View {
             }
             .sheet(isPresented: $showingExportSheet) {
                 ExportView(records: Array(filteredRecords))
+            }
+            .fullScreenCover(isPresented: $showingSubscription) {
+                SubscriptionView(isPresented: $showingSubscription)
             }
             .alert("Delete Record?", isPresented: $showingDeleteConfirmation) {
                 Button("Delete", role: .destructive) {

@@ -82,9 +82,9 @@ enum ProbabilityLevel {
     
     var title: String {
         switch self {
-        case .low: return "Low Probability"
-        case .moderate: return "Moderate Probability"
-        case .higher: return "Higher Probability"
+        case .low: return pregnancyRawText("Low Probability")
+        case .moderate: return pregnancyRawText("Moderate Probability")
+        case .higher: return pregnancyRawText("Higher Probability")
         }
     }
     
@@ -99,11 +99,11 @@ enum ProbabilityLevel {
     var description: String {
         switch self {
         case .low:
-            return "Your answers suggest a low likelihood of pregnancy."
+            return pregnancyRawText("Your answers suggest a low likelihood of pregnancy.")
         case .moderate:
-            return "There is some possibility."
+            return pregnancyRawText("There is some possibility.")
         case .higher:
-            return "Pregnancy may be possible."
+            return pregnancyRawText("Pregnancy may be possible.")
         }
     }
     
@@ -111,18 +111,18 @@ enum ProbabilityLevel {
         switch self {
         case .low:
             return [
-                "Wait for expected period",
-                "Test if period is late"
+                pregnancyRawText("Wait for expected period"),
+                pregnancyRawText("Test if period is late")
             ]
         case .moderate:
             return [
-                "Test after missed period",
-                "Consider retesting if negative"
+                pregnancyRawText("Test after missed period"),
+                pregnancyRawText("Consider retesting if negative")
             ]
         case .higher:
             return [
-                "Take a home pregnancy test",
-                "Consider medical confirmation"
+                pregnancyRawText("Take a home pregnancy test"),
+                pregnancyRawText("Consider medical confirmation")
             ]
         }
     }
@@ -131,35 +131,45 @@ enum ProbabilityLevel {
         switch self {
         case .low:
             return [
-                CTAButton(title: "When Should I Test", icon: "calendar.badge.clock")
+                CTAButton(title: pregnancyRawText("When Should I Test"), icon: "calendar.badge.clock", action: .timing)
             ]
         case .moderate:
             return [
-                CTAButton(title: "When Should I Test", icon: "calendar.badge.clock"),
-                CTAButton(title: "Set Reminder", icon: "bell.fill")
+                CTAButton(title: pregnancyRawText("When Should I Test"), icon: "calendar.badge.clock", action: .timing),
+                CTAButton(title: pregnancyRawText("Set Reminder"), icon: "bell.fill", action: .reminder)
             ]
         case .higher:
             return [
-                CTAButton(title: "Testing Guide", icon: "doc.text.fill"),
-                CTAButton(title: "Set Reminder", icon: "bell.fill")
+                CTAButton(title: pregnancyRawText("Testing Guide"), icon: "doc.text.fill", action: .guide),
+                CTAButton(title: pregnancyRawText("Set Reminder"), icon: "bell.fill", action: .reminder)
             ]
         }
     }
 }
 
+enum PregnancyCTAAction {
+    case timing
+    case guide
+    case reminder
+}
+
 struct CTAButton {
     let title: String
     let icon: String
+    let action: PregnancyCTAAction
 }
 
 // MARK: - Assessment Data
 struct ProbabilityAssessmentData {
     
-    static let introText = """
+    static var introText: String {
+        pregnancyRawText("""
     This self-check provides educational guidance based on your answers.
     
     It does not diagnose pregnancy.
     """
+        )
+    }
     
     static let questions: [ProbabilityQuestion] = [
         // Q1: Timing
@@ -240,13 +250,19 @@ struct ProbabilityAssessmentData {
         )
     ]
     
-    static let retestRecommendationText = """
+    static var retestRecommendationText: String {
+        pregnancyRawText("""
     If your exposure was recent, testing may be too early for accurate results.
     
     Consider retesting on the suggested date for more reliable results.
     """
+        )
+    }
     
-    static let disclaimerText = """
+    static var disclaimerText: String {
+        pregnancyRawText("""
     This assessment is for informational purposes only. It does not diagnose pregnancy or replace medical testing. Only certified pregnancy tests can determine pregnancy status. Please consult a healthcare professional for medical advice.
     """
+        )
+    }
 }

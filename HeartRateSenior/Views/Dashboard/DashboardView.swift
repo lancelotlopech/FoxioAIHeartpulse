@@ -225,8 +225,8 @@ struct DashboardView: View {
                         HStack(spacing: 16) {
                             ImageBasedSelfCheckCard(
                                 imageName: "HIV",
-                                title: "HIV Awareness",
-                                subtitle: "Prevention, testing & early care steps",
+                                title: hivRawText("HIV Awareness"),
+                                subtitle: hivRawText("Prevention, testing & early care steps"),
                                 iconName: "cross.case.fill",
                                 gradientColor: Color(red: 0.6, green: 0.1, blue: 0.1),
                                 onTap: {

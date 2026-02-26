@@ -10,6 +10,7 @@ import SwiftData
 import AppTrackingTransparency
 import AppsFlyerLib
 import FacebookCore
+import FirebaseCore
 
 // MARK: - AppDelegate for Facebook SDK lifecycle
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -28,6 +29,7 @@ struct HeartRateSeniorApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var settingsManager = SettingsManager()
     @StateObject private var subscriptionManager = SubscriptionManager.shared
+    @StateObject private var billingIdentityManager = BillingIdentityManager.shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showSplash = true
     @State private var appIsReady = false  // 加载完成标志
@@ -36,6 +38,10 @@ struct HeartRateSeniorApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var hasRequestedATT = false  // 确保 ATT 只请求一次
     @State private var shouldRequestATT = false  // 标记是否应该请求 ATT
+
+    init() {
+        Self.configureFirebase()
+    }
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -43,8 +49,11 @@ struct HeartRateSeniorApp: App {
             BloodPressureRecord.self,
             BloodGlucoseRecord.self,
             WeightRecord.self,
-            OxygenRecord.self,Reminder.self,
+            OxygenRecord.self,
+            Reminder.self,
             EmergencyContact.self,
+            CycleProfile.self,
+            PregnancyAssessmentRecord.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
@@ -90,6 +99,10 @@ struct HeartRateSeniorApp: App {
                         shouldRequestATT = true
                     }.transition(.opacity)
                     .onAppear {
+                        Task { @MainActor in
+                            await billingIdentityManager.configureOnLaunch()
+                        }
+
                         // 配置 AppsFlyer SDK
                         appsFlyerManager.configure()
                         
@@ -116,6 +129,18 @@ struct HeartRateSeniorApp: App {
             }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    // MARK: - Firebase
+    private static func configureFirebase() {
+        guard FirebaseApp.app() == nil else { return }
+        guard let plistPath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+              let options = FirebaseOptions(contentsOfFile: plistPath) else {
+            print("🔥 Firebase: GoogleService-Info.plist missing, Firebase is not configured")
+            return
+        }
+        FirebaseApp.configure(options: options)
+        print("🔥 Firebase: Configured")
     }
     
     // MARK: - ATT Permission Request

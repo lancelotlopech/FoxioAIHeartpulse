@@ -6,13 +6,19 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CycleTrackerView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Query private var cycleProfiles: [CycleProfile]
     @State private var lastPeriodDate = Date()
     @State private var cycleLength: Double = 28
     @State private var periodLength: Double = 5
     @State private var isPulsing = false
+    @State private var didLoadProfile = false
+    @State private var hasUnsavedChanges = false
+    @State private var showProfileSetupHint = false
     
     // Dashboard-consistent colors
     private let accentColor = AppColors.primaryRed
@@ -54,21 +60,49 @@ struct CycleTrackerView: View {
         return min(Double(days) / cycleLength, 1.0)
     }
     
-    private var currentPhase: String {
+    private enum CyclePhase {
+        case period
+        case follicular
+        case fertileWindow
+        case luteal
+
+        var localizedTitle: String {
+            switch self {
+            case .period:
+                return pregnancyRawText("Period")
+            case .follicular:
+                return pregnancyRawText("Follicular")
+            case .fertileWindow:
+                return pregnancyRawText("Fertile Window")
+            case .luteal:
+                return pregnancyRawText("Luteal")
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .period:
+                return "drop.fill"
+            case .follicular:
+                return "leaf.fill"
+            case .fertileWindow:
+                return "sparkles"
+            case .luteal:
+                return "moon.fill"
+            }
+        }
+    }
+
+    private var currentPhase: CyclePhase {
         let days = Calendar.current.dateComponents([.day], from: lastPeriodDate, to: Date()).day ?? 0
-        if days < Int(periodLength) { return "Period" }
-        if days < Int(cycleLength) - 16 { return "Follicular" }
-        if days < Int(cycleLength) - 12 { return "Fertile Window" }
-        return "Luteal"
+        if days < Int(periodLength) { return .period }
+        if days < Int(cycleLength) - 16 { return .follicular }
+        if days < Int(cycleLength) - 12 { return .fertileWindow }
+        return .luteal
     }
     
     private var phaseIcon: String {
-        switch currentPhase {
-        case "Period": return "drop.fill"
-        case "Follicular": return "leaf.fill"
-        case "Fertile Window": return "sparkles"
-        default: return "moon.fill"
-        }
+        currentPhase.icon
     }
     
     var body: some View {
@@ -111,23 +145,89 @@ struct CycleTrackerView: View {
                         .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
                 }
             }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(pregnancyText(.save)) {
+                    HapticManager.shared.lightImpact()
+                    persistCycleProfile()
+                }
+                .disabled(!hasUnsavedChanges)
+                .foregroundColor(accentColor)
+            }
         }
         .onAppear {
+            loadOrCreateCycleProfileIfNeeded()
             withAnimation(Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
                 isPulsing = true
             }
         }
+        .onChange(of: lastPeriodDate) { _, _ in
+            if didLoadProfile { hasUnsavedChanges = true }
+        }
+        .onChange(of: cycleLength) { _, _ in
+            if didLoadProfile { hasUnsavedChanges = true }
+        }
+        .onChange(of: periodLength) { _, _ in
+            if didLoadProfile { hasUnsavedChanges = true }
+        }
+        .alert(pregnancyRawText("Set Up Your Cycle"), isPresented: $showProfileSetupHint) {
+            Button(pregnancyText(.ok), role: .cancel) {}
+        } message: {
+            Text(pregnancyRawText("Enter your last period date and typical cycle length to get more accurate predictions."))
+        }
+    }
+    
+    private var activeCycleProfile: CycleProfile? {
+        cycleProfiles.max(by: { $0.updatedAt < $1.updatedAt })
+    }
+    
+    private func loadOrCreateCycleProfileIfNeeded() {
+        guard !didLoadProfile else { return }
+        
+        if let profile = activeCycleProfile {
+            lastPeriodDate = profile.lastPeriodDate
+            cycleLength = Double(profile.cycleLengthDays)
+            periodLength = Double(profile.periodLengthDays)
+            didLoadProfile = true
+            hasUnsavedChanges = false
+            return
+        }
+        
+        let newProfile = CycleProfile(
+            lastPeriodDate: lastPeriodDate,
+            cycleLengthDays: Int(cycleLength),
+            periodLengthDays: Int(periodLength),
+            isIrregular: false
+        )
+        modelContext.insert(newProfile)
+        didLoadProfile = true
+        hasUnsavedChanges = false
+        showProfileSetupHint = true
+    }
+    
+    private func persistCycleProfile() {
+        let profile = activeCycleProfile ?? CycleProfile(lastPeriodDate: lastPeriodDate)
+        if activeCycleProfile == nil {
+            modelContext.insert(profile)
+        }
+        
+        profile.lastPeriodDate = lastPeriodDate
+        profile.cycleLengthDays = Int(cycleLength)
+        profile.periodLengthDays = Int(periodLength)
+        profile.updatedAt = Date()
+        
+        hasUnsavedChanges = false
     }
     
     // MARK: - Header
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Cycle Tracker")
+            Text(pregnancyRawText("Cycle Tracker"))
                 .font(.system(size: 30, weight: .heavy))
                 .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                 .tracking(-0.5)
             
-            Text("Track your menstrual cycle")
+            Text(pregnancyRawText("Track your menstrual cycle"))
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
         }
@@ -162,12 +262,16 @@ struct CycleTrackerView: View {
                         Image(systemName: phaseIcon)
                             .font(.system(size: 16))
                             .foregroundColor(.white.opacity(0.9))
-                        Text("Current Phase")
+                        Text(pregnancyRawText("Current Phase"))
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.white)
                     }
                     
-                    Text("Day \(Calendar.current.dateComponents([.day], from: lastPeriodDate, to: Date()).day ?? 0) of \(Int(cycleLength))")
+                    Text(pregnancyFormat(
+                        .dayOfCycleFormat,
+                        Calendar.current.dateComponents([.day], from: lastPeriodDate, to: Date()).day ?? 0,
+                        Int(cycleLength)
+                    ))
                         .font(.system(size: 12))
                         .foregroundColor(Color.white.opacity(0.75))
                         .padding(.top, 2)
@@ -178,7 +282,7 @@ struct CycleTrackerView: View {
                         Text("\(max(0, daysUntilNextPeriod))")
                             .font(.system(size: 48, weight: .black))
                             .foregroundColor(.white)
-                        Text("days")
+                        Text(pregnancyRawText("days"))
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(Color.white.opacity(0.75))
                     }
@@ -187,7 +291,7 @@ struct CycleTrackerView: View {
                     HStack(spacing: 4) {
                         Image(systemName: phaseIcon)
                             .font(.system(size: 10, weight: .medium))
-                        Text(currentPhase)
+                        Text(currentPhase.localizedTitle)
                             .font(.system(size: 12, weight: .medium))
                     }
                     .foregroundColor(.white)
@@ -242,21 +346,21 @@ struct CycleTrackerView: View {
         HStack(spacing: 12) {
             quickStatItem(
                 icon: "calendar.badge.clock",
-                label: "Next Period",
+                label: pregnancyRawText("Next Period"),
                 value: shortDate(nextPeriodDate),
                 color: accentColor
             )
             
             quickStatItem(
                 icon: "star.fill",
-                label: "Ovulation",
+                label: pregnancyRawText("Ovulation"),
                 value: shortDate(ovulationDate),
                 color: ovulationColor
             )
             
             quickStatItem(
                 icon: "heart.fill",
-                label: "Fertile",
+                label: pregnancyRawText("Fertile"),
                 value: shortDate(fertileStart),
                 color: fertileColor
             )
@@ -299,7 +403,7 @@ struct CycleTrackerView: View {
         VStack(spacing: 20) {
             // Title
             HStack {
-                Text("Cycle Settings")
+                Text(pregnancyRawText("Cycle Settings"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                 Spacer()
@@ -308,7 +412,7 @@ struct CycleTrackerView: View {
             // Last Period Date
             HStack {
                 settingIcon("calendar", color: accentColor)
-                Text("Last Period")
+                Text(pregnancyRawText("Last Period"))
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                 Spacer()
@@ -324,11 +428,11 @@ struct CycleTrackerView: View {
             VStack(spacing: 10) {
                 HStack {
                     settingIcon("arrow.triangle.2.circlepath", color: ovulationColor)
-                    Text("Cycle Length")
+                    Text(pregnancyRawText("Cycle Length"))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                     Spacer()
-                    Text("\(Int(cycleLength)) days")
+                    Text("\(Int(cycleLength)) \(pregnancyRawText("days"))")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(accentColor)
                 }
@@ -342,11 +446,11 @@ struct CycleTrackerView: View {
             VStack(spacing: 10) {
                 HStack {
                     settingIcon("drop.fill", color: fertileColor)
-                    Text("Period Length")
+                    Text(pregnancyRawText("Period Length"))
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                     Spacer()
-                    Text("\(Int(periodLength)) days")
+                    Text("\(Int(periodLength)) \(pregnancyRawText("days"))")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(accentColor)
                 }
@@ -378,7 +482,7 @@ struct CycleTrackerView: View {
     private var predictionsCard: some View {
         VStack(spacing: 14) {
             HStack {
-                Text("Predictions")
+                Text(pregnancyRawText("Predictions"))
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                 Spacer()
@@ -387,23 +491,23 @@ struct CycleTrackerView: View {
             CyclePredictionCard(
                 icon: "calendar.badge.clock",
                 iconColor: accentColor,
-                title: "Next Period",
+                title: pregnancyRawText("Next Period"),
                 date: nextPeriodDate,
-                subtitle: "\(max(0, daysUntilNextPeriod)) days away"
+                subtitle: pregnancyFormat(.predictionDaysAwayFormat, max(0, daysUntilNextPeriod))
             )
             
             CyclePredictionCard(
                 icon: "star.fill",
                 iconColor: ovulationColor,
-                title: "Ovulation",
+                title: pregnancyRawText("Ovulation"),
                 date: ovulationDate,
-                subtitle: "Estimated"
+                subtitle: pregnancyRawText("Estimated")
             )
             
             CyclePredictionCard(
                 icon: "heart.fill",
                 iconColor: fertileColor,
-                title: "Fertile Window",
+                title: pregnancyRawText("Fertile Window"),
                 date: fertileStart,
                 subtitle: formattedRange(fertileStart, fertileEnd)
             )
@@ -424,7 +528,7 @@ struct CycleTrackerView: View {
                 .foregroundColor(accentColor)
                 .font(.system(size: 16))
             
-            Text("This is a basic tracker for reference only. For accurate fertility tracking, consult a healthcare provider.")
+            Text(pregnancyRawText("This is a basic tracker for reference only. For accurate fertility tracking, consult a healthcare provider."))
                 .font(.system(size: 13, weight: .regular))
                 .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
                 .lineSpacing(3)
@@ -442,12 +546,14 @@ struct CycleTrackerView: View {
     private func shortDate(_ date: Date) -> String {
         let fmt = DateFormatter()
         fmt.dateFormat = "MMM d"
+        fmt.locale = effectiveLanguage(for: .pregnancy) == .chinese ? Locale(identifier: "zh-Hans") : Locale(identifier: "en_US")
         return fmt.string(from: date)
     }
     
     private func formattedRange(_ start: Date, _ end: Date) -> String {
         let fmt = DateFormatter()
         fmt.dateFormat = "MMM d"
+        fmt.locale = effectiveLanguage(for: .pregnancy) == .chinese ? Locale(identifier: "zh-Hans") : Locale(identifier: "en_US")
         return "\(fmt.string(from: start)) - \(fmt.string(from: end))"
     }
 }

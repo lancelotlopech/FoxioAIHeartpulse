@@ -60,8 +60,8 @@ struct PregnancyCenterView: View {
                                 // Probability - Organic style
                                 PregnancyOrganicCard(
                                     icon: "chart.bar.doc.horizontal",
-                                    title: "Probability",
-                                    subtitle: "Self Check"
+                                    title: pregnancyRawText("Probability"),
+                                    subtitle: pregnancyRawText("Self Check")
                                 ) {
                                     HapticManager.shared.mediumImpact()
                                     selectedModule = .probability
@@ -74,8 +74,8 @@ struct PregnancyCenterView: View {
                                 PregnancyPhotoCard(
                                     imageName: "PregnancyTracker",
                                     icon: "drop.fill",
-                                    title: "Cycle Tracker",
-                                    subtitle: "Monitor Period"
+                                    title: pregnancyRawText("Cycle Tracker"),
+                                    subtitle: pregnancyRawText("Monitor Period")
                                 ) {
                                     HapticManager.shared.mediumImpact()
                                     selectedModule = .tracker
@@ -88,8 +88,8 @@ struct PregnancyCenterView: View {
                                 PregnancyPhotoCard(
                                     imageName: "PregnancyCare",
                                     icon: "heart.fill",
-                                    title: "Support",
-                                    subtitle: "Emotional"
+                                    title: pregnancyRawText("Support"),
+                                    subtitle: pregnancyRawText("Emotional")
                                 ) {
                                     HapticManager.shared.mediumImpact()
                                     selectedModule = .support
@@ -101,8 +101,8 @@ struct PregnancyCenterView: View {
                                 // Testing - Organic style
                                 PregnancyOrganicCard(
                                     icon: "doc.text.magnifyingglass",
-                                    title: "Testing",
-                                    subtitle: "How to use"
+                                    title: pregnancyRawText("Testing"),
+                                    subtitle: pregnancyRawText("How to use")
                                 ) {
                                     HapticManager.shared.mediumImpact()
                                     selectedModule = .guide
@@ -191,14 +191,14 @@ struct PregnancyCenterView: View {
             
             // Title
             VStack(alignment: .leading, spacing: 4) {
-                Text("Pregnancy")
+                Text(pregnancyRawText("Pregnancy"))
                     .font(.system(size: 36, weight: .bold, design: .serif))
                     .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
-                Text("Center")
+                Text(pregnancyRawText("Center"))
                     .font(.system(size: 36, weight: .bold, design: .serif))
                     .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                 
-                Text("NURTURING YOUR JOURNEY")
+                Text(pregnancyRawText("NURTURING YOUR JOURNEY"))
                     .font(.system(size: 10, weight: .medium))
                     .tracking(2.5)
                     .foregroundColor(.gray.opacity(0.6))
@@ -276,7 +276,7 @@ struct PregnancyHeroCard: View {
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 6) {
                         // Featured tag
-                        Text("FEATURED")
+                        Text(pregnancyRawText("FEATURED"))
                             .font(.system(size: 9, weight: .bold))
                             .tracking(1.5)
                             .foregroundColor(.white)
@@ -286,12 +286,12 @@ struct PregnancyHeroCard: View {
                             .clipShape(Capsule())
                             .overlay(Capsule().stroke(.white.opacity(0.3), lineWidth: 1))
                         
-                        Text("Learn About\nPregnancy")
+                        Text(pregnancyRawText("Learn About\nPregnancy"))
                             .font(.system(size: 28, weight: .bold, design: .serif))
                             .foregroundColor(.white)
                             .lineSpacing(2)
                         
-                        Text("Essential guide for your 9 months")
+                        Text(pregnancyRawText("Essential guide for your 9 months"))
                             .font(.system(size: 13, weight: .light))
                             .foregroundColor(.white.opacity(0.9))
                     }
@@ -349,10 +349,10 @@ struct PregnancyTimingBanner: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("When Should I Test?")
+                    Text(pregnancyRawText("When Should I Test?"))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
-                    Text("Find the right timing for accurate results")
+                    Text(pregnancyRawText("Find the right timing for accurate results"))
                         .font(.system(size: 11, weight: .regular))
                         .foregroundColor(.gray)
                 }
@@ -416,11 +416,11 @@ struct PregnancyOrganicCard: View {
                 
                 // Text
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(title)
+                    Text(pregnancyRawText(title))
                         .font(.system(size: 20, weight: .bold, design: .serif))
                         .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                     
-                    Text(subtitle.uppercased())
+                    Text(pregnancyRawText(subtitle).uppercased())
                         .font(.system(size: 9, weight: .medium))
                         .tracking(1.8)
                         .foregroundColor(.gray.opacity(0.5))
@@ -489,11 +489,11 @@ struct PregnancyPhotoCard: View {
                     
                     // Bottom text
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(title)
+                        Text(pregnancyRawText(title))
                             .font(.system(size: 20, weight: .bold, design: .serif))
                             .foregroundColor(.white)
                         
-                        Text(subtitle.uppercased())
+                        Text(pregnancyRawText(subtitle).uppercased())
                             .font(.system(size: 9, weight: .medium))
                             .tracking(1.8)
                             .foregroundColor(.white.opacity(0.9))
@@ -541,11 +541,11 @@ struct PregnancyReminderBar: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("Reminders")
+                    Text(pregnancyRawText("Reminders"))
                         .font(.system(size: 20, weight: .bold, design: .serif))
                         .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                     
-                    Text("Set Alerts & Appointments")
+                    Text(pregnancyRawText("Set Alerts & Appointments"))
                         .font(.system(size: 12, weight: .light))
                         .foregroundColor(.gray)
                 }
@@ -595,7 +595,7 @@ struct PregnancyDisclaimerFooter: View {
                         .font(.system(size: 18))
                         .foregroundColor(Color(red: 0.90, green: 0.55, blue: 0.50))
                     
-                    Text("Medical Disclaimer")
+                    Text(pregnancyRawText("Medical Disclaimer"))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
                     
@@ -608,7 +608,7 @@ struct PregnancyDisclaimerFooter: View {
                 }
                 
                 if isExpanded {
-                    Text(PregnancyEducationData.disclaimer)
+                    Text(pregnancyRawText(PregnancyEducationData.disclaimer))
                         .font(.system(size: 11, weight: .light))
                         .foregroundColor(.gray)
                         .lineSpacing(3)
@@ -656,25 +656,25 @@ enum PregnancyModule: String, CaseIterable, Identifiable {
     
     var title: String {
         switch self {
-        case .education: return "Learn About\nPregnancy"
-        case .probability: return "Check My\nProbability"
-        case .timing: return "When Should\nI Test"
-        case .guide: return "How to Use a\nPregnancy Test"
-        case .tracker: return "Cycle\nTracker"
-        case .support: return "Emotional\nSupport"
-        case .reminders: return "Reminder\nCenter"
+        case .education: return pregnancyRawText("Learn About\nPregnancy")
+        case .probability: return pregnancyRawText("Check My\nProbability")
+        case .timing: return pregnancyRawText("When Should\nI Test")
+        case .guide: return pregnancyRawText("How to Use a\nPregnancy Test")
+        case .tracker: return pregnancyRawText("Cycle\nTracker")
+        case .support: return pregnancyRawText("Emotional\nSupport")
+        case .reminders: return pregnancyRawText("Reminder\nCenter")
         }
     }
     
     var description: String {
         switch self {
-        case .education: return "Understanding basics"
-        case .probability: return "Self-assessment"
-        case .timing: return "Timing guidance"
-        case .guide: return "Step-by-step"
-        case .tracker: return "Track your cycle"
-        case .support: return "While waiting"
-        case .reminders: return "Set reminders"
+        case .education: return pregnancyRawText("Understanding basics")
+        case .probability: return pregnancyRawText("Self-assessment")
+        case .timing: return pregnancyRawText("Timing guidance")
+        case .guide: return pregnancyRawText("Step-by-step")
+        case .tracker: return pregnancyRawText("Track your cycle")
+        case .support: return pregnancyRawText("While waiting")
+        case .reminders: return pregnancyRawText("Set reminders")
         }
     }
     

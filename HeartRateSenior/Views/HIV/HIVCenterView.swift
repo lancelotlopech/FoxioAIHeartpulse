@@ -86,8 +86,8 @@ struct HIVCenterView: View {
                                 // Symptoms - Organic style
                                 HIVOrganicCard(
                                     icon: "stethoscope",
-                                    title: "Symptoms",
-                                    subtitle: "Identify"
+                                    title: hivRawText("Symptoms"),
+                                    subtitle: hivRawText("Identify")
                                 ) {
                                     HapticManager.shared.mediumImpact()
                                     selectedModule = .symptoms
@@ -100,8 +100,8 @@ struct HIVCenterView: View {
                                 HIVPhotoCard(
                                     imageName: "HIV1",
                                     icon: "cross.case.fill",
-                                    title: "Testing",
-                                    subtitle: "Methods"
+                                    title: hivRawText("Testing"),
+                                    subtitle: hivRawText("Methods")
                                 ) {
                                     HapticManager.shared.mediumImpact()
                                     selectedModule = .testing
@@ -114,8 +114,8 @@ struct HIVCenterView: View {
                                 HIVPhotoCard(
                                     imageName: "HIV2",
                                     icon: "calendar.badge.clock",
-                                    title: "Timeline",
-                                    subtitle: "When Test"
+                                    title: hivRawText("Timeline"),
+                                    subtitle: hivRawText("When Test")
                                 ) {
                                     HapticManager.shared.mediumImpact()
                                     selectedModule = .timeline
@@ -127,8 +127,8 @@ struct HIVCenterView: View {
                                 // Overview - Organic style
                                 HIVOrganicCard(
                                     icon: "list.bullet.rectangle.portrait",
-                                    title: "Overview",
-                                    subtitle: "All Info"
+                                    title: hivRawText("Overview"),
+                                    subtitle: hivRawText("All Info")
                                 ) {
                                     HapticManager.shared.mediumImpact()
                                     selectedModule = .overview
@@ -204,14 +204,14 @@ struct HIVCenterView: View {
             .padding(.bottom, 16)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text("HIV")
+                Text(hivRawText("HIV"))
                     .font(.system(size: 36, weight: .bold, design: .serif))
                     .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
-                Text("Awareness")
+                Text(hivRawText("Awareness"))
                     .font(.system(size: 36, weight: .bold, design: .serif))
                     .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                 
-                Text("PREVENTION & EARLY CARE")
+                Text(hivRawText("PREVENTION & EARLY CARE"))
                     .font(.system(size: 10, weight: .medium))
                     .tracking(2.5)
                     .foregroundColor(.gray.opacity(0.6))
@@ -280,7 +280,7 @@ struct HIVHeroCard: View {
                 
                 HStack(alignment: .bottom) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("FEATURED")
+                        Text(hivRawText("FEATURED"))
                             .font(.system(size: 9, weight: .bold))
                             .tracking(1.5)
                             .foregroundColor(.white)
@@ -290,12 +290,12 @@ struct HIVHeroCard: View {
                             .clipShape(Capsule())
                             .overlay(Capsule().stroke(.white.opacity(0.3), lineWidth: 1))
                         
-                        Text("Learn About\nHIV")
+                        Text(hivRawText("Learn About\nHIV"))
                             .font(.system(size: 28, weight: .bold, design: .serif))
                             .foregroundColor(.white)
                             .lineSpacing(2)
                         
-                        Text("Prevention, testing & early care")
+                        Text(hivRawText("Prevention, testing & early care"))
                             .font(.system(size: 13, weight: .light))
                             .foregroundColor(.white.opacity(0.9))
                     }
@@ -351,10 +351,10 @@ struct HIVAssessmentBanner: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Risk Assessment")
+                    Text(hivRawText("Risk Assessment"))
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
-                    Text("Check your risk level with a quick quiz")
+                    Text(hivRawText("Check your risk level with a quick quiz"))
                         .font(.system(size: 11, weight: .regular))
                         .foregroundColor(.gray)
                 }
@@ -520,7 +520,7 @@ struct HIVDisclaimerFooter: View {
                         .font(.system(size: 18))
                         .foregroundColor(AppColors.primaryRed)
                     
-                    Text("Medical Disclaimer")
+                    Text(hivRawText("Medical Disclaimer"))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(Color(red: 0.3, green: 0.3, blue: 0.3))
                     
@@ -533,7 +533,7 @@ struct HIVDisclaimerFooter: View {
                 }
                 
                 if isExpanded {
-                    Text(HIVEducationData.disclaimer)
+                    Text(HIVEducationData.localizedDisclaimer)
                         .font(.system(size: 11, weight: .light))
                         .foregroundColor(.gray)
                         .lineSpacing(3)

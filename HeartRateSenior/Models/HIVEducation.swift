@@ -472,4 +472,114 @@ struct HIVEducationData {
     Understanding HIV is the first step.
     Next, you can answer a few questions to better understand your potential risk.
     """
+
+    static var localizedSections: [HIVSection] {
+        sections.map { $0.localized() }
+    }
+
+    static var localizedDisclaimer: String {
+        hivRawText(disclaimer)
+    }
+
+    static var localizedCtaText: String {
+        hivRawText(ctaText)
+    }
+}
+
+// MARK: - Localization Helpers
+extension HIVSection {
+    func localized() -> HIVSection {
+        HIVSection(
+            id: id,
+            title: hivRawText(title),
+            content: hivRawText(content),
+            bulletPoints: bulletPoints?.map { hivRawText($0) },
+            keyPoints: keyPoints?.map { $0.localized() },
+            transmissionInfo: transmissionInfo?.localized(),
+            symptoms: symptoms?.map { hivRawText($0) },
+            importantNote: importantNote.map { hivRawText($0) },
+            testingInfo: testingInfo?.localized(),
+            windowPeriod: windowPeriod?.localized(),
+            whenToTest: whenToTest?.map { hivRawText($0) },
+            testingMethods: testingMethods?.map { $0.localized() },
+            timingGuidance: timingGuidance?.map { $0.localized() },
+            testExpectations: testExpectations?.localized()
+        )
+    }
+}
+
+extension HIVKeyPoint {
+    func localized() -> HIVKeyPoint {
+        HIVKeyPoint(icon: icon, text: hivRawText(text))
+    }
+}
+
+extension HIVTransmissionInfo {
+    func localized() -> HIVTransmissionInfo {
+        HIVTransmissionInfo(
+            transmittedThrough: transmittedThrough.map { hivRawText($0) },
+            notTransmittedThrough: notTransmittedThrough.map { hivRawText($0) }
+        )
+    }
+}
+
+extension HIVTestingInfo {
+    func localized() -> HIVTestingInfo {
+        HIVTestingInfo(
+            detects: detects.map { hivRawText($0) },
+            note: hivRawText(note)
+        )
+    }
+}
+
+extension HIVWindowPeriod {
+    func localized() -> HIVWindowPeriod {
+        HIVWindowPeriod(
+            description: hivRawText(description),
+            testTypes: testTypes.map { $0.localized() },
+            tip: hivRawText(tip)
+        )
+    }
+}
+
+extension HIVTestType {
+    func localized() -> HIVTestType {
+        HIVTestType(name: hivRawText(name), detectableAfter: hivRawText(detectableAfter))
+    }
+}
+
+extension HIVTestingMethod {
+    func localized() -> HIVTestingMethod {
+        HIVTestingMethod(
+            icon: icon,
+            title: hivRawText(title),
+            description: hivRawText(description),
+            pros: pros.map { hivRawText($0) },
+            cons: cons.map { hivRawText($0) },
+            details: details.map { hivRawText($0) }
+        )
+    }
+}
+
+extension HIVTimingGuidance {
+    func localized() -> HIVTimingGuidance {
+        HIVTimingGuidance(
+            daysRange: hivRawText(daysRange),
+            status: status,
+            guidance: hivRawText(guidance),
+            icon: icon,
+            color: color
+        )
+    }
+}
+
+extension HIVTestExpectation {
+    func localized() -> HIVTestExpectation {
+        HIVTestExpectation(
+            title: hivRawText(title),
+            items: items.map { hivRawText($0) },
+            reminders: reminders.map { hivRawText($0) },
+            tipCard: hivRawText(tipCard)
+        )
+    }
 }

@@ -105,7 +105,7 @@ struct EmotionalSupportView: View {
             
             Spacer()
             
-            Text("Emotional Support")
+            Text(pregnancyRawText("Emotional Support"))
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
             
@@ -171,12 +171,12 @@ struct EmotionalSupportView: View {
                 
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(section.title)
+                        Text(pregnancyRawText(section.title))
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.white)
                             .lineLimit(2)
                         
-                        Text(section.content)
+                        Text(pregnancyRawText(section.content))
                             .font(.system(size: 13, weight: .regular))
                             .foregroundColor(.white.opacity(0.85))
                             .lineSpacing(4)
@@ -213,7 +213,7 @@ struct EmotionalSupportView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 14, weight: .semibold))
-                        Text("Previous")
+                        Text(pregnancyText(.previous))
                             .font(.system(size: 16, weight: .semibold))
                     }
                     .foregroundColor(accentColor)
@@ -241,7 +241,7 @@ struct EmotionalSupportView: View {
                 }
             }) {
                 HStack(spacing: 6) {
-                    Text(currentPage < pages.count - 1 ? "Next" : "Done")
+                    Text(currentPage < pages.count - 1 ? pregnancyText(.next) : pregnancyText(.done))
                         .font(.system(size: 16, weight: .bold))
                     if currentPage < pages.count - 1 {
                         Image(systemName: "chevron.right")
@@ -296,7 +296,7 @@ struct SuggestionsView: View {
                             .foregroundColor(accentColor)
                     }
                     
-                    Text(suggestion.text)
+                    Text(pregnancyRawText(suggestion.text))
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                         .lineSpacing(2)
@@ -329,7 +329,7 @@ struct EmotionsView: View {
                 VStack(spacing: 10) {
                     Text(emotion.emoji)
                         .font(.system(size: 40))
-                    Text(emotion.label)
+                    Text(pregnancyRawText(emotion.label))
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
                         .lineLimit(1)
@@ -354,7 +354,7 @@ struct NextStepsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Next Steps")
+            Text(pregnancyRawText("Next Steps"))
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
             
@@ -369,7 +369,7 @@ struct NextStepsView: View {
                             .foregroundColor(accentColor)
                     }
                     
-                    Text(step)
+                    Text(pregnancyRawText(step))
                         .font(.system(size: 14, weight: .regular))
                         .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545))
                         .lineSpacing(3)
@@ -405,7 +405,7 @@ struct BreathingView: View {
                 Image(systemName: "wind")
                     .font(.system(size: 16))
                     .foregroundColor(accentColor)
-                Text("Breathing Exercise")
+                Text(pregnancyRawText("Breathing Exercise"))
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
                 Spacer()
@@ -439,7 +439,7 @@ struct BreathingView: View {
                 
                 // Center content
                 VStack(spacing: 4) {
-                    Text(phaseText)
+                    Text(pregnancyRawText(phaseText))
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(accentColor)
                     
@@ -465,7 +465,7 @@ struct BreathingView: View {
                 breathStep("Exhale", "\(exercise.exhale)s", "arrow.down.circle.fill")
             }
             
-            Text("Repeat \(exercise.repeats) times")
+            Text(pregnancyFormat(.repeatTimesFormat, exercise.repeats))
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(Color(red: 0.392, green: 0.455, blue: 0.545).opacity(0.7))
         }
@@ -483,7 +483,7 @@ struct BreathingView: View {
             Image(systemName: icon)
                 .font(.system(size: 22))
                 .foregroundColor(accentColor.opacity(0.6))
-            Text(label)
+            Text(pregnancyRawText(label))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(Color(red: 0.118, green: 0.161, blue: 0.231))
             Text(duration)

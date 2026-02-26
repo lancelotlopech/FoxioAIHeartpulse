@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Client can only read its own summary; all writes are server-side only.
+    match /users/{uid}/billing_summary/{docId} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    match /billing_transactions/{transactionId} {
+      allow read, write: if false;
+    }
+
+    match /billing_unlinked/{transactionId} {
+      allow read, write: if false;
+    }
+
+    match /subscription_links/{originalTransactionId} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

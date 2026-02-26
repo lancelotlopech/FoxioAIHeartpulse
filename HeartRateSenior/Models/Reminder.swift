@@ -14,6 +14,7 @@ enum ReminderType: String, Codable, CaseIterable {
     case bloodPressure = "Blood Pressure"
     case bloodGlucose = "Blood Glucose"
     case medication = "Medication"
+    case pregnancyTest = "Pregnancy Test"
     
     var icon: String {
         switch self {
@@ -21,6 +22,7 @@ enum ReminderType: String, Codable, CaseIterable {
         case .bloodPressure: return "waveform.path.ecg"
         case .bloodGlucose: return "drop.fill"
         case .medication: return "pills.fill"
+        case .pregnancyTest: return "cross.case.fill"
         }
     }
     
@@ -30,6 +32,7 @@ enum ReminderType: String, Codable, CaseIterable {
         case .bloodPressure: return "systemBlue"
         case .bloodGlucose: return "systemPurple"
         case .medication: return "systemGreen"
+        case .pregnancyTest: return "systemPink"
         }
     }
 }

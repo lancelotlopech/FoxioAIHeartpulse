@@ -41,7 +41,7 @@ struct PregnancyTestTimingView: View {
                     
                     Spacer()
                     
-                    Text("When Should I Test?")
+                    Text(pregnancyRawText("When Should I Test?"))
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(Color(hex: "1a1a1a"))
                     
@@ -80,7 +80,7 @@ private struct TimingSelectionView: View {
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Choose your situation")
+                Text(pregnancyRawText("Choose your situation"))
                     .font(.system(size: 14))
                     .foregroundColor(Color(hex: "999999"))
                     .padding(.top, 24)
@@ -169,11 +169,11 @@ private struct TimingResultMinimalView: View {
                 
                 // Table-style timing info
                 VStack(spacing: 0) {
-                    TimingInfoTableRow(label: "Best Time", value: option.bestTime, primaryColor: primaryColor)
+                    TimingInfoTableRow(label: pregnancyRawText("Best Time"), value: option.bestTime, primaryColor: primaryColor)
                     Divider().background(Color(hex: "f0eeee"))
-                    TimingInfoTableRow(label: "Time of Day", value: option.timeOfDay, primaryColor: primaryColor)
+                    TimingInfoTableRow(label: pregnancyRawText("Time of Day"), value: option.timeOfDay, primaryColor: primaryColor)
                     Divider().background(Color(hex: "f0eeee"))
-                    TimingInfoTableRow(label: "Accuracy", value: option.accuracy, primaryColor: primaryColor)
+                    TimingInfoTableRow(label: pregnancyRawText("Accuracy"), value: option.accuracy, primaryColor: primaryColor)
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 14)
@@ -184,7 +184,7 @@ private struct TimingResultMinimalView: View {
                 
                 // Explanation
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Why This Timing?")
+                    Text(pregnancyRawText("Why This Timing?"))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Color(hex: "1a1a1a"))
                     
@@ -198,7 +198,7 @@ private struct TimingResultMinimalView: View {
                 
                 // Tips
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Tips")
+                    Text(pregnancyText(.tips))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Color(hex: "1a1a1a"))
                     
@@ -225,7 +225,7 @@ private struct TimingResultMinimalView: View {
                     HapticManager.shared.mediumImpact()
                     onDismiss()
                 } label: {
-                    Text("Got It")
+                    Text(pregnancyRawText("Got It"))
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -277,19 +277,19 @@ enum TestTimingOption: String, CaseIterable, Identifiable {
     
     var title: String {
         switch self {
-        case .missedPeriod: return "I missed my period"
-        case .beforePeriod: return "Before my period is due"
-        case .afterSex: return "After unprotected sex"
-        case .irregular: return "I have irregular cycles"
+        case .missedPeriod: return pregnancyRawText("I missed my period")
+        case .beforePeriod: return pregnancyRawText("Before my period is due")
+        case .afterSex: return pregnancyRawText("After unprotected sex")
+        case .irregular: return pregnancyRawText("I have irregular cycles")
         }
     }
     
     var subtitle: String {
         switch self {
-        case .missedPeriod: return "My period is late"
-        case .beforePeriod: return "Want to test early"
-        case .afterSex: return "Recent exposure"
-        case .irregular: return "Unpredictable timing"
+        case .missedPeriod: return pregnancyRawText("My period is late")
+        case .beforePeriod: return pregnancyRawText("Want to test early")
+        case .afterSex: return pregnancyRawText("Recent exposure")
+        case .irregular: return pregnancyRawText("Unpredictable timing")
         }
     }
     
@@ -313,50 +313,50 @@ enum TestTimingOption: String, CaseIterable, Identifiable {
     
     var resultTitle: String {
         switch self {
-        case .missedPeriod: return "Test Now"
-        case .beforePeriod: return "Wait a Few Days"
-        case .afterSex: return "Wait 2-3 Weeks"
-        case .irregular: return "Test Regularly"
+        case .missedPeriod: return pregnancyRawText("Test Now")
+        case .beforePeriod: return pregnancyRawText("Wait a Few Days")
+        case .afterSex: return pregnancyRawText("Wait 2-3 Weeks")
+        case .irregular: return pregnancyRawText("Test Regularly")
         }
     }
     
     var bestTime: String {
         switch self {
-        case .missedPeriod: return "Anytime now"
-        case .beforePeriod: return "1-2 days before period"
-        case .afterSex: return "2-3 weeks after"
-        case .irregular: return "Every 2-3 weeks"
+        case .missedPeriod: return pregnancyRawText("Anytime now")
+        case .beforePeriod: return pregnancyRawText("1-2 days before period")
+        case .afterSex: return pregnancyRawText("2-3 weeks after")
+        case .irregular: return pregnancyRawText("Every 2-3 weeks")
         }
     }
     
     var timeOfDay: String {
         switch self {
-        case .missedPeriod: return "First morning urine"
-        case .beforePeriod: return "First morning urine"
-        case .afterSex: return "First morning urine"
-        case .irregular: return "First morning urine"
+        case .missedPeriod: return pregnancyRawText("First morning urine")
+        case .beforePeriod: return pregnancyRawText("First morning urine")
+        case .afterSex: return pregnancyRawText("First morning urine")
+        case .irregular: return pregnancyRawText("First morning urine")
         }
     }
     
     var accuracy: String {
         switch self {
-        case .missedPeriod: return "99% accurate"
-        case .beforePeriod: return "Variable (60-90%)"
-        case .afterSex: return "99% after 3 weeks"
-        case .irregular: return "99% when positive"
+        case .missedPeriod: return pregnancyRawText("99% accurate")
+        case .beforePeriod: return pregnancyRawText("Variable (60-90%)")
+        case .afterSex: return pregnancyRawText("99% after 3 weeks")
+        case .irregular: return pregnancyRawText("99% when positive")
         }
     }
     
     var explanation: String {
         switch self {
         case .missedPeriod:
-            return "If your period is late, pregnancy hormone (hCG) levels should be high enough to detect. Testing with first morning urine provides the most concentrated sample for best results."
+            return pregnancyRawText("If your period is late, pregnancy hormone (hCG) levels should be high enough to detect. Testing with first morning urine provides the most concentrated sample for best results.")
         case .beforePeriod:
-            return "Early testing is possible but less reliable. hCG levels may not be high enough yet. For best accuracy, wait until the day your period is expected or after."
+            return pregnancyRawText("Early testing is possible but less reliable. hCG levels may not be high enough yet. For best accuracy, wait until the day your period is expected or after.")
         case .afterSex:
-            return "It takes about 2-3 weeks after conception for hCG levels to be detectable. Testing too early may give a false negative. Wait at least 2 weeks, ideally 3 weeks for most accurate results."
+            return pregnancyRawText("It takes about 2-3 weeks after conception for hCG levels to be detectable. Testing too early may give a false negative. Wait at least 2 weeks, ideally 3 weeks for most accurate results.")
         case .irregular:
-            return "With irregular cycles, it's hard to know when to test. Test every 2-3 weeks if you've had unprotected sex, or wait for pregnancy symptoms before testing."
+            return pregnancyRawText("With irregular cycles, it's hard to know when to test. Test every 2-3 weeks if you've had unprotected sex, or wait for pregnancy symptoms before testing.")
         }
     }
     
@@ -364,27 +364,27 @@ enum TestTimingOption: String, CaseIterable, Identifiable {
         switch self {
         case .missedPeriod:
             return [
-                "Use first morning urine for most concentrated hCG",
-                "Read results within the time frame specified",
-                "If negative but still no period, retest in 3-5 days"
+                pregnancyRawText("Use first morning urine for most concentrated hCG"),
+                pregnancyRawText("Read results within the time frame specified"),
+                pregnancyRawText("If negative but still no period, retest in 3-5 days")
             ]
         case .beforePeriod:
             return [
-                "Early tests are less reliable - be prepared for false negatives",
-                "Use a sensitive test (10-25 mIU/mL)",
-                "Retest on the day your period is due if negative"
+                pregnancyRawText("Early tests are less reliable - be prepared for false negatives"),
+                pregnancyRawText("Use a sensitive test (10-25 mIU/mL)"),
+                pregnancyRawText("Retest on the day your period is due if negative")
             ]
         case .afterSex:
             return [
-                "Mark your calendar for 2-3 weeks after exposure",
-                "Don't test too early to avoid false negatives",
-                "Consider emergency contraception if within 72 hours"
+                pregnancyRawText("Mark your calendar for 2-3 weeks after exposure"),
+                pregnancyRawText("Don't test too early to avoid false negatives"),
+                pregnancyRawText("Consider emergency contraception if within 72 hours")
             ]
         case .irregular:
             return [
-                "Keep track of when you have unprotected sex",
-                "Test regularly if trying to conceive",
-                "Consider tracking ovulation with other methods"
+                pregnancyRawText("Keep track of when you have unprotected sex"),
+                pregnancyRawText("Test regularly if trying to conceive"),
+                pregnancyRawText("Consider tracking ovulation with other methods")
             ]
         }
     }

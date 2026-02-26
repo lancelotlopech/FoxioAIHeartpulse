@@ -157,7 +157,7 @@ struct HIVSectionPageView: View {
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundColor(.orange)
-                            Text("Can be transmitted:")
+                            Text(hivRawText("Can be transmitted:"))
                                 .font(.system(size: 15, weight: .bold, design: .rounded))
                                 .foregroundColor(AppColors.textPrimary)
                         }
@@ -185,7 +185,7 @@ struct HIVSectionPageView: View {
                         HStack {
                             Image(systemName: "checkmark.shield.fill")
                                 .foregroundColor(.green)
-                            Text("NOT transmitted:")
+                            Text(hivRawText("NOT transmitted:"))
                                 .font(.system(size: 15, weight: .bold, design: .rounded))
                                 .foregroundColor(AppColors.textPrimary)
                         }
@@ -268,7 +268,7 @@ struct HIVSectionPageView: View {
             
             if let testingInfo = section.testingInfo {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Tests detect:")
+                    Text(hivRawText("Tests detect:"))
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(AppColors.textPrimary)
                     
@@ -436,7 +436,7 @@ struct HIVSectionPageView: View {
     // MARK: - Page 8: Final CTA
     private var page8Content: some View {
         VStack(spacing: 20) {
-            Text("Now you understand HIV basics.\nReady to check your potential risk?")
+            Text(hivRawText("Now you understand HIV basics.\nReady to check your potential risk?"))
                 .font(.system(size: 16, weight: .regular, design: .rounded))
                 .foregroundColor(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
@@ -467,7 +467,7 @@ struct HIVSectionPageView: View {
                 HStack(spacing: 10) {
                     Image(systemName: "checklist.checked")
                         .font(.system(size: 20, weight: .semibold))
-                    Text("Start Risk Assessment")
+                    Text(hivRawText("Start Risk Assessment"))
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                 }
                 .foregroundColor(.white)
@@ -494,7 +494,7 @@ struct HIVSectionPageView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 14, weight: .semibold))
-                        Text("Back")
+                        Text(hivText(.back))
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
                     }
                     .foregroundColor(AppColors.textSecondary)
@@ -509,7 +509,7 @@ struct HIVSectionPageView: View {
             if pageNumber < totalPages {
                 Button(action: onNext) {
                     HStack(spacing: 6) {
-                        Text("Next")
+                        Text(hivText(.next))
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                         Image(systemName: "chevron.right")
                             .font(.system(size: 14, weight: .semibold))
@@ -542,7 +542,7 @@ struct HIVSectionPageView: View {
 
 #Preview {
     HIVSectionPageView(
-        section: HIVEducationData.sections[0],
+        section: HIVEducationData.localizedSections[0],
         pageNumber: 1,
         totalPages: 8,
         onNext: {},

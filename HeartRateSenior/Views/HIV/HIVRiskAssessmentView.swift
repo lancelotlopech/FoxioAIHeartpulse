@@ -14,7 +14,7 @@ struct HIVRiskAssessmentView: View {
     @State private var selectedAnswers: [Int: [Int]] = [:] // questionId: [optionIndices]
     @State private var assessmentResult: AssessmentResult?
     
-    private let questions = HIVAssessmentData.questions
+    private let questions = HIVAssessmentData.localizedQuestions
     
     enum AssessmentPage {
         case intro
@@ -203,19 +203,19 @@ struct IntroPageView: View {
                 
                 // Title
                 VStack(spacing: 12) {
-                    Text("HIV Risk Self-Assessment")
+                    Text(hivRawText("HIV Risk Self-Assessment"))
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(AppColors.textPrimary)
                         .multilineTextAlignment(.center)
                     
-                    Text("Before You Start")
+                    Text(hivText(.beforeYouStart))
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundColor(AppColors.primaryRed)
                 }
                 
                 // Intro Text
                 VStack(alignment: .leading, spacing: 16) {
-                    Text(HIVAssessmentData.introText)
+                    Text(HIVAssessmentData.localizedIntroText)
                         .font(.system(size: 16, weight: .regular, design: .rounded))
                         .foregroundColor(AppColors.textSecondary)
                         .lineSpacing(6)
@@ -233,7 +233,7 @@ struct IntroPageView: View {
                 // Start Button
                 Button(action: onStart) {
                     HStack(spacing: 12) {
-                        Text("Start Assessment")
+                        Text(hivText(.startAssessment))
                             .font(.system(size: 18, weight: .bold, design: .rounded))
                         
                         Image(systemName: "arrow.right")
@@ -285,7 +285,7 @@ struct QuestionPageView: View {
                 VStack(spacing: 24) {
                     // Question Header
                     VStack(spacing: 12) {
-                        Text("Question \(questionNumber) of \(totalQuestions)")
+                        Text(hivFormat(.questionProgressFormat, questionNumber, totalQuestions))
                             .font(.system(size: 14, weight: .semibold, design: .rounded))
                             .foregroundColor(AppColors.primaryRed)
                         
@@ -334,7 +334,7 @@ struct QuestionPageView: View {
                 // Next Button (for multiple choice)
                 if isMultipleChoice {
                     Button(action: onNext) {
-                        Text("Next")
+                        Text(hivText(.next))
                             .font(.system(size: 18, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -351,7 +351,7 @@ struct QuestionPageView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 14, weight: .semibold))
-                            Text("Previous Question")
+                            Text(hivText(.previousQuestion))
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                         }
                         .foregroundColor(AppColors.textSecondary)
@@ -444,17 +444,17 @@ struct ResultPageView: View {
                 
                 // Risk Level Title
                 VStack(spacing: 8) {
-                    Text(result.riskLevel.title)
+                    Text(result.riskLevel.localizedTitle)
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(AppColors.textPrimary)
                     
-                    Text("Score: \(result.totalScore) / 30")
+                    Text(hivFormat(.scoreFormat, result.totalScore))
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(AppColors.textSecondary)
                 }
                 
                 // Description
-                Text(result.riskLevel.description)
+                Text(result.riskLevel.localizedDescription)
                     .font(.system(size: 16, weight: .regular, design: .rounded))
                     .foregroundColor(AppColors.textSecondary)
                     .multilineTextAlignment(.center)
@@ -463,7 +463,7 @@ struct ResultPageView: View {
                 
                 // Recommendations
                 VStack(alignment: .leading, spacing: 16) {
-                    ForEach(result.riskLevel.recommendations, id: \.self) { recommendation in
+                    ForEach(result.riskLevel.localizedRecommendations, id: \.self) { recommendation in
                         HStack(alignment: .top, spacing: 12) {
                             Image(systemName: "checkmark.circle.fill")
                                 .font(.system(size: 20))
@@ -487,11 +487,11 @@ struct ResultPageView: View {
                 // Retest Recommendation (if applicable)
                 if let timeframe = result.exposureTimeframe, !timeframe.retestDays.isEmpty {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Smart Retest Suggestion")
+                        Text(hivText(.smartRetestSuggestion))
                             .font(.system(size: 18, weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
                         
-                        Text(HIVAssessmentData.retestRecommendationText)
+                        Text(HIVAssessmentData.localizedRetestRecommendationText)
                             .font(.system(size: 15, weight: .regular, design: .rounded))
                             .foregroundColor(AppColors.textSecondary)
                             .lineSpacing(4)
@@ -503,7 +503,7 @@ struct ResultPageView: View {
                                         .font(.system(size: 24, weight: .bold, design: .rounded))
                                         .foregroundColor(AppColors.primaryRed)
                                     
-                                    Text("days")
+                                    Text(hivText(.days))
                                         .font(.system(size: 12, weight: .medium, design: .rounded))
                                         .foregroundColor(AppColors.textSecondary)
                                 }
@@ -516,7 +516,7 @@ struct ResultPageView: View {
                             }
                         }
                         
-                        Text("Repeat testing improves accuracy.")
+                        Text(hivText(.repeatTestingImprovesAccuracy))
                             .font(.system(size: 13, weight: .medium, design: .rounded))
                             .foregroundColor(AppColors.textSecondary)
                             .italic()
@@ -532,7 +532,7 @@ struct ResultPageView: View {
                 
                 // CTA Buttons
                 VStack(spacing: 12) {
-                    ForEach(result.riskLevel.ctaButtons, id: \.title) { button in
+                    ForEach(result.riskLevel.localizedCTAButtons, id: \.title) { button in
                         Button(action: {
                             HapticManager.shared.mediumImpact()
                             showingHIVOverview = true
@@ -557,7 +557,7 @@ struct ResultPageView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "arrow.clockwise")
                                 .font(.system(size: 16, weight: .semibold))
-                            Text("Retake Assessment")
+                            Text(hivText(.retakeAssessment))
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                         }
                         .foregroundColor(AppColors.textSecondary)
@@ -576,11 +576,11 @@ struct ResultPageView: View {
                     Divider()
                         .padding(.horizontal, 20)
                     
-                    Text("Compliance Disclaimer")
+                    Text(hivText(.complianceDisclaimer))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(AppColors.textPrimary)
                     
-                    Text(HIVAssessmentData.disclaimerText)
+                    Text(HIVAssessmentData.localizedDisclaimerText)
                         .font(.system(size: 12, weight: .regular, design: .rounded))
                         .foregroundColor(AppColors.textSecondary)
                         .multilineTextAlignment(.center)

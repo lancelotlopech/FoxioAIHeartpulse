@@ -20,8 +20,20 @@ class DebugSettings: ObservableObject {
         case mockPro = "Pro"
     }
     
+    enum ModuleLanguageOverride: String, CaseIterable {
+        case auto = "Auto"
+        case english = "English"
+        case chinese = "Chinese"
+    }
+    
     @Published var premiumOverride: PremiumOverride = .realStatus
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding = false
+    @AppStorage("moduleLanguageOverride") var moduleLanguageOverrideRaw: String = ModuleLanguageOverride.auto.rawValue
+    
+    var moduleLanguageOverride: ModuleLanguageOverride {
+        get { ModuleLanguageOverride(rawValue: moduleLanguageOverrideRaw) ?? .auto }
+        set { moduleLanguageOverrideRaw = newValue.rawValue }
+    }
     
     private init() {}
     
@@ -121,13 +133,16 @@ class SubscriptionManager: ObservableObject {
         PaywallConfiguration.weeklyProductID,
         PaywallConfiguration.yearlyProductID
     ]
+    private let billingIdentityManager = BillingIdentityManager.shared
     
     // MARK: - Initialization
     private init() {
         updateListenerTask = listenForTransactions()
         Task {
+            await billingIdentityManager.configureOnLaunch()
             await loadProducts()
             await updatePurchasedProducts()
+            await syncCurrentEntitlementsForBilling(source: "app_launch", requestBackfill: true)
         }
     }
     
@@ -159,16 +174,17 @@ class SubscriptionManager: ObservableObject {
         defer { isLoading = false }
         
         do {
-            let result = try await product.purchase()
+            let result = try await product.purchase(options: [.appAccountToken(billingIdentityManager.appAccountToken)])
             
             switch result {
             case .success(let verification):
                 let transaction = try checkVerified(verification)
                 await updatePurchasedProducts()
-                await transaction.finish()
                 
                 // Track AppsFlyer events
                 await trackAppsFlyerPurchase(product: product, transaction: transaction)
+                await reportBillingIdentity(for: transaction, source: "purchase_success", isRestore: false, requestBackfill: true)
+                await transaction.finish()
                 
                 return true
                 
@@ -196,6 +212,7 @@ class SubscriptionManager: ObservableObject {
         do {
             try await AppStore.sync()
             await updatePurchasedProducts()
+            await syncCurrentEntitlementsForBilling(source: "restore", requestBackfill: true)
         } catch {
             errorMessage = "Failed to restore purchases: \(error.localizedDescription)"
         }
@@ -225,6 +242,7 @@ class SubscriptionManager: ObservableObject {
                 do {
                     let transaction = try await self.checkVerified(result)
                     await self.updatePurchasedProducts()
+                    await self.reportBillingIdentity(for: transaction, source: "transaction_update", isRestore: false, requestBackfill: false)
                     await transaction.finish()
                 } catch {
                     print("Transaction failed verification: \(error)")
@@ -268,6 +286,48 @@ class SubscriptionManager: ObservableObject {
         )
         
         print("📊 SubscriptionManager: Tracked purchase - actualPrice: \(actualPrice) \(currency), isFreeTrial: \(isFreeTrial)")
+    }
+
+    // MARK: - Billing Identity Tracking (Firebase)
+
+    private func reportBillingIdentity(
+        for transaction: StoreKit.Transaction,
+        source: String,
+        isRestore: Bool,
+        requestBackfill: Bool
+    ) async {
+        let originalTransactionId = String(transaction.originalID)
+        let transactionId = String(transaction.id)
+
+        await billingIdentityManager.linkSubscriptionIdentity(
+            originalTransactionId: originalTransactionId,
+            transactionId: transactionId,
+            productId: transaction.productID,
+            purchaseDate: transaction.purchaseDate,
+            amountDecimal: transaction.price,
+            currency: transaction.currency?.identifier,
+            source: source,
+            isRestore: isRestore
+        )
+
+        if requestBackfill {
+            await billingIdentityManager.requestBackfill(
+                originalTransactionIds: [originalTransactionId],
+                source: source
+            )
+        }
+    }
+
+    private func syncCurrentEntitlementsForBilling(source: String, requestBackfill: Bool) async {
+        for await result in Transaction.currentEntitlements {
+            guard case .verified(let transaction) = result else { continue }
+            await reportBillingIdentity(
+                for: transaction,
+                source: source,
+                isRestore: source == "restore",
+                requestBackfill: requestBackfill
+            )
+        }
     }
     
     // MARK: - Format Price

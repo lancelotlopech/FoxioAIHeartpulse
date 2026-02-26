@@ -34,7 +34,7 @@ struct PregnancyEducationView: View {
                     
                     Spacer()
                     
-                    Text("Learn About Pregnancy")
+                    Text(pregnancyRawText("Learn About Pregnancy"))
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(Color(hex: "1a1a1a"))
                     
@@ -79,7 +79,7 @@ struct PregnancyEducationView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 14, weight: .semibold))
-                                Text("Previous")
+                                Text(pregnancyText(.previous))
                                     .font(.system(size: 15, weight: .semibold))
                             }
                             .foregroundColor(primaryColor)
@@ -101,7 +101,7 @@ struct PregnancyEducationView: View {
                         }
                     } label: {
                         HStack(spacing: 6) {
-                            Text(currentPage < sections.count - 1 ? "Next" : "Done")
+                            Text(currentPage < sections.count - 1 ? pregnancyText(.next) : pregnancyText(.done))
                                 .font(.system(size: 15, weight: .bold))
                             if currentPage < sections.count - 1 {
                                 Image(systemName: "chevron.right")
@@ -172,7 +172,7 @@ struct EducationPageContent: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(primaryColor)
                     
-                    Text("STEP \(section.id)")
+                    Text("\(pregnancyRawText("STEP")) \(section.id)")
                         .font(.system(size: 12, weight: .bold))
                         .foregroundColor(primaryColor)
                         .tracking(1.2)
@@ -180,14 +180,14 @@ struct EducationPageContent: View {
                 .padding(.top, 28)
                 
                 // Title
-                Text(section.title)
+                Text(pregnancyRawText(section.title))
                     .font(.system(size: 26, weight: .bold))
                     .foregroundColor(Color(hex: "1a1a1a"))
                     .lineSpacing(4)
                     .padding(.top, 12)
                 
                 // Description
-                Text(section.description)
+                Text(pregnancyRawText(section.description))
                     .font(.system(size: 15))
                     .foregroundColor(Color(hex: "777777"))
                     .lineSpacing(6)
@@ -232,11 +232,11 @@ struct EducationKeyPointRow: View {
                     .padding(.top, 2)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(point.title)
+                    Text(pregnancyRawText(point.title))
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(Color(hex: "1a1a1a"))
                     
-                    Text(point.description)
+                    Text(pregnancyRawText(point.description))
                         .font(.system(size: 14))
                         .foregroundColor(Color(hex: "888888"))
                         .lineSpacing(3)

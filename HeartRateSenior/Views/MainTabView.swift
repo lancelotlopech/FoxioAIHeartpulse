@@ -2,8 +2,8 @@
 //  MainTabView.swift
 //  HeartRateSenior
 //
-//  Custom tab bar with large touch targets for seniors
-//  Structure: Home (Dashboard) | ❤️ Measure | Settings
+//  Custom tab bar with 5 tabs
+//  Structure: Home | Check | ❤️ Measure | History | Settings
 //
 
 import SwiftUI
@@ -11,15 +11,17 @@ import SwiftUI
 // MARK: - Tab Item Enum
 enum TabItem: Int, CaseIterable {
     case home = 0
-    case history = 1
+    case check = 1
     case measure = 2
-    case settings = 3
+    case history = 3
+    case settings = 4
     
     var title: String {
         switch self {
         case .home: return "Home"
+        case .check: return "Check"
+        case .measure: return "Measure"
         case .history: return "History"
-        case .measure: return "Check"
         case .settings: return "Settings"
         }
     }
@@ -27,9 +29,18 @@ enum TabItem: Int, CaseIterable {
     var icon: String {
         switch self {
         case .home: return "house.fill"
-        case .history: return "clock.arrow.circlepath"
+        case .check: return "stethoscope"
         case .measure: return "heart.fill"
+        case .history: return "clock.arrow.circlepath"
         case .settings: return "gearshape.fill"
+        }
+    }
+    
+    /// Premium locked tabs
+    var isPremiumOnly: Bool {
+        switch self {
+        case .check, .history: return true
+        default: return false
         }
     }
 }
@@ -37,65 +48,56 @@ enum TabItem: Int, CaseIterable {
 // MARK: - Main Tab View
 struct MainTabView: View {
     @State private var selectedTab: TabItem = .home
-    @State private var showingMeasureFullScreen = false  // 全屏测量页面
+    @State private var showingMeasureFullScreen = false
     @State private var showingSubscription = false
-    @State private var previousTab: TabItem = .home  // 记录之前的 Tab
-    @State private var lastActiveTime: Date = Date()  // 记录最后活跃时间
-    @State private var isReturningFromBackground = false  // 是否从后台返回
+    @State private var lastActiveTime: Date = Date()
+    @State private var isReturningFromBackground = false
     @StateObject private var subscriptionManager = SubscriptionManager.shared
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var settingsManager: SettingsManager
     
     var body: some View {
         GeometryReader { geometry in
+            let bottomInset = geometry.safeAreaInsets.bottom
+            
             ZStack(alignment: .bottom) {
-                // Content
+                // Content area
                 Group {
                     switch selectedTab {
                     case .home:
                         DashboardView()
-                    case .history:
-                        HistoryView()
+                    case .check:
+                        SelfCheckTabView()
                     case .measure:
-                        // 非自动启动模式下显示 HomeView（手动点击 Tab）
-                        // 注意：当 fullScreenCover 显示时，这个 View 仍然存在
-                        // 但不会干扰测量，因为 autoStart=false
                         if !showingMeasureFullScreen {
-                            HomeView(
-                                autoStart: false,
-                                onDismiss: nil
-                            )
+                            HomeView(autoStart: false, onDismiss: nil)
                         } else {
-                            // 全屏测量时显示占位视图，避免两个 HomeView 同时存在
                             Color.white
                         }
-                        
+                    case .history:
+                        HistoryView()
                     case .settings:
                         SettingsView()
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.bottom, 13) // Space for tab bar
+                .padding(.bottom, 1 + bottomInset)
                 
-                // Custom Tab Bar - Fixed at bottom
+                // Tab Bar
                 VStack(spacing: 0) {
                     Spacer()
                     CustomTabBar(
                         selectedTab: $selectedTab,
                         isPremium: subscriptionManager.isPremium,
-                        onMeasureTapped: {
-                            startMeasurement()
-                        },
-                        onLockedTabTapped: {
-                            showingSubscription = true
-                        }
+                        bottomInset: bottomInset,
+                        onMeasureTapped: { startMeasurement() },
+                        onLockedTabTapped: { showingSubscription = true }
                     )
                 }
                 .ignoresSafeArea(.keyboard)
-                .ignoresSafeArea(edges: .bottom) // 让 Tab Bar 延伸到屏幕底部
+                .ignoresSafeArea(edges: .bottom)
                 
-                // 订阅页 - 在最顶层，覆盖 Tab 栏
-                // 使用背景色填充安全区域，SubscriptionView 自己处理内部布局
+                // Subscription overlay
                 if showingSubscription {
                     Color(hex: "EFF0F3")
                         .ignoresSafeArea()
@@ -106,56 +108,35 @@ struct MainTabView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
-        // 全屏测量页面（沉浸式，隐藏 Tab Bar）
         .fullScreenCover(isPresented: $showingMeasureFullScreen) {
             HomeView(
                 autoStart: true,
-                onDismiss: {
-                    showingMeasureFullScreen = false
-                }
+                onDismiss: { showingMeasureFullScreen = false }
             )
             .environmentObject(settingsManager)
         }
-        // 监听应用状态变化
         .onChange(of: scenePhase) { oldPhase, newPhase in
             switch newPhase {
             case .active:
-                // 从后台返回前台
-                let timeSinceLastActive = Date().timeIntervalSince(lastActiveTime)
-                if timeSinceLastActive > 1.0 {
-                    // 超过 1 秒，标记为从后台返回
+                let elapsed = Date().timeIntervalSince(lastActiveTime)
+                if elapsed > 1.0 {
                     isReturningFromBackground = true
-                    print("📱 App returned from background after \(timeSinceLastActive)s")
-                    
-                    // 1 秒后重置标记
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         isReturningFromBackground = false
                     }
                 }
                 lastActiveTime = Date()
-                
             case .inactive, .background:
                 lastActiveTime = Date()
-                
-            @unknown default:
-                break
+            @unknown default: break
             }
         }
-        // Listen for navigation requests from Dashboard
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("NavigateToMeasure"))) { _ in
-            // 如果是从后台返回，忽略此通知
-            guard !isReturningFromBackground else {
-                print("📱 Ignoring NavigateToMeasure - returning from background")
-                return
-            }
+            guard !isReturningFromBackground else { return }
             startMeasurement()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("SwitchToMeasureTab"))) { _ in
-            // 如果是从后台返回，忽略此通知
-            guard !isReturningFromBackground else {
-                print("📱 Ignoring SwitchToMeasureTab - returning from background")
-                return
-            }
+            guard !isReturningFromBackground else { return }
             startMeasurement()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowSubscription"))) { _ in
@@ -164,73 +145,55 @@ struct MainTabView: View {
     }
     
     private func startMeasurement() {
-        // 防抖：如果已经在显示测量页面，不重复触发
-        guard !showingMeasureFullScreen else {
-            print("📱 Measurement already showing, ignoring")
-            return
-        }
-        
+        guard !showingMeasureFullScreen else { return }
         HapticManager.shared.mediumImpact()
         showingMeasureFullScreen = true
     }
 }
 
-// MARK: - Custom Tab Bar
+// MARK: - Custom Tab Bar (5 tabs)
 struct CustomTabBar: View {
     @Binding var selectedTab: TabItem
-    var isPremium: Bool = true
+    var isPremium: Bool
+    var bottomInset: CGFloat
     var onMeasureTapped: () -> Void
-    var onLockedTabTapped: (() -> Void)? = nil
+    var onLockedTabTapped: () -> Void
     
     var body: some View {
         HStack(spacing: 0) {
-            // Home Tab
-            TabBarButton(
-                tab: .home,
-                isSelected: selectedTab == .home,
-                action: { 
-                    HapticManager.shared.selectionChanged()
-                    selectedTab = .home 
-                }
-            )
+            // Home
+            TabBarButton(tab: .home, isSelected: selectedTab == .home) {
+                HapticManager.shared.selectionChanged()
+                selectedTab = .home
+            }
             
-            // History Tab (Premium locked)
-            TabBarButton(
-                tab: .history,
-                isSelected: selectedTab == .history,
-                isLocked: !isPremium,
-                action: { 
-                    HapticManager.shared.selectionChanged()
-                    if isPremium {
-                        selectedTab = .history
-                    } else {
-                        onLockedTabTapped?()
-                    }
-                }
-            )
+            // Check (premium)
+            TabBarButton(tab: .check, isSelected: selectedTab == .check, isLocked: !isPremium) {
+                HapticManager.shared.selectionChanged()
+                if isPremium { selectedTab = .check } else { onLockedTabTapped() }
+            }
             
-            // Measure Tab (Center - Larger)
-            CenterMeasureButton(
-                action: onMeasureTapped
-            )
+            // Measure (center)
+            CenterMeasureButton(action: onMeasureTapped)
             
-            // Settings Tab
-            TabBarButton(
-                tab: .settings,
-                isSelected: selectedTab == .settings,
-                action: { 
-                    HapticManager.shared.selectionChanged()
-                    selectedTab = .settings 
-                }
-            )
+            // History (premium)
+            TabBarButton(tab: .history, isSelected: selectedTab == .history, isLocked: !isPremium) {
+                HapticManager.shared.selectionChanged()
+                if isPremium { selectedTab = .history } else { onLockedTabTapped() }
+            }
+            
+            // Settings
+            TabBarButton(tab: .settings, isSelected: selectedTab == .settings) {
+                HapticManager.shared.selectionChanged()
+                selectedTab = .settings
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 2)
-        .padding(.bottom, 5) // 距离屏幕底部 5 像素
+        .padding(.horizontal, 4)
+        .padding(.top, 6)
+        .padding(.bottom, max(bottomInset - 12, 0))
         .background(
-            Rectangle()
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.08), radius: 16, x: 0, y: -4)
+            Color.white
+                .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: -3)
         )
     }
 }
@@ -244,29 +207,29 @@ struct TabBarButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 3) {
+            VStack(spacing: 2) {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: tab.icon)
-                        .font(.system(size: 24, weight: isSelected ? .semibold : .regular))
+                        .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
                         .foregroundColor(isSelected ? AppColors.primaryRed : AppColors.textSecondary)
                     
                     if isLocked {
                         Image(systemName: "lock.fill")
-                            .font(.system(size: 8, weight: .bold))
+                            .font(.system(size: 7, weight: .bold))
                             .foregroundColor(.white)
-                            .padding(3)
+                            .padding(2.5)
                             .background(AppColors.primaryRed)
                             .clipShape(Circle())
-                            .offset(x: 6, y: -4)
+                            .offset(x: 5, y: -3)
                     }
                 }
                 
                 Text(tab.title)
-                    .font(.system(size: 11, weight: isSelected ? .semibold : .medium, design: .rounded))
+                    .font(.system(size: 10, weight: isSelected ? .semibold : .medium, design: .rounded))
                     .foregroundColor(isSelected ? AppColors.primaryRed : AppColors.textSecondary)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 42)
+            .frame(height: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
@@ -280,9 +243,8 @@ struct CenterMeasureButton: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 3) {
+            VStack(spacing: 2) {
                 ZStack {
-                    // Background circle
                     Circle()
                         .fill(
                             LinearGradient(
@@ -291,32 +253,29 @@ struct CenterMeasureButton: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 54, height: 54)
-                        .shadow(color: AppColors.primaryRed.opacity(0.35), radius: 8, x: 0, y: 3)
+                        .frame(width: 48, height: 48)
+                        .shadow(color: AppColors.primaryRed.opacity(0.3), radius: 6, x: 0, y: 2)
                         .scaleEffect(scale)
                     
-                    // Heart icon
                     Image(systemName: "heart.fill")
-                        .font(.system(size: 26, weight: .semibold))
+                        .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(.white)
                         .scaleEffect(scale)
                 }
-                .offset(y: -18)
+                .offset(y: -10)
                 
                 Text("Measure")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .font(.system(size: 10, weight: .semibold, design: .rounded))
                     .foregroundColor(AppColors.primaryRed)
+                    .offset(y: -8)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 42)
+            .frame(height: 44)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
         .onAppear {
-            withAnimation(
-                .easeInOut(duration: 1.2)
-                .repeatForever(autoreverses: true)
-            ) {
+            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
                 scale = 1.08
             }
         }

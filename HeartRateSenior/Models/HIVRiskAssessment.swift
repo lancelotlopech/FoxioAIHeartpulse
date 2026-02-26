@@ -35,6 +35,10 @@ enum ExposureTimeframe: String, CaseIterable {
         case .notSure: return [14, 28, 90]
         }
     }
+
+    var localizedText: String {
+        hivRawText(rawValue)
+    }
 }
 
 // MARK: - Assessment Option (问题选项)
@@ -309,4 +313,58 @@ Please consult a healthcare professional for medical advice.
     static let retestRecommendationText = """
 Because HIV tests may not detect infection immediately after exposure, you may consider testing again in:
 """
+
+    static var localizedQuestions: [AssessmentQuestion] {
+        questions.map { $0.localized() }
+    }
+
+    static var localizedIntroText: String {
+        hivRawText(introText)
+    }
+
+    static var localizedDisclaimerText: String {
+        hivRawText(disclaimerText)
+    }
+
+    static var localizedRetestRecommendationText: String {
+        hivRawText(retestRecommendationText)
+    }
+}
+
+// MARK: - Localization Helpers
+extension AssessmentOption {
+    func localized() -> AssessmentOption {
+        AssessmentOption(text: hivRawText(text), score: score, explanation: explanation.map { hivRawText($0) })
+    }
+}
+
+extension AssessmentQuestion {
+    func localized() -> AssessmentQuestion {
+        AssessmentQuestion(
+            id: id,
+            section: hivRawText(section),
+            title: hivRawText(title),
+            options: options.map { $0.localized() },
+            type: type,
+            note: note.map { hivRawText($0) }
+        )
+    }
+}
+
+extension RiskLevel {
+    var localizedTitle: String {
+        hivRawText(title)
+    }
+
+    var localizedDescription: String {
+        hivRawText(description)
+    }
+
+    var localizedRecommendations: [String] {
+        recommendations.map { hivRawText($0) }
+    }
+
+    var localizedCTAButtons: [(title: String, icon: String)] {
+        ctaButtons.map { (hivRawText($0.title), $0.icon) }
+    }
 }

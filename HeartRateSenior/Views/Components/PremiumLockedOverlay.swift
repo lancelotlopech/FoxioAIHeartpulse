@@ -18,39 +18,55 @@ struct PremiumLockedOverlay: View {
             let width = geometry.size.width
             
             ZStack {
-                // 上部完整锁定视图
-                FullLockView(
-                    title: title,
-                    subtitle: subtitle,
-                    onUnlock: triggerSubscription,
-                    isCompact: true
-                )
-                .position(x: width / 2, y: height * 0.18)
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        triggerSubscription()
+                    }
                 
-                // 中部完整锁定视图（主）
-                FullLockView(
-                    title: title,
-                    subtitle: subtitle,
-                    onUnlock: triggerSubscription,
-                    isCompact: false
-                )
-                .position(x: width / 2, y: height * 0.5)
-                
-                // 下部完整锁定视图
-                FullLockView(
-                    title: title,
-                    subtitle: subtitle,
-                    onUnlock: triggerSubscription,
-                    isCompact: true
-                )
-                .position(x: width / 2, y: height * 0.82)}
+                if height < 280 {
+                    FullLockView(
+                        title: title,
+                        subtitle: subtitle,
+                        onUnlock: triggerSubscription,
+                        isCompact: false
+                    )
+                    .position(x: width / 2, y: height * 0.5)
+                } else {
+                    // 上部完整锁定视图
+                    FullLockView(
+                        title: title,
+                        subtitle: subtitle,
+                        onUnlock: triggerSubscription,
+                        isCompact: true
+                    )
+                    .position(x: width / 2, y: height * 0.18)
+                    
+                    // 中部完整锁定视图（主）
+                    FullLockView(
+                        title: title,
+                        subtitle: subtitle,
+                        onUnlock: triggerSubscription,
+                        isCompact: false
+                    )
+                    .position(x: width / 2, y: height * 0.5)
+                    
+                    // 下部完整锁定视图
+                    FullLockView(
+                        title: title,
+                        subtitle: subtitle,
+                        onUnlock: triggerSubscription,
+                        isCompact: true
+                    )
+                    .position(x: width / 2, y: height * 0.82)
+                }
+            }
         }
     }
     
     private func triggerSubscription() {
         HapticManager.shared.mediumImpact()
-        // 通过 NotificationCenter 触发订阅页，使其在MainTabView 中以覆盖层方式显示
-        NotificationCenter.default.post(name: NSNotification.Name("ShowSubscription"), object: nil)
+        showSubscription = true
     }
 }
 
@@ -161,10 +177,19 @@ extension View {
 struct PremiumSectionContainer<Content: View>: View {
     @ObservedObject var subscriptionManager = SubscriptionManager.shared
     @Binding var showSubscription: Bool
+    let title: String
+    let subtitle: String
     let content: Content
     
-    init(showSubscription: Binding<Bool>, @ViewBuilder content: () -> Content) {
+    init(
+        showSubscription: Binding<Bool>,
+        title: String = "Unlock Full Report",
+        subtitle: String = "Access detailed metrics, trends, and personalized insights",
+        @ViewBuilder content: () -> Content
+    ) {
         self._showSubscription = showSubscription
+        self.title = title
+        self.subtitle = subtitle
         self.content = content()
     }
     
@@ -191,8 +216,8 @@ struct PremiumSectionContainer<Content: View>: View {
                 // Lock overlay with three full views
                 PremiumLockedOverlay(
                     showSubscription: $showSubscription,
-                    title: "Unlock Full Report",
-                    subtitle: "Access detailed metrics, trends, and personalized insights"
+                    title: title,
+                    subtitle: subtitle
                 )
             }
         }

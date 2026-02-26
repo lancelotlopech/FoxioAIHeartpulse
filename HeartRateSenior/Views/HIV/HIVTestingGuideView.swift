@@ -12,15 +12,15 @@ struct HIVTestingGuideView: View {
     @State private var showingMethodDetail: HIVTestingMethod?
     
     private var testingSection: HIVSection? {
-        HIVEducationData.sections.first { $0.id == 4 }
+        HIVEducationData.localizedSections.first { $0.id == 4 }
     }
     
     private var methodsSection: HIVSection? {
-        HIVEducationData.sections.first { $0.id == 7 }
+        HIVEducationData.localizedSections.first { $0.id == 7 }
     }
     
     private var expectationsSection: HIVSection? {
-        HIVEducationData.sections.first { $0.id == 8 }
+        HIVEducationData.localizedSections.first { $0.id == 8 }
     }
     
     var body: some View {
@@ -66,11 +66,11 @@ struct HIVTestingGuideView: View {
                     .foregroundColor(AppColors.primaryRed)
             }
             
-            Text("Testing Guide")
+            Text(hivRawText("Testing Guide"))
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
             
-            Text("Methods, process & what to expect")
+            Text(hivRawText("Methods, process & what to expect"))
                 .font(.system(size: 15, weight: .regular, design: .rounded))
                 .foregroundColor(.gray)
         }

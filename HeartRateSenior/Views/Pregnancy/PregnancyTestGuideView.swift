@@ -34,7 +34,7 @@ struct PregnancyTestGuideView: View {
                     
                     Spacer()
                     
-                    Text("How to Use a Test")
+                    Text(pregnancyRawText("How to Use a Test"))
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(Color(hex: "1a1a1a"))
                     
@@ -71,7 +71,7 @@ struct PregnancyTestGuideView: View {
                             HapticManager.shared.lightImpact()
                             withAnimation { currentPage -= 1 }
                         } label: {
-                            Text("Back")
+                            Text(pregnancyText(.back))
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(Color(hex: "1a1a1a"))
                                 .frame(maxWidth: .infinity)
@@ -91,7 +91,7 @@ struct PregnancyTestGuideView: View {
                             dismiss()
                         }
                     } label: {
-                        Text(currentPage < pages.count - 1 ? "Next" : "Done")
+                        Text(currentPage < pages.count - 1 ? pregnancyText(.next) : pregnancyText(.done))
                             .font(.system(size: 15, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -160,20 +160,20 @@ private struct GuideMinimalPageView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
                 // Step label
-                Text("STEP \(page.stepNumber)")
+                Text("\(pregnancyRawText("STEP")) \(page.stepNumber)")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(primaryColor)
                     .tracking(1)
                     .padding(.top, 28)
                 
                 // Title
-                Text(page.title)
+                Text(pregnancyRawText(page.title))
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(Color(hex: "1a1a1a"))
                     .padding(.top, 8)
                 
                 // Description
-                Text(page.description)
+                Text(pregnancyRawText(page.description))
                     .font(.system(size: 14))
                     .foregroundColor(Color(hex: "999999"))
                     .lineSpacing(4)
@@ -191,7 +191,7 @@ private struct GuideMinimalPageView: View {
                                     Circle().fill(primaryColor.opacity(0.1))
                                 )
                             
-                            Text(detail)
+                            Text(pregnancyRawText(detail))
                                 .font(.system(size: 14))
                                 .foregroundColor(Color(hex: "555555"))
                                 .lineSpacing(3)
@@ -204,7 +204,7 @@ private struct GuideMinimalPageView: View {
                 // Tips card (gray background)
                 if !page.tips.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Tips")
+                        Text(pregnancyText(.tips))
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(Color(hex: "1a1a1a"))
                         
@@ -214,7 +214,7 @@ private struct GuideMinimalPageView: View {
                                     .font(.system(size: 14))
                                     .foregroundColor(Color(hex: "999999"))
                                 
-                                Text(tip)
+                                Text(pregnancyRawText(tip))
                                     .font(.system(size: 13))
                                     .foregroundColor(Color(hex: "777777"))
                                     .fixedSize(horizontal: false, vertical: true)

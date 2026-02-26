@@ -19,7 +19,7 @@ struct HIVTransmissionView: View {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(.orange)
                         .font(.system(size: 16))
-                    Text("Can be transmitted:")
+                    Text(hivRawText("Can be transmitted:"))
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                 }
@@ -52,7 +52,7 @@ struct HIVTransmissionView: View {
                     Image(systemName: "checkmark.shield.fill")
                         .foregroundColor(.green)
                         .font(.system(size: 16))
-                    Text("NOT transmitted:")
+                    Text(hivRawText("NOT transmitted:"))
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                 }
@@ -144,7 +144,7 @@ struct HIVTestingInfoView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Tests detect:")
+            Text(hivRawText("Tests detect:"))
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
             

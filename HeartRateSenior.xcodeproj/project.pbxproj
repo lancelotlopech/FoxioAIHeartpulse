@@ -63,6 +63,10 @@
 		1AD9B8FC2F0CEB79002E8F4F /* AppsFlyerLib in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD9B8FB2F0CEB79002E8F4F /* AppsFlyerLib */; };
 		1AD9B8FF2F0D17EB002E8F4F /* pulsemeasure.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 1AD9B8FD2F0D17EB002E8F4F /* pulsemeasure.mp4 */; };
 		1AD9B90B2F0D4E57002E8F4F /* heartbeat.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 1AD9B90A2F0D4E57002E8F4F /* heartbeat.mp4 */; };
+		1AF100012F50000100AA0001 /* BillingIdentityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF100052F50000100AA0001 /* BillingIdentityManager.swift */; };
+		1AF100032F50000100AA0001 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 1AF100082F50000100AA0001 /* FirebaseAuth */; };
+		1AF100042F50000100AA0001 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 1AF100092F50000100AA0001 /* FirebaseFunctions */; };
+		1AF1000A2F50000100AA0001 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1AF1000B2F50000100AA0001 /* GoogleService-Info.plist */; };
 		A10000010000000000000001 /* HeartRateSeniorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000001 /* HeartRateSeniorApp.swift */; };
 		A10000010000000000000002 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000002 /* DesignSystem.swift */; };
 		A10000010000000000000003 /* HeartRateRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000003 /* HeartRateRecord.swift */; };
@@ -73,6 +77,7 @@
 		A10000010000000000000008 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000008 /* HealthKitManager.swift */; };
 		A10000010000000000000009 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000009 /* SettingsManager.swift */; };
 		A10000010000000000000010 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000010 /* MainTabView.swift */; };
+		B10000010000000000000099 /* SelfCheckTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000010000000000000099 /* SelfCheckTabView.swift */; };
 		A10000010000000000000011 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000011 /* OnboardingContainerView.swift */; };
 		A10000010000000000000012 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000012 /* WelcomeView.swift */; };
 		A10000010000000000000013 /* PrivacyPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000013 /* PrivacyPermissionView.swift */; };
@@ -118,6 +123,11 @@
 		A10000010000000000000066 /* UIComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000066 /* UIComponents.swift */; };
 		A10000010000000000000067 /* HealthRecordHistoryComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000067 /* HealthRecordHistoryComponents.swift */; };
 		A10000010000000000000068 /* PremiumLockedOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000068 /* PremiumLockedOverlay.swift */; };
+		A10000010000000000000070 /* CycleProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000070 /* CycleProfile.swift */; };
+		A10000010000000000000071 /* PregnancyAssessmentRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000071 /* PregnancyAssessmentRecord.swift */; };
+		A10000010000000000000072 /* PregnancyAssessmentHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000072 /* PregnancyAssessmentHistoryView.swift */; };
+		A10000010000000000000073 /* PregnancyLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000073 /* PregnancyLocalization.swift */; };
+		A10000010000000000000074 /* HIVLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000074 /* HIVLocalization.swift */; };
 		A10000010000000000000088 /* SpeechManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000088 /* SpeechManager.swift */; };
 		A10000010000000000000089 /* DisclaimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000089 /* DisclaimerView.swift */; };
 		A10000010000000000000090 /* DisclaimerOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000010000000000000090 /* DisclaimerOnboardingView.swift */; };
@@ -198,6 +208,8 @@
 		1AD9B8D62F09340B002E8F4F /* AppsFlyerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsFlyerManager.swift; sourceTree = "<group>"; };
 		1AD9B8FD2F0D17EB002E8F4F /* pulsemeasure.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = pulsemeasure.mp4; sourceTree = "<group>"; };
 		1AD9B90A2F0D4E57002E8F4F /* heartbeat.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = heartbeat.mp4; sourceTree = "<group>"; };
+		1AF100052F50000100AA0001 /* BillingIdentityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingIdentityManager.swift; sourceTree = "<group>"; };
+		1AF1000B2F50000100AA0001 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A20000010000000000000001 /* HeartRateSeniorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateSeniorApp.swift; sourceTree = "<group>"; };
 		A20000010000000000000002 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		A20000010000000000000003 /* HeartRateRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateRecord.swift; sourceTree = "<group>"; };
@@ -208,6 +220,7 @@
 		A20000010000000000000008 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		A20000010000000000000009 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		A20000010000000000000010 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		B20000010000000000000099 /* SelfCheckTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfCheckTabView.swift; sourceTree = "<group>"; };
 		A20000010000000000000011 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
 		A20000010000000000000012 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		A20000010000000000000013 /* PrivacyPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPermissionView.swift; sourceTree = "<group>"; };
@@ -233,10 +246,15 @@
 		A20000010000000000000035 /* BloodGlucoseHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BloodGlucoseHistoryView.swift; sourceTree = "<group>"; };
 		A20000010000000000000040 /* Reminder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reminder.swift; sourceTree = "<group>"; };
 		A20000010000000000000041 /* EmergencyContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContact.swift; sourceTree = "<group>"; };
+		A20000010000000000000070 /* CycleProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleProfile.swift; sourceTree = "<group>"; };
+		A20000010000000000000071 /* PregnancyAssessmentRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyAssessmentRecord.swift; sourceTree = "<group>"; };
 		A20000010000000000000042 /* ReminderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderManager.swift; sourceTree = "<group>"; };
 		A20000010000000000000043 /* CloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncManager.swift; sourceTree = "<group>"; };
 		A20000010000000000000044 /* RemindersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersView.swift; sourceTree = "<group>"; };
 		A20000010000000000000045 /* AddReminderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReminderView.swift; sourceTree = "<group>"; };
+		A20000010000000000000072 /* PregnancyAssessmentHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyAssessmentHistoryView.swift; sourceTree = "<group>"; };
+		A20000010000000000000073 /* PregnancyLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PregnancyLocalization.swift; sourceTree = "<group>"; };
+		A20000010000000000000074 /* HIVLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HIVLocalization.swift; sourceTree = "<group>"; };
 		A20000010000000000000046 /* EmergencyContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactsView.swift; sourceTree = "<group>"; };
 		A20000010000000000000047 /* HealthReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthReportView.swift; sourceTree = "<group>"; };
 		A20000010000000000000048 /* BloodPressureChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BloodPressureChartView.swift; sourceTree = "<group>"; };
@@ -291,6 +309,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AF100042F50000100AA0001 /* FirebaseFunctions in Frameworks */,
+				1AF100032F50000100AA0001 /* FirebaseAuth in Frameworks */,
 				1AD1862D2F3B859C006B4E90 /* FacebookAEM in Frameworks */,
 				1AD1862F2F3B859C006B4E90 /* FacebookCore in Frameworks */,
 				1AD186292F3B84D0006B4E90 /* FacebookAEM in Frameworks */,
@@ -346,6 +366,7 @@
 				1AD1863A2F3CDB09006B4E90 /* PregnancyCenterView.swift */,
 				1AD1863B2F3CDB09006B4E90 /* PregnancyEducationView.swift */,
 				1AD1863C2F3CDB09006B4E90 /* PregnancyProbabilityView.swift */,
+				A20000010000000000000072 /* PregnancyAssessmentHistoryView.swift */,
 				1AD1863D2F3CDB09006B4E90 /* PregnancyReminderCenterView.swift */,
 				1AD1863E2F3CDB09006B4E90 /* PregnancyTestGuideView.swift */,
 				1AD1863F2F3CDB09006B4E90 /* PregnancyTestTimingView.swift */,
@@ -390,6 +411,7 @@
 				1AD9B8FE2F0D17EB002E8F4F /* Resources */,
 				A20000010000000000000001 /* HeartRateSeniorApp.swift */,
 				A20000010000000000000024 /* Info.plist */,
+				1AF1000B2F50000100AA0001 /* GoogleService-Info.plist */,
 				A20000010000000000000025 /* HeartRateSenior.entitlements */,
 				A20000010000000000000023 /* Assets.xcassets */,
 				A50000010000000000000025 /* Managers */,
@@ -426,6 +448,8 @@
 				A20000010000000000000061 /* OxygenRecord.swift */,
 				A20000010000000000000040 /* Reminder.swift */,
 				A20000010000000000000041 /* EmergencyContact.swift */,
+				A20000010000000000000070 /* CycleProfile.swift */,
+				A20000010000000000000071 /* PregnancyAssessmentRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -450,6 +474,7 @@
 				1A3A8AB82F337202007454E0 /* Articles */,
 				1A3A8AAC2F336FE7007454E0 /* Articles */,
 				A20000010000000000000010 /* MainTabView.swift */,
+				B20000010000000000000099 /* SelfCheckTabView.swift */,
 				A50000010000000000000008 /* Onboarding */,
 				A50000010000000000000013 /* Dashboard */,
 				A50000010000000000000009 /* Home */,
@@ -477,6 +502,8 @@
 				1AD9B8692F02976A002E8F4F /* WidgetDataManager.swift */,
 				A20000010000000000000002 /* DesignSystem.swift */,
 				A20000010000000000000005 /* HapticManager.swift */,
+				A20000010000000000000073 /* PregnancyLocalization.swift */,
+				A20000010000000000000074 /* HIVLocalization.swift */,
 				A20000010000000000000088 /* SpeechManager.swift */,
 				A20000010000000000000006 /* SignalProcessor.swift */,
 				A20000010000000000000022 /* PDFExporter.swift */,
@@ -642,6 +669,7 @@
 		A50000010000000000000025 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				1AF100052F50000100AA0001 /* BillingIdentityManager.swift */,
 				1AD1864D2F3CDB30006B4E90 /* EventTrackingManager.swift */,
 				1AD186302F3B900F006B4E90 /* FacebookSDKManager.swift */,
 				1AD9B8D62F09340B002E8F4F /* AppsFlyerManager.swift */,
@@ -702,6 +730,15 @@
 				1AD9B8602F0292AD002E8F4F /* PBXTargetDependency */,
 			);
 			name = HeartRateSenior;
+			packageProductDependencies = (
+				1AD186282F3B84D0006B4E90 /* FacebookAEM */,
+				1AD1862A2F3B84D0006B4E90 /* FacebookCore */,
+				1AD1862C2F3B859C006B4E90 /* FacebookAEM */,
+				1AD1862E2F3B859C006B4E90 /* FacebookCore */,
+				1AD9B8FB2F0CEB79002E8F4F /* AppsFlyerLib */,
+				1AF100082F50000100AA0001 /* FirebaseAuth */,
+				1AF100092F50000100AA0001 /* FirebaseFunctions */,
+			);
 			productName = HeartRateSenior;
 			productReference = A30000010000000000000001 /* HeartRateSenior.app */;
 			productType = "com.apple.product-type.application";
@@ -736,6 +773,7 @@
 			packageReferences = (
 				1AD9B8FA2F0CEB79002E8F4F /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */,
 				1AD186272F3B84D0006B4E90 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
+				1AF100062F50000100AA0001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = A50000010000000000000003 /* Products */;
 			projectDirPath = "";
@@ -764,6 +802,7 @@
 				A10000010000000000000023 /* Assets.xcassets in Resources */,
 				1AD1861D2F38D6EF006B4E90 /* onboardingvideo.mp4 in Resources */,
 				1AD9B90B2F0D4E57002E8F4F /* heartbeat.mp4 in Resources */,
+				1AF1000A2F50000100AA0001 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -798,6 +837,7 @@
 				A10000010000000000000008 /* HealthKitManager.swift in Sources */,
 				A10000010000000000000009 /* SettingsManager.swift in Sources */,
 				A10000010000000000000010 /* MainTabView.swift in Sources */,
+				B10000010000000000000099 /* SelfCheckTabView.swift in Sources */,
 				1A3A8AA32F323730007454E0 /* DayDetailView.swift in Sources */,
 				1A3A8AA42F323730007454E0 /* BigMeasureButtonCard.swift in Sources */,
 				1A3A8AA52F323730007454E0 /* DashboardComponents.swift in Sources */,
@@ -819,6 +859,7 @@
 				1AD186462F3CDB09006B4E90 /* PregnancyEducationView.swift in Sources */,
 				1AD186472F3CDB09006B4E90 /* PregnancyTestGuideView.swift in Sources */,
 				1AD186482F3CDB09006B4E90 /* CycleTrackerView.swift in Sources */,
+				A10000010000000000000072 /* PregnancyAssessmentHistoryView.swift in Sources */,
 				A10000010000000000000017 /* PPGWaveformView.swift in Sources */,
 				A10000010000000000000052 /* PulseBarChartView.swift in Sources */,
 				A10000010000000000000018 /* ResultView.swift in Sources */,
@@ -842,6 +883,10 @@
 				A10000010000000000000035 /* BloodGlucoseHistoryView.swift in Sources */,
 				A10000010000000000000040 /* Reminder.swift in Sources */,
 				A10000010000000000000041 /* EmergencyContact.swift in Sources */,
+				A10000010000000000000070 /* CycleProfile.swift in Sources */,
+				A10000010000000000000071 /* PregnancyAssessmentRecord.swift in Sources */,
+				A10000010000000000000073 /* PregnancyLocalization.swift in Sources */,
+				A10000010000000000000074 /* HIVLocalization.swift in Sources */,
 				A10000010000000000000042 /* ReminderManager.swift in Sources */,
 				A10000010000000000000043 /* CloudSyncManager.swift in Sources */,
 				1AD186182F355C48006B4E90 /* TorchManager.swift in Sources */,
@@ -862,6 +907,7 @@
 				A10000010000000000000063 /* OxygenInputView.swift in Sources */,
 				A10000010000000000000064 /* WeightHistoryView.swift in Sources */,
 				1AD186312F3B900F006B4E90 /* FacebookSDKManager.swift in Sources */,
+				1AF100012F50000100AA0001 /* BillingIdentityManager.swift in Sources */,
 				1AD186192F355C4D006B4E90 /* VideoPreloader.swift in Sources */,
 				A10000010000000000000065 /* OxygenHistoryView.swift in Sources */,
 				A10000010000000000000066 /* UIComponents.swift in Sources */,
@@ -1198,6 +1244,14 @@
 				minimumVersion = 6.17.8;
 			};
 		};
+		1AF100062F50000100AA0001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1225,6 +1279,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1AD9B8FA2F0CEB79002E8F4F /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */;
 			productName = AppsFlyerLib;
+		};
+		1AF100082F50000100AA0001 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AF100062F50000100AA0001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		1AF100092F50000100AA0001 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1AF100062F50000100AA0001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -11,7 +11,7 @@ struct HIVOverviewView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingRiskAssessment = false
     
-    let sections = HIVEducationData.sections
+    let sections = HIVEducationData.localizedSections
     
     var body: some View {
         ScrollView {
@@ -22,11 +22,11 @@ struct HIVOverviewView: View {
                         .font(.system(size: 48))
                         .foregroundColor(AppColors.primaryRed)
                     
-                    Text("HIV Awareness")
+                    Text(hivRawText("HIV Awareness"))
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(AppColors.textPrimary)
                     
-                    Text("Learn about prevention & testing")
+                    Text(hivRawText("Learn about prevention & testing"))
                         .font(.system(size: 16, weight: .regular, design: .rounded))
                         .foregroundColor(AppColors.textSecondary)
                 }
@@ -140,7 +140,7 @@ struct HIVSectionCard: View {
             HIVTestExpectationsView(expectations: expectations)
         }
         if isFirst {
-            Text(HIVEducationData.disclaimer)
+            Text(HIVEducationData.localizedDisclaimer)
                 .font(.system(size: 11, design: .rounded))
                 .foregroundColor(.gray)
                 .lineSpacing(2)
@@ -207,12 +207,12 @@ struct HIVWindowPeriodView: View {
     private var windowPeriodTable: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Test Type")
+                Text(hivText(.testType))
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                Text("Detectable After")
+                Text(hivText(.detectableAfter))
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                     .frame(width: 120, alignment: .trailing)
@@ -264,7 +264,7 @@ struct HIVWhenToTestView: View {
                 }
             }
             
-            Text("Regular testing is a responsible step for anyone who is sexually active.")
+            Text(hivRawText("Regular testing is a responsible step for anyone who is sexually active."))
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundColor(AppColors.textPrimary)
                 .padding(.top, 4)
@@ -283,7 +283,7 @@ struct HIVTimingTimelineView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Testing Timeline After Exposure")
+            Text(hivText(.testingTimelineAfterExposure))
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(AppColors.textPrimary)
             
@@ -359,9 +359,9 @@ struct HIVTimingTimelineView: View {
     
     private func statusText(_ status: TimingStatus) -> String {
         switch status {
-        case .tooEarly: return "Too Early"
-        case .earlyTest: return "Early Test"
-        case .reliable: return "Reliable"
+        case .tooEarly: return hivRawText("Too Early")
+        case .earlyTest: return hivRawText("Early Test")
+        case .reliable: return hivRawText("Reliable")
         }
     }
 }
@@ -372,7 +372,7 @@ struct HIVCTASection: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            Text(HIVEducationData.ctaText)
+            Text(HIVEducationData.localizedCtaText)
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundColor(AppColors.textSecondary)
                 .multilineTextAlignment(.center)
@@ -386,7 +386,7 @@ struct HIVCTASection: View {
                     Image(systemName: "checklist.checked")
                         .font(.system(size: 20, weight: .semibold))
                     
-                    Text("Check Your Risk Level")
+                    Text(hivText(.checkYourRiskLevel))
                         .font(.system(size: 18, weight: .bold, design: .rounded))
                 }
                 .foregroundColor(.white)

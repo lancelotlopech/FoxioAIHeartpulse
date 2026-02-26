@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
+import UIKit
 
 struct PregnancyProbabilityView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var currentQuestionIndex = 0
     @State private var selectedAnswers: [Int: [Int]] = [:]
     @State private var showResult = false
+    @State private var computedResult: ProbabilityResult?
     
     private let questions = ProbabilityAssessmentData.questions
     private let primaryColor = Color(red: 0.93, green: 0.17, blue: 0.36)
@@ -27,7 +31,7 @@ struct PregnancyProbabilityView: View {
             
             if showResult {
                 ProbabilityResultView(
-                    result: calculateResult(),
+                    result: computedResult ?? calculateResult(),
                     onDismiss: { dismiss() }
                 )
             } else {
@@ -102,10 +106,13 @@ struct PregnancyProbabilityView: View {
                         if currentQuestionIndex < questions.count - 1 {
                             withAnimation(.easeInOut(duration: 0.25)) { currentQuestionIndex += 1 }
                         } else {
+                            let result = calculateResult()
+                            computedResult = result
+                            persistAssessmentRecord(result)
                             withAnimation(.easeInOut(duration: 0.3)) { showResult = true }
                         }
                     } label: {
-                        Text(currentQuestionIndex < questions.count - 1 ? "Next" : "See Result")
+                        Text(currentQuestionIndex < questions.count - 1 ? pregnancyText(.next) : pregnancyRawText("See Result"))
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -164,6 +171,33 @@ struct PregnancyProbabilityView: View {
         }
         return ProbabilityResult(totalScore: totalScore, timingAnswer: timingAnswer, selectedAnswers: selectedAnswers)
     }
+    
+    private func persistAssessmentRecord(_ result: ProbabilityResult) {
+        struct Snapshot: Encodable {
+            let answers: [String: [Int]]
+        }
+        
+        let answers: [String: [Int]] = result.selectedAnswers.reduce(into: [:]) { partial, pair in
+            partial[String(pair.key)] = pair.value
+        }
+        let snapshotData = (try? JSONEncoder().encode(Snapshot(answers: answers))) ?? Data()
+        
+        let levelRaw: String
+        switch result.probabilityLevel {
+        case .low: levelRaw = "low"
+        case .moderate: levelRaw = "moderate"
+        case .higher: levelRaw = "higher"
+        }
+        
+        let record = PregnancyAssessmentRecord(
+            totalScore: result.totalScore,
+            probabilityLevelRaw: levelRaw,
+            timingAnswerRaw: result.timingAnswer?.rawValue,
+            suggestedRetestDate: result.suggestedRetestDate,
+            answersSnapshotJSON: snapshotData
+        )
+        modelContext.insert(record)
+    }
 }
 
 // MARK: - Question Content View
@@ -180,7 +214,7 @@ struct QuestionContentView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 0) {
                 // Section label
-                Text(question.section.uppercased())
+                Text(pregnancyRawText(question.section).uppercased())
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(primaryColor)
                     .tracking(1.2)
@@ -188,7 +222,7 @@ struct QuestionContentView: View {
                     .padding(.horizontal, 20)
                 
                 // Question title
-                Text(question.title)
+                Text(pregnancyRawText(question.title))
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(Color(hex: "1a1a1a"))
                     .lineSpacing(4)
@@ -201,7 +235,7 @@ struct QuestionContentView: View {
                         Image(systemName: "info.circle")
                             .font(.system(size: 14))
                             .foregroundColor(Color(hex: "999999"))
-                        Text(note)
+                        Text(pregnancyRawText(note))
                             .font(.system(size: 13))
                             .foregroundColor(Color(hex: "888888"))
                     }
@@ -219,7 +253,7 @@ struct QuestionContentView: View {
                 VStack(spacing: 10) {
                     ForEach(Array(question.options.enumerated()), id: \.offset) { index, option in
                         OptionButtonView(
-                            text: option.text,
+                            text: pregnancyRawText(option.text),
                             isSelected: selectedIndices.contains(index),
                             isMultipleChoice: isMultipleChoice(question.type),
                             onTap: { onSelect(index) }
@@ -231,7 +265,7 @@ struct QuestionContentView: View {
                 
                 // Multiple choice hint
                 if isMultipleChoice(question.type) {
-                    Text("Select all that apply")
+                    Text(pregnancyRawText("Select all that apply"))
                         .font(.system(size: 13))
                         .foregroundColor(Color(hex: "aaaaaa"))
                         .padding(.top, 8)
@@ -321,10 +355,19 @@ struct ProbabilityResultView: View {
     let result: ProbabilityResult
     let onDismiss: () -> Void
     
+    @Environment(\.modelContext) private var modelContext
+    @Query private var cycleProfiles: [CycleProfile]
+    @ObservedObject private var subscriptionManager = SubscriptionManager.shared
+    @StateObject private var reminderManager = ReminderManager.shared
+    
     @State private var navigateToTiming = false
     @State private var navigateToGuide = false
     @State private var navigateToReminders = false
     @State private var animateIn = false
+    @State private var showingSubscription = false
+    @State private var showingHistory = false
+    @State private var showingPermissionAlert = false
+    @State private var showingReminderCreatedAlert = false
     
     private let primaryColor = Color(red: 0.93, green: 0.17, blue: 0.36)
     
@@ -371,7 +414,7 @@ struct ProbabilityResultView: View {
                 
                 // Score pill
                 HStack(spacing: 6) {
-                    Text("Score")
+                    Text(pregnancyText(.score))
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(Color(hex: "888888"))
                     Text("\(result.totalScore)")
@@ -387,7 +430,7 @@ struct ProbabilityResultView: View {
                 
                 // Recommendations
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("Recommendations")
+                    Text(pregnancyText(.recommendations))
                         .font(.system(size: 17, weight: .bold))
                         .foregroundColor(Color(hex: "1a1a1a"))
                     
@@ -421,7 +464,7 @@ struct ProbabilityResultView: View {
                             Image(systemName: "calendar.badge.clock")
                                 .font(.system(size: 16))
                                 .foregroundColor(primaryColor)
-                            Text("Suggested Retest Date")
+                            Text(pregnancyRawText("Suggested Retest Date"))
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundColor(Color(hex: "1a1a1a"))
                         }
@@ -445,6 +488,23 @@ struct ProbabilityResultView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 16)
                 }
+
+                // Smart Retest Plan (Premium)
+                PremiumSectionContainer(
+                    showSubscription: $showingSubscription,
+                    title: pregnancyRawText("Unlock Smart Retest Plan"),
+                    subtitle: pregnancyRawText("Get a personalized testing window and one-tap reminders")
+                ) {
+                    SmartRetestPlanCard(
+                        primaryColor: primaryColor,
+                        windowStart: smartTestWindowStart,
+                        windowEnd: smartTestWindowEnd,
+                        followUpDate: smartFollowUpDate,
+                        onAddReminder: addRetestReminder
+                    )
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
                 
                 // CTA Buttons
                 VStack(spacing: 10) {
@@ -471,6 +531,27 @@ struct ProbabilityResultView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 24)
+
+                Button {
+                    HapticManager.shared.lightImpact()
+                    showingHistory = true
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text(pregnancyText(.viewHistory))
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .foregroundColor(Color(hex: "666666"))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(hex: "f8f6f6"))
+                    )
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
                 
                 // Disclaimer
                 VStack(alignment: .leading, spacing: 8) {
@@ -478,7 +559,7 @@ struct ProbabilityResultView: View {
                         Image(systemName: "info.circle")
                             .font(.system(size: 13))
                             .foregroundColor(Color(hex: "999999"))
-                        Text("Important")
+                        Text(pregnancyText(.important))
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(Color(hex: "999999"))
                     }
@@ -503,7 +584,7 @@ struct ProbabilityResultView: View {
                     HapticManager.shared.mediumImpact()
                     onDismiss()
                 } label: {
-                    Text("Done")
+                    Text(pregnancyText(.done))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
@@ -532,15 +613,251 @@ struct ProbabilityResultView: View {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 animateIn = true
             }
+            Task { @MainActor in
+                await reminderManager.checkAuthorizationStatus()
+            }
+        }
+        .fullScreenCover(isPresented: $showingSubscription) {
+            SubscriptionView(isPresented: $showingSubscription)
+        }
+        .sheet(isPresented: $showingHistory) {
+            PregnancyAssessmentHistoryView()
+        }
+        .alert(pregnancyText(.enableNotificationsTitle), isPresented: $showingPermissionAlert) {
+            Button(pregnancyText(.openSettings)) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button(pregnancyText(.cancel), role: .cancel) {}
+        } message: {
+            Text(pregnancyText(.enableNotificationsMessage))
+        }
+        .alert(pregnancyText(.reminderCreatedTitle), isPresented: $showingReminderCreatedAlert) {
+            Button(pregnancyText(.ok), role: .cancel) {}
+        } message: {
+            Text(pregnancyText(.reminderCreatedMessage))
         }
     }
     
     private func handleCTAAction(button: CTAButton) {
-        switch button.title {
-        case "When Should I Test": navigateToTiming = true
-        case "Testing Guide": navigateToGuide = true
-        case "Set Reminder": navigateToReminders = true
-        default: break
+        switch button.action {
+        case .timing:
+            navigateToTiming = true
+        case .guide:
+            navigateToGuide = true
+        case .reminder:
+            navigateToReminders = true
+        }
+    }
+    
+    private var activeCycleProfile: CycleProfile? {
+        cycleProfiles.max(by: { $0.updatedAt < $1.updatedAt })
+    }
+    
+    private var nextExpectedPeriodDate: Date? {
+        guard let profile = activeCycleProfile else { return nil }
+        return Calendar.current.date(byAdding: .day, value: profile.cycleLengthDays, to: profile.lastPeriodDate)
+    }
+    
+    private var smartTestWindowStart: Date {
+        let calendar = Calendar.current
+        let today = Date()
+        let base = result.suggestedRetestDate ?? nextExpectedPeriodDate ?? (calendar.date(byAdding: .day, value: 7, to: today) ?? today)
+        if let next = nextExpectedPeriodDate {
+            return max(base, next)
+        }
+        return base
+    }
+    
+    private var smartTestWindowEnd: Date {
+        Calendar.current.date(byAdding: .day, value: 2, to: smartTestWindowStart) ?? smartTestWindowStart
+    }
+    
+    private var smartFollowUpDate: Date {
+        Calendar.current.date(byAdding: .day, value: 3, to: smartTestWindowEnd) ?? smartTestWindowEnd
+    }
+    
+    private func addRetestReminder() {
+        guard subscriptionManager.isPremium else {
+            showingSubscription = true
+            return
+        }
+        
+        let status = reminderManager.authorizationStatus
+        if status == .notDetermined {
+            Task { @MainActor in
+                let granted = await reminderManager.requestAuthorization()
+                if granted {
+                    createRetestReminder()
+                } else {
+                    showingPermissionAlert = true
+                }
+            }
+            return
+        }
+        if status == .denied {
+            showingPermissionAlert = true
+            return
+        }
+        
+        createRetestReminder()
+    }
+    
+    private func createRetestReminder() {
+        let reminderTime = setHourMinute(9, 0, on: smartTestWindowStart)
+        let reminder = Reminder(
+            title: pregnancyRawText("Pregnancy Test (Retest)"),
+            reminderType: .pregnancyTest,
+            time: reminderTime,
+            repeatFrequency: .once,
+            notes: pregnancyRawText("Suggested retest date from Pregnancy self-check.")
+        )
+        modelContext.insert(reminder)
+        Task { @MainActor in
+            await reminderManager.scheduleNotification(for: reminder)
+        }
+        showingReminderCreatedAlert = true
+    }
+    
+    private func setHourMinute(_ hour: Int, _ minute: Int, on date: Date) -> Date {
+        var components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+        components.hour = hour
+        components.minute = minute
+        return Calendar.current.date(from: components) ?? date
+    }
+}
+
+private struct SmartRetestPlanCard: View {
+    let primaryColor: Color
+    let windowStart: Date
+    let windowEnd: Date
+    let followUpDate: Date
+    let onAddReminder: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(primaryColor.opacity(0.12))
+                        .frame(width: 34, height: 34)
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(primaryColor)
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(pregnancyRawText("Smart Retest Plan"))
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Color(hex: "1a1a1a"))
+                    Text(pregnancyRawText("Personalized next steps"))
+                        .font(.system(size: 12))
+                        .foregroundColor(Color(hex: "888888"))
+                }
+                
+                Spacer()
+                
+                Text(pregnancyRawText("PRO"))
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Capsule().fill(primaryColor))
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text(pregnancyRawText("Best testing window"))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Color(hex: "666666"))
+                
+                HStack(spacing: 10) {
+                    SmartPlanDatePill(label: pregnancyRawText("Start"), date: windowStart, color: primaryColor)
+                    SmartPlanDatePill(label: pregnancyRawText("End"), date: windowEnd, color: primaryColor)
+                }
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text(pregnancyRawText("If the result is negative"))
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Color(hex: "666666"))
+                Text(pregnancyFormat(.retestOnDateFormat, followUpDate.formatted(date: .abbreviated, time: .omitted)))
+                    .font(.system(size: 13))
+                    .foregroundColor(Color(hex: "777777"))
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                SmartPlanBullet(text: pregnancyRawText("Use first morning urine when possible."))
+                SmartPlanBullet(text: pregnancyRawText("Follow the test instructions and timing exactly."))
+                SmartPlanBullet(text: pregnancyRawText("This is educational guidance, not a diagnosis."))
+            }
+            .padding(.top, 4)
+            
+            Button(action: onAddReminder) {
+                HStack(spacing: 8) {
+                    Image(systemName: "bell.badge.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                    Text(pregnancyRawText("Add Retest Reminder"))
+                        .font(.system(size: 14, weight: .bold))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(primaryColor)
+                )
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 4)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(Color(hex: "ebebeb"), lineWidth: 1)
+                )
+        )
+    }
+}
+
+private struct SmartPlanDatePill: View {
+    let label: String
+    let date: Date
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label.uppercased())
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(Color(hex: "999999"))
+            Text(date.formatted(date: .abbreviated, time: .omitted))
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(Color(hex: "1a1a1a"))
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(color.opacity(0.08))
+        )
+    }
+}
+
+private struct SmartPlanBullet: View {
+    let text: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Circle()
+                .fill(Color(hex: "dddddd"))
+                .frame(width: 5, height: 5)
+                .padding(.top, 6)
+            Text(text)
+                .font(.system(size: 13))
+                .foregroundColor(Color(hex: "777777"))
         }
     }
 }

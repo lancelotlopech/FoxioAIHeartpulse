@@ -37,7 +37,7 @@ struct HIVTestingMethodDetailView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
-                            Text("Advantages")
+                            Text(hivText(.advantages))
                                 .font(.system(size: 16, weight: .bold, design: .rounded))
                                 .foregroundColor(AppColors.textPrimary)
                         }
@@ -67,7 +67,7 @@ struct HIVTestingMethodDetailView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.circle.fill")
                                 .foregroundColor(.orange)
-                            Text("Considerations")
+                            Text(hivText(.considerations))
                                 .font(.system(size: 16, weight: .bold, design: .rounded))
                                 .foregroundColor(AppColors.textPrimary)
                         }
@@ -94,7 +94,7 @@ struct HIVTestingMethodDetailView: View {
                     
                     // Details
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Process")
+                        Text(hivText(.process))
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(AppColors.textPrimary)
                         

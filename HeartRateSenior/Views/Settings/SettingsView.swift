@@ -420,6 +420,22 @@ struct SettingsView: View {
                 #if DEBUG
                 Section {
                     Picker(selection: Binding(
+                        get: { DebugSettings.shared.moduleLanguageOverride },
+                        set: { DebugSettings.shared.moduleLanguageOverride = $0 }
+                    )) {
+                        ForEach(DebugSettings.ModuleLanguageOverride.allCases, id: \.self) { option in
+                            Text(option.rawValue).tag(option)
+                        }
+                    } label: {
+                        SettingsRow(
+                            icon: "globe",
+                            title: "Pregnancy/HIV Language",
+                            subtitle: "Current: \(DebugSettings.shared.moduleLanguageOverride.rawValue)",
+                            color: .teal
+                        )
+                    }
+                    
+                    Picker(selection: Binding(
                         get: { DebugSettings.shared.premiumOverride },
                         set: { DebugSettings.shared.premiumOverride = $0 }
                     )) {

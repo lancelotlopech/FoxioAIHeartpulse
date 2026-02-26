@@ -13,7 +13,7 @@ struct HIVAwarenessView: View {
     @State private var showingMethodDetail: HIVTestingMethod?
     @Environment(\.dismiss) private var dismiss
     
-    private let sections = HIVEducationData.sections
+    private let sections = HIVEducationData.localizedSections
     
     var body: some View {
         ZStack {

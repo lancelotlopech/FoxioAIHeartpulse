@@ -176,6 +176,7 @@ struct RemindersView: View {
         case .bloodPressure: return .blue
         case .bloodGlucose: return .purple
         case .medication: return .green
+        case .pregnancyTest: return .pink
         }
     }
 }
@@ -249,6 +250,7 @@ struct ReminderRow: View {
         case .bloodPressure: return .blue
         case .bloodGlucose: return .purple
         case .medication: return .green
+        case .pregnancyTest: return .pink
         }
     }
 }

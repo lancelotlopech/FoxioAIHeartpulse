@@ -11,7 +11,7 @@ struct HIVSymptomsDetailView: View {
     @Environment(\.dismiss) private var dismiss
     
     private var section: HIVSection? {
-        HIVEducationData.sections.first { $0.id == 3 }
+        HIVEducationData.localizedSections.first { $0.id == 3 }
     }
     
     var body: some View {
@@ -55,11 +55,11 @@ struct HIVSymptomsDetailView: View {
                     .foregroundColor(AppColors.primaryRed)
             }
             
-            Text("Symptoms & Signs")
+            Text(hivRawText("Symptoms & Signs"))
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
             
-            Text("Recognize early indicators")
+            Text(hivRawText("Recognize early indicators"))
                 .font(.system(size: 15, weight: .regular, design: .rounded))
                 .foregroundColor(.gray)
         }
@@ -107,12 +107,12 @@ struct HIVSymptomsDetailView: View {
                 Image(systemName: "lightbulb.fill")
                     .font(.system(size: 18))
                     .foregroundColor(.yellow)
-                Text("Key Takeaway")
+                Text(hivRawText("Key Takeaway"))
                     .font(.system(size: 16, weight: .bold, design: .rounded))
                     .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
             }
             
-            Text("Many people with HIV don't show symptoms for years. The only way to know your status is through testing. Early detection leads to better outcomes.")
+            Text(hivRawText("Many people with HIV don't show symptoms for years. The only way to know your status is through testing. Early detection leads to better outcomes."))
                 .font(.system(size: 14, weight: .regular, design: .rounded))
                 .foregroundColor(.gray)
                 .lineSpacing(4)

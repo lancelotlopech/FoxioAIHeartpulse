@@ -11,7 +11,7 @@ struct HIVEducationView: View {
     @Environment(\.dismiss) private var dismiss
     
     private var sections: [HIVSection] {
-        Array(HIVEducationData.sections.prefix(2))
+        Array(HIVEducationData.localizedSections.prefix(2))
     }
     
     var body: some View {
@@ -28,11 +28,11 @@ struct HIVEducationView: View {
                             .foregroundColor(AppColors.primaryRed)
                     }
                     
-                    Text("Understanding HIV")
+                    Text(hivRawText("Understanding HIV"))
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                     
-                    Text("Basics & transmission routes")
+                    Text(hivRawText("Basics & transmission routes"))
                         .font(.system(size: 15, weight: .regular, design: .rounded))
                         .foregroundColor(.gray)
                 }
@@ -92,7 +92,7 @@ struct HIVEducationView: View {
                         
                         // Disclaimer on first section
                         if section.id == 1 {
-                            Text(HIVEducationData.disclaimer)
+                            Text(HIVEducationData.localizedDisclaimer)
                                 .font(.system(size: 11, design: .rounded))
                                 .foregroundColor(.gray)
                                 .lineSpacing(2)

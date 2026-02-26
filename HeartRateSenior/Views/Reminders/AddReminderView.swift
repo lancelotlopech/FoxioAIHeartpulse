@@ -17,6 +17,10 @@ struct AddReminderView: View {
     var editingReminder: Reminder?
     var isEditing: Bool { editingReminder != nil }
     
+    // Defaults for creation (ignored in edit mode)
+    let initialType: ReminderType
+    let initialTitle: String?
+    
     // Form state
     @State private var title: String = ""
     @State private var reminderType: ReminderType = .heartRate
@@ -28,6 +32,16 @@ struct AddReminderView: View {
     @State private var notes: String = ""
     
     @State private var showingDeleteConfirmation = false
+    
+    init(
+        editingReminder: Reminder? = nil,
+        initialType: ReminderType = .heartRate,
+        initialTitle: String? = nil
+    ) {
+        self.editingReminder = editingReminder
+        self.initialType = initialType
+        self.initialTitle = initialTitle
+    }
     
     var body: some View {
         NavigationStack {
@@ -228,12 +242,14 @@ struct AddReminderView: View {
         case .bloodPressure: return .blue
         case .bloodGlucose: return .purple
         case .medication: return .green
+        case .pregnancyTest: return .pink
         }
     }
     
     private func loadExistingReminder() {
         guard let reminder = editingReminder else {
-            title = reminderType.rawValue
+            reminderType = initialType
+            title = initialTitle ?? initialType.rawValue
             return
         }
         

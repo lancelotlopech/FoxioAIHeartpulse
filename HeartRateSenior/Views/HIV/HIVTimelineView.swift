@@ -11,11 +11,11 @@ struct HIVTimelineView: View {
     @Environment(\.dismiss) private var dismiss
     
     private var windowSection: HIVSection? {
-        HIVEducationData.sections.first { $0.id == 5 }
+        HIVEducationData.localizedSections.first { $0.id == 5 }
     }
     
     private var whenToTestSection: HIVSection? {
-        HIVEducationData.sections.first { $0.id == 6 }
+        HIVEducationData.localizedSections.first { $0.id == 6 }
     }
     
     var body: some View {
@@ -32,11 +32,11 @@ struct HIVTimelineView: View {
                             .foregroundColor(AppColors.primaryRed)
                     }
                     
-                    Text("Timeline & Testing")
+                    Text(hivRawText("Timeline & Testing"))
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                     
-                    Text("Window period & when to get tested")
+                    Text(hivRawText("Window period & when to get tested"))
                         .font(.system(size: 15, weight: .regular, design: .rounded))
                         .foregroundColor(.gray)
                 }
@@ -205,12 +205,12 @@ struct HIVTimelineView: View {
                         Image(systemName: "sparkles")
                             .font(.system(size: 18))
                             .foregroundColor(AppColors.primaryRed)
-                        Text("Remember")
+                        Text(hivRawText("Remember"))
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.15))
                     }
                     
-                    Text("With modern treatment, people living with HIV can lead long, healthy lives. Early detection and consistent treatment are key to managing HIV effectively.")
+                    Text(hivRawText("With modern treatment, people living with HIV can lead long, healthy lives. Early detection and consistent treatment are key to managing HIV effectively."))
                         .font(.system(size: 14, weight: .regular, design: .rounded))
                         .foregroundColor(.gray)
                         .lineSpacing(4)

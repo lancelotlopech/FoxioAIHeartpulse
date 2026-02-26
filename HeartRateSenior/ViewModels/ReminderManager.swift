@@ -81,26 +81,29 @@ class ReminderManager: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = reminder.title
         
-        switch reminder.reminderType {
-        case .heartRate:
-            content.body = "Time to measure your heart rate. Tap to start."
-            content.categoryIdentifier = "HEART_RATE_REMINDER"
-        case .bloodPressure:
-            content.body = "Time to record your blood pressure."
-            content.categoryIdentifier = "BLOOD_PRESSURE_REMINDER"
-        case .bloodGlucose:
-            content.body = "Time to check your blood glucose level."
-            content.categoryIdentifier = "BLOOD_GLUCOSE_REMINDER"
-        case .medication:
-            if let medName = reminder.medicationName, let dosage = reminder.medicationDosage {
-                content.body = "Take \(medName) - \(dosage)"
-            } else if let medName = reminder.medicationName {
-                content.body = "Time to take \(medName)"
-            } else {
-                content.body = "Time to take your medication."
-            }
-            content.categoryIdentifier = "MEDICATION_REMINDER"
-        }
+	        switch reminder.reminderType {
+	        case .heartRate:
+	            content.body = "Time to measure your heart rate. Tap to start."
+	            content.categoryIdentifier = "HEART_RATE_REMINDER"
+	        case .bloodPressure:
+	            content.body = "Time to record your blood pressure."
+	            content.categoryIdentifier = "BLOOD_PRESSURE_REMINDER"
+	        case .bloodGlucose:
+	            content.body = "Time to check your blood glucose level."
+	            content.categoryIdentifier = "BLOOD_GLUCOSE_REMINDER"
+	        case .medication:
+	            if let medName = reminder.medicationName, let dosage = reminder.medicationDosage {
+	                content.body = "Take \(medName) - \(dosage)"
+	            } else if let medName = reminder.medicationName {
+	                content.body = "Time to take \(medName)"
+	            } else {
+	                content.body = "Time to take your medication."
+	            }
+	            content.categoryIdentifier = "MEDICATION_REMINDER"
+	        case .pregnancyTest:
+	            content.body = "Time to take a pregnancy test."
+	            content.categoryIdentifier = "PREGNANCY_TEST_REMINDER"
+	        }
         
         if let notes = reminder.notes, !notes.isEmpty {
             content.body += "\n\(notes)"
@@ -270,18 +273,26 @@ class ReminderManager: ObservableObject {
             options: []
         )
         
-        let medicationCategory = UNNotificationCategory(
-            identifier: "MEDICATION_REMINDER",
-            actions: [takenAction, snoozeAction, dismissAction],
-            intentIdentifiers: [],
-            options: []
-        )
+	        let medicationCategory = UNNotificationCategory(
+	            identifier: "MEDICATION_REMINDER",
+	            actions: [takenAction, snoozeAction, dismissAction],
+	            intentIdentifiers: [],
+	            options: []
+	        )
+	        
+	        let pregnancyTestCategory = UNNotificationCategory(
+	            identifier: "PREGNANCY_TEST_REMINDER",
+	            actions: [snoozeAction, dismissAction],
+	            intentIdentifiers: [],
+	            options: []
+	        )
         
-        notificationCenter.setNotificationCategories([
-            heartRateCategory,
-            bloodPressureCategory,
-            bloodGlucoseCategory,
-            medicationCategory
-        ])
-    }
-}
+	        notificationCenter.setNotificationCategories([
+	            heartRateCategory,
+	            bloodPressureCategory,
+	            bloodGlucoseCategory,
+	            medicationCategory,
+	            pregnancyTestCategory
+	        ])
+	    }
+	}
